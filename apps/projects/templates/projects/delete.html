@@ -1,0 +1,33 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+{% include "projects/_header.html" with project=project %}
+<div class="row">
+    <div class="col-xl-10">
+        <div class="card">
+            <div class="card-header pb-4">
+            <h4>Delete project {{ project.name }}?</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                <p>You will lose all data, chatbots, and analysis in this project.</p>
+                <form action="{{ project.delete_url }}" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-danger" value="Yes, delete" />
+                    <a href="{% url 'profile' %}">Don't delete</a>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

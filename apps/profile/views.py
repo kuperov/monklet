@@ -2,10 +2,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from web_project.template_helpers.theme import TemplateHelper
 from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse_lazy
 
 from apps.projects.models import Project
 from .models import Profile
 
+
+def menu():
+    return {
+        'menu': [
+            {'url': '/profile/', 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'Home'},
+            {'url': reverse_lazy('project-new'), 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'New project'},
+            {'menu_header': 'Session'},
+            {'url': '/admin/', 'icon': 'menu-icon tf-icons ri-tools-line', 'name': 'Admin'},
+            {'url': 'asf', 'icon': 'menu-icon tf-icons ri-account-box-line', 'name': 'My account'},
+            {'url': reverse_lazy('account_logout'), 'icon': 'menu-icon tf-icons ri-logout-box-r-line', 'name': 'Log out'},
+        ]
+    }
 
 @login_required
 def profile(request):
@@ -17,11 +30,10 @@ def profile(request):
     projects = Project.objects.filter(owner=request.user, deleted_at=None)
     ctx = {
         "projects": projects,
-        "avatar_url": profile.avatar_url,
+        "menu_data": menu(),
         "date_joined": request.user.date_joined.strftime("%d %b, %Y")
     }
-    ctx['layout_path'] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    print(ctx)
+    #ctx['layout_path'] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "profile/profile.html", ctx)
 
 @login_required
@@ -31,6 +43,7 @@ def profile_edit(request, pk):
         return redirect('profile')
     ctx = {
         'profile': profile,
+        "menu_data": menu(),
         'layout_path': TemplateHelper.set_layout("layout_vertical.html", {})
     }
     return render(request, "profile/profile-edit.html", ctx)

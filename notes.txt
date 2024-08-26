@@ -1,3 +1,18 @@
+## things to fix
+
+  [ ] show member projects, not owned project
+  [ ] sort projects by last updated
+  [ ] project dashboard
+  [ ] intelligently switch between leave and delete project
+  [ ] modal to check delete/leave project
+  [ ] edit project settings
+  [ ] add/edit/remove questions
+  [ ] add/edit/remove chatbot
+
+## context variables for layout
+
+ideally, we want very few of these and no metaprogramming in the page load cycle
+
 {'avatar_url': 'http://www.gravatar.com/avatar/4ed4fc49aaf43ec3968a08fb0c117137', 'date_joined': '23 Aug, 2024', 'layout': 'vertical', 'content_navbar': True, 'is_navbar': True, 'is_menu': True, 'is_footer': True, 'navbar_detached': True, 'header_type_class': '', 'navbar_type_class': 'layout-navbar-hidden', 'menu_collapsed_class': '', 'menu_fixed_class': '', 'footer_fixed_class': '', 'rtl_support_value': '', 'rtl_mode_value': 'ltr', 'text_direction_value': 'ltr', 'show_dropdown_onhover_value': 'false', 'display_customizer_class': 'customizer-hide', 'container_class': 'container-xxl', 'content_layout_class': 'layout-compact', 'navbar_detached_class': 'navbar-detached', 'menu_data': {'menu': [{'url': 'profile', 'icon': 'menu-icon tf-icons ri-home-smile-line', 'name': 'Profile', 'slug': 'profile'}]}, 'layout_path': 'layout/layout_vertical.html'}
 
                     avatar_url : http://www.gravatar.com/avatar/4ed4fc49aaf43ec3968a08fb0c117137

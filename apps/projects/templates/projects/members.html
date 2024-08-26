@@ -1,0 +1,64 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+{% include "projects/_header.html" with project=project %}
+<div class="row">
+    <div class="col-xl-10">
+        <div class="card">
+            <div class="card-header pb-4">
+            <h4>Members of project {{ project.name }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                <p>Members can access all data, chatbots, and analysis in this project.</p>
+                <p>Only members with Monklet subscriptions can make changes to the project.</p>
+                <table>
+                <thead>
+                <tr>
+                <th></th>
+                <th>Member name</th>
+                <th>Email address</th>
+                <th>Role</th>
+                </tr>
+                </thead>
+                {% for member in project.members %}
+                <tr>
+                <td class="avatar avatar-sm">
+                    <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar"/>
+                </td>
+                <td>{{ member.full_name }}</td>
+                <td>{{ member.email }}</td>
+                <td>
+                    {% if member.id == project.owner.id %}
+                    Owner
+                    {% else %}
+                    Collaborator
+                    {% endif %}
+                </td>
+                <td>
+                {% if request.user.id == project.owner.id %}
+                    {% if member.id != project.owner.id %}
+                    Remove
+                    {% endif %}
+                {% elif member.id == request.owner.id %}
+                    <a href="{{ project.leave_url }}">Leave</a>
+                {% endif %}
+                </td>
+                </tr>
+                {% endfor %}
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

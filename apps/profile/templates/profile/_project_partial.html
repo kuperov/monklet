@@ -1,0 +1,47 @@
+{% load static i18n humanize %}
+
+<div class="col-xl-4 col-lg-6 col-md-6">
+    <div class="card project-card">
+        <div class="card-header pb-4">
+        <div class="d-flex align-items-start">
+            <div class="d-flex align-items-center">
+            <div class="avatar icon me-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6.45455 19L2 22.5V4C2 3.44772 2.44772 3 3 3H21C21.5523 3 22 3.44772 22 4V18C22 18.5523 21.5523 19 21 19H6.45455ZM5.76282 17H20V5H4V18.3851L5.76282 17ZM11 10H13V12H11V10ZM7 10H9V12H7V10ZM15 10H17V12H15V10Z"></path></svg>
+            </div>
+            <div class="me-2">
+                <h5 class="mb-0"><a href="{{ project.url }}" class="stretched-link text-body">{{ project.name }}</a></h5>
+                <div class="client-info text-body">Modified {{ project.last_modified_at|naturaltime }}</div>
+            </div>
+            </div>
+            <div class="ms-auto">
+            <div class="dropdown z-2">
+                <button type="button" class="btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" aria-expanded="false"><i class="ri-more-2-line ri-22px text-muted"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                {% if project.owner.id == request.user.id %}
+                <li><a class="dropdown-item" href="{{ project.settings_url }}">Project settings</a></li>
+                <li><a class="dropdown-item text-danger" href="{{ project.delete_url }}">Delete project</a></li>
+                {% else %}
+                <li><a class="dropdown-item text-warning" href="{{ project.leave_url }}">Leave project</a></li>
+                {% endif %}
+                </ul>
+            </div>
+            </div>
+        </div>
+        </div>
+        <div class="card-body">
+        {{ project.description_html | safe }}
+        <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center">
+            <ul class="list-unstyled d-flex align-items-center avatar-group mb-0 z-2">
+                {% for member in project.members.values %}
+                    <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ member.get_full_name }}" class="avatar avatar-sm pull-up">
+                    <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar">
+                    </li>
+                {% endfor %}
+                <li><small class="text-muted">{{ project.members.count }} Members</small></li>
+            </ul>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
