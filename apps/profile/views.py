@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required
 from web_project.template_helpers.theme import TemplateHelper
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse_lazy
+from django.contrib import messages
 
 from apps.projects.models import Project
 from .models import Profile
+from .forms import ProfileForm
 
 
 def menu():
@@ -38,11 +40,19 @@ def profile(request):
 
 @login_required
 def profile_edit(request, pk):
-    profile = Profile.objects.get(pk=pk)
+    profile = get_object_or_404(Profile, pk=pk, user=request.user)
     if profile.user.id != request.user.id and not profile.user.is_superuser:
         return redirect('profile')
+    if request.method == 'POST':
+        form = ProfileForm(request.post)
+        if form.is_valid:
+            form.save()
+            messages.success(request, "Profile updated successfully")
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile)
     ctx = {
-        'profile': profile,
+        'form': form,
         "menu_data": menu(),
         'layout_path': TemplateHelper.set_layout("layout_vertical.html", {})
     }

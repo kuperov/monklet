@@ -1,7 +1,9 @@
 from django import forms
 from .models import Project
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Button, Row, Column, HTML
+from crispy_forms.layout import Submit, Button, HTML
+
+# another possibility: https://stackoverflow.com/a/56719980
 
 def cancel():
     return Button("Cancel", "Cancel", css_class="btn", onclick="javascript:history.back()")

@@ -6,15 +6,6 @@ from django.utils.timezone import now
 
 import markdown
 
-
-class ProjectManager(models.Manager):
-    def create(self, *args, **kwargs):
-        owner = kwargs['owner']
-        if owner not in kwargs['members']:
-            kwargs['members'] = kwargs.get('members', []) + [owner]
-        return super().create(*args, **kwargs)
-
-
 class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=50, null=False, blank=False)
@@ -22,12 +13,18 @@ class Project(models.Model):
     research_aims = models.TextField(null=True, blank=True)
     funding = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(default=now, null=False, editable=False)
-    last_modified_at = models.DateTimeField(default=now, null=False, editable=False)
-    deleted_at = models.DateField(null=True, blank=True, editable=False)
+    last_modified_at = models.DateTimeField(default=now, null=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    members = models.ManyToManyField(User, related_name='project_memberships')
 
-    # TODO: on create, add owner to members
+    @property
+    def member_count(self):
+        return self.members.count() + 1
+
+    def is_member(self, user):
+        if self.owner == user:
+            return True
+        return Membership.objects.filter(project=self, user=user).exists()
 
     def __str__(self):
         return self.name
@@ -71,3 +68,31 @@ class Project(models.Model):
 
     def files_url(self):
         return reverse_lazy('project-files', kwargs={"pk": self.id})
+
+
+MEMBERSHIP_ROLES = [
+    ('owner', 'Owner'),
+    ('viewer', 'Viewer'),
+    ('editor', 'Editor')
+]
+MEMBERSHIP_STATUS = [
+    ('invited', 'Invited'),
+    ('accepted', 'Accepted'),
+    ('declined', 'Declined'),
+    ('removed', 'Removed')
+]
+
+class Membership(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='memberships')
+    role = models.CharField(max_length=6, choices=MEMBERSHIP_ROLES)
+    status = models.CharField(max_length=8, choices=MEMBERSHIP_STATUS)
+    changed_at = models.DateTimeField(null=False, blank=False, default=now)
+    invitation_message = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.get_full_name} on {self.project.name} ({self.status} {self.role})"
+
+    @property
+    def name(self):
+        return self.user.get_full_name()

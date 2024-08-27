@@ -1,6 +1,20 @@
 {% extends 'layout/master_back.html' %}
 
 {% block layout %}
+
+<!-- show toast -->
+{% if messages %}
+<div class="toast-container end-0 m-1 me-4">
+  {% for message in messages %}
+  <div class="toast {% if message.tags == 'success' %}bg-success{% elif message.tags == 'error' %}bg-danger{% else %}bg-warning{% endif %}" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="true" data-bs-delay="2000">
+    <div class="toast-body text-center text-white">
+      {{ message }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 {% block content %}
 {% endblock content %}
 {% endblock layout %}

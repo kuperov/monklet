@@ -10,7 +10,7 @@
             </div>
             <div class="me-2">
                 <h5 class="mb-0"><a href="{{ project.url }}" class="stretched-link text-body">{{ project.name }}</a></h5>
-                <div class="client-info text-body">Modified {{ project.last_modified_at|naturaltime }}</div>
+                <div class="client-info text-body">{{ project.owner }}</div>
             </div>
             </div>
             <div class="ms-auto">
@@ -31,16 +31,17 @@
         <div class="card-body">
         {{ project.description_html | safe }}
         <div class="d-flex align-items-center">
-            <div class="d-flex align-items-center">
-            <ul class="list-unstyled d-flex align-items-center avatar-group mb-0 z-2">
-                {% for member in project.members.values %}
-                    <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ member.get_full_name }}" class="avatar avatar-sm pull-up">
-                    <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar">
-                    </li>
-                {% endfor %}
-                <li><small class="text-muted">{{ project.members.count }} Members</small></li>
-            </ul>
-            </div>
+        <ul class="list-unstyled d-flex align-items-center avatar-group mb-0 z-2">
+            <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ project.owner.get_full_name }}" class="avatar avatar-sm pull-up">
+            <img class="rounded-circle" src="{{ project.owner.avatar_url }}" alt="Avatar">
+            </li>
+            {% for member in project.members.values %}
+                <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ member.get_full_name }}" class="avatar avatar-sm pull-up">
+                <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar">
+                </li>
+            {% endfor %}
+            <li><small class="text-muted">{{ project.member_count }} member{{ project.member_count | pluralize }}</small></li>
+        </ul>
         </div>
         </div>
     </div>

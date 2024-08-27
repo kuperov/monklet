@@ -4,61 +4,98 @@
 
 {% block title %}{{ project.name }}{% endblock %}
 
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+
+{% endblock page_js %}
+
 {% block page_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
 {% endblock page_css %}
 
 {% block content %}
-{% include "projects/_header.html" with project=project %}
-<div class="row">
-    <div class="col-xl-10">
-        <div class="card">
-            <div class="card-header pb-4">
-            <h4>Members of project {{ project.name }}</h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                <p>Members can access all data, chatbots, and analysis in this project.</p>
-                <p>Only members with Monklet subscriptions can make changes to the project.</p>
-                <table>
-                <thead>
-                <tr>
-                <th></th>
-                <th>Member name</th>
-                <th>Email address</th>
-                <th>Role</th>
-                </tr>
-                </thead>
-                {% for member in project.members %}
-                <tr>
-                <td class="avatar avatar-sm">
-                    <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar"/>
-                </td>
-                <td>{{ member.full_name }}</td>
-                <td>{{ member.email }}</td>
-                <td>
-                    {% if member.id == project.owner.id %}
-                    Owner
-                    {% else %}
-                    Collaborator
-                    {% endif %}
-                </td>
-                <td>
-                {% if request.user.id == project.owner.id %}
-                    {% if member.id != project.owner.id %}
-                    Remove
-                    {% endif %}
-                {% elif member.id == request.owner.id %}
-                    <a href="{{ project.leave_url }}">Leave</a>
-                {% endif %}
-                </td>
-                </tr>
-                {% endfor %}
-                </table>
-                </div>
+<div class="card">
+    <div class="card-header">
+        <h5>Project members</h5>
+        <p>Members can access all data, chatbots, and analysis in this project.</p>
+        <p>Only members with Monklet subscriptions can make changes to the project.</p>
+    </div>
+  <div class="card-datatable table-responsive">
+    <table class="datatables-transaction table">
+      <thead class="table-light">
+        <tr class="text-nowrap">
+            <th></th>
+            <th>Member name</th>
+            <th>Email address</th>
+            <th>Role</th>
+            <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+        <td class="avatar avatar-sm">
+            <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar"/>
+        </td>
+        <td>{{ project.owner.get_full_name }}</td>
+        <td><a href="mailto:{{ project.owner.email }}">{{ project.owner.email }}</a></td>
+        <td>
+            <span class="badge rounded-pill bg-label-primary me-1">Owner</span>
+        </td>
+        <td>
+        <div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+            <div class="dropdown-menu">
+            <a class="dropdown-item" href="javascript:void(0);"><i class="ri-forbid-line me-1"></i> No actions available</a>
             </div>
         </div>
-    </div>
+        </td>
+        </tr>
+        {% for member in project.members.all %}
+        <tr>
+        <td class="avatar avatar-sm">
+            <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar"/>
+        </td>
+        <td>{{ member.name }}</td>
+        <td><a href="mailto:{{ member.email }}">{{ member.email }}</a></td>
+        <td>
+            <span class="badge rounded-pill bg-label-secondary me-1">Collaborator</span>
+        </td>
+        <td>
+        <div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+            <div class="dropdown-menu">
+            {% if request.user.id == project.owner.id %}
+                {% if member.id != project.owner.id %}
+                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Remove</a>
+                {% endif %}
+                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Delete</a>
+            {% elif member.id == request.user.id %}
+                <a class="dropdown-item" href="{{ project.leave_url }}"><i class="ri-door-arrow-r-line me-1"></i> Leave</a>
+            {% endif %}
+            </div>
+        </div>
+        </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+
 {% endblock content %}

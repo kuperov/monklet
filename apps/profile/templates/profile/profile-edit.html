@@ -1,6 +1,6 @@
 {% extends 'layout/layout_vertical.html' %}
 
-{% load static i18n humanize %}
+{% load static i18n crispy_forms_tags %}
 
 {% block title %}Projects - {{ user }}{% endblock %}
 
@@ -10,5 +10,5 @@
 {% endblock page_css %}
 
 {% block content %}
-  
+{% crispy form %}
 {% endblock %}

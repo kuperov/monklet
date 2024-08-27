@@ -10,14 +10,12 @@
 {% endblock page_css %}
 
 {% block content %}
-{% if project %}{# don't display for new #}
-{% include "projects/_header.html" with project=project %}
-{% endif %}
 <div class="row">
     <div class="col-xl-10">
         <div class="card">
             <div class="card-header pb-4">
-            <h4>New project</h4>
+            <h4>{{ project.name }}</h4>
+            <h5>Project settings</h5>
             </div>
             <div class="card-body">
             {% crispy form %}
