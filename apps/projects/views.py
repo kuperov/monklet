@@ -1,4 +1,3 @@
-import hashlib
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -25,7 +24,6 @@ def menu(project: Project):
             {'url': project.bots_url(), 'icon': 'menu-icon tf-icons ri-robot-2-line', 'name': 'Bots'},
             {'url': project.invitations_url(), 'icon': 'menu-icon tf-icons ri-mail-send-line', 'name': 'Invitations'},
             {'menu_header': 'Data'},
-            # {'url': project.data_url(), 'icon': 'menu-icon tf-icons ri-database-2-line', 'name': 'Data'},
             {'url': project.responses_url(), 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'Bot sessions'},
             {'url': project.files_url(), 'icon': 'menu-icon tf-icons ri-file-upload-line', 'name': 'Uploaded transcripts'},
             {'menu_header': 'Analysis'},
@@ -45,7 +43,7 @@ def project(request, pk):
         "project": proj,
         "menu_data": menu(proj)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/project.html", ctx)
 
 @login_required
@@ -63,7 +61,7 @@ def project_settings(request, pk):
         "form": form,
         "menu_data": menu(project=project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/detail.html", ctx)
 
 @login_required
@@ -81,7 +79,7 @@ def project_new(request):
         "form": form,
         "menu_data": menu(project=None)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/detail.html", ctx)
 
 @login_required
@@ -96,7 +94,7 @@ def project_delete(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/delete.html", ctx)
 
 @login_required
@@ -114,7 +112,7 @@ def project_leave(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/leave.html", ctx)
 
 
@@ -127,6 +125,7 @@ def project_members(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/members.html", ctx)
 
 @login_required
@@ -138,7 +137,7 @@ def project_data(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/data.html", ctx)
 
 @login_required
@@ -162,7 +161,7 @@ def project_analysis(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/analysis.html", ctx)
 
 
@@ -175,7 +174,7 @@ def project_invitations(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/invitations.html", ctx)
 
 @login_required
@@ -187,7 +186,7 @@ def project_questions(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/questions.html", ctx)
 
 @login_required
@@ -199,5 +198,5 @@ def project_responses(request, pk):
         "project": project,
         "menu_data": menu(project)
     }
-    #ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/responses.html", ctx)

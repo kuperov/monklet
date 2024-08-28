@@ -35,9 +35,10 @@
             <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ project.owner.get_full_name }}" class="avatar avatar-sm pull-up">
             <img class="rounded-circle" src="{{ project.owner.profile.avatar_url }}" alt="Avatar">
             </li>
-            {% for member in project.members.values %}
-                <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ member.get_full_name }}" class="avatar avatar-sm pull-up">
-                <img class="rounded-circle" src="{{ member.user.profile.avatar_url }}" alt="Avatar">
+            {% for member in project.accepted_members.values %}
+                <!-- {{member}} -->
+                <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ member.name }}" class="avatar avatar-sm pull-up">
+                <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar">
                 </li>
             {% endfor %}
             <li><small class="text-muted">{{ project.member_count }} member{{ project.member_count | pluralize }}</small></li>

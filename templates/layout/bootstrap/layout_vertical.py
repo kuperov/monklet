@@ -1,20 +1,6 @@
-from django.conf import settings
-import json
 
 
 from web_project.template_helpers.theme import TemplateHelper
-
-menu_file_path = (
-    settings.BASE_DIR
-    / "templates"
-    / "layout"
-    / "partials"
-    / "menu"
-    / "vertical"
-    / "json"
-    / "vertical_menu.json"
-)
-
 
 class TemplateBootstrapLayoutVertical:
     def init(context):
@@ -26,19 +12,14 @@ class TemplateBootstrapLayoutVertical:
                 "is_menu": True,
                 "is_footer": True,
                 "navbar_detached": True,
+                "navbar_type": "fixed",
+                "theme": "theme-semi-dark",
+                "style": "system",
+                "rtl_support": False
             }
         )
 
         # map_context according to updated context values
         TemplateHelper.map_context(context)
 
-        TemplateBootstrapLayoutVertical.init_menu_data(context)
-
         return context
-
-    def init_menu_data(context):
-        # Load the menu data from the JSON file
-        menu_data = json.load(menu_file_path.open()) if menu_file_path.exists() else []
-
-        # Updated context with menu_data
-        context.update({"menu_data": menu_data})

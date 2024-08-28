@@ -35,7 +35,7 @@ def profile(request):
         "menu_data": menu(),
         "date_joined": request.user.date_joined.strftime("%d %b, %Y")
     }
-    #ctx['layout_path'] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    ctx['layout_path'] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "profile/profile.html", ctx)
 
 @login_required
@@ -54,6 +54,6 @@ def profile_edit(request, pk):
     ctx = {
         'form': form,
         "menu_data": menu(),
-        'layout_path': TemplateHelper.set_layout("layout_vertical.html", {})
     }
+    ctx['layout_path'] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "profile/profile-edit.html", ctx)

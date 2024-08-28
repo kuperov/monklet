@@ -3,6 +3,8 @@ from django.db import models
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.utils.timezone import now
+from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 import markdown
 
@@ -17,9 +19,12 @@ class Project(models.Model):
     deleted_at = models.DateTimeField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def accepted_members(self):
+        return self.members.filter(status='accepted')
+
     @property
     def member_count(self):
-        return self.members.count() + 1
+        return self.accepted_members().count() + 1  # include owner
 
     def is_member(self, user):
         if self.owner == user:
@@ -71,7 +76,6 @@ class Project(models.Model):
 
 
 MEMBERSHIP_ROLES = [
-    ('owner', 'Owner'),
     ('viewer', 'Viewer'),
     ('editor', 'Editor')
 ]
@@ -79,20 +83,40 @@ MEMBERSHIP_STATUS = [
     ('invited', 'Invited'),
     ('accepted', 'Accepted'),
     ('declined', 'Declined'),
-    ('removed', 'Removed')
+    ('removed', 'Removed'),
+    ('withdrawn', 'Withdraw invitation')
 ]
 
 class Membership(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='memberships')
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='memberships')
+    invitation_email = models.CharField(max_length=100, blank=False, null=False)
+    invitation_name = models.CharField(max_length=100, blank=False, null=False)
     role = models.CharField(max_length=6, choices=MEMBERSHIP_ROLES)
-    status = models.CharField(max_length=8, choices=MEMBERSHIP_STATUS)
+    status = models.CharField(max_length=10, choices=MEMBERSHIP_STATUS)
     changed_at = models.DateTimeField(null=False, blank=False, default=now)
     invitation_message = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user.get_full_name} on {self.project.name} ({self.status} {self.role})"
+        return f"{self.name} on {self.project.name} ({self.status} {self.role})"
 
     @property
     def name(self):
-        return self.user.get_full_name()
+        try:
+            return self.user.get_full_name()
+        except ObjectDoesNotExist:
+            return self.invitation_name
+
+    @property
+    def avatar_url(self):
+        try:
+            return self.user.profile.avatar_url
+        except ObjectDoesNotExist:
+            return settings.STATIC_URL + 'img/avatars/generic.svg'
+
+    @property
+    def email(self):
+        try:
+            return self.user.email
+        except ObjectDoesNotExist:
+            return self.invitation_email

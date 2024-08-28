@@ -21,7 +21,6 @@
 
 {% block page_js %}
 {{ block.super }}
-
 {% endblock page_js %}
 
 {% block page_css %}
@@ -34,7 +33,6 @@
     <div class="card-header">
         <h5>Project members</h5>
         <p>Members can access all data, chatbots, and analysis in this project.</p>
-        <p>Only members with Monklet subscriptions can make changes to the project.</p>
     </div>
   <div class="card-datatable table-responsive">
     <table class="datatables-transaction table">
@@ -44,27 +42,22 @@
             <th>Member name</th>
             <th>Email address</th>
             <th>Role</th>
+            <th>Updated</th>
             <th></th>
         </tr>
       </thead>
       <tbody>
         <tr>
         <td class="avatar avatar-sm">
-            <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar"/>
+            <img class="rounded-circle" src="{{ project.owner.profile.avatar_url }}" alt="Avatar"/>
         </td>
         <td>{{ project.owner.get_full_name }}</td>
         <td><a href="mailto:{{ project.owner.email }}">{{ project.owner.email }}</a></td>
         <td>
             <span class="badge rounded-pill bg-label-primary me-1">Owner</span>
         </td>
-        <td>
-        <div class="dropdown">
-            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
-            <div class="dropdown-menu">
-            <a class="dropdown-item" href="javascript:void(0);"><i class="ri-forbid-line me-1"></i> No actions available</a>
-            </div>
-        </div>
-        </td>
+        <td>{# no updated field #}</td>
+        <td>{# no actions for owner #}</td>
         </tr>
         {% for member in project.members.all %}
         <tr>
@@ -74,18 +67,39 @@
         <td>{{ member.name }}</td>
         <td><a href="mailto:{{ member.email }}">{{ member.email }}</a></td>
         <td>
-            <span class="badge rounded-pill bg-label-secondary me-1">Collaborator</span>
+            {% if member.status == 'invited' %}
+            <span class="badge rounded-pill bg-label-warning me-1">Invitation pending</span>
+            {% elif member.status == 'withdrawn' %}
+            <span class="badge rounded-pill bg-label-danger me-1">Invitation withdrawn</span>
+            {% elif member.status == 'declined' %}
+            <span class="badge rounded-pill bg-label-danger me-1">Invitation declined</span>
+            {% elif member.status == 'accepted' %}
+              {% if member.role == 'editor' %}
+              <span class="badge rounded-pill bg-label-success me-1">Editor</span>
+              {% elif member.role == 'viewer' %}
+              <span class="badge rounded-pill bg-label-info me-1">Viewer</span>
+              {% endif %}
+            {% endif %}
         </td>
+        <td>{{ member.changed_at }}</td>
         <td>
         <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
-            {% if request.user.id == project.owner.id %}
-                {% if member.id != project.owner.id %}
+            {% if request.user.id == project.owner.id and member.user.id != project.owner.id %}
+                {# project owner can manage users other than themselves #}
+                {% if member.status == 'accepted' %}
                 <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Remove</a>
+                {% if member.role == 'editor' %}
+                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Demote to viewer</a>
+                {% elif member.role == 'viewer' %}
+                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Promote to editor</a>
                 {% endif %}
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Delete</a>
-            {% elif member.id == request.user.id %}
+                {% elif member.status == 'invited' %}
+                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Withdraw invitation</a>
+                {% endif %}
+            {% elif member.user.id == request.user.id %}
+                {# members can remove themselves #}
                 <a class="dropdown-item" href="{{ project.leave_url }}"><i class="ri-door-arrow-r-line me-1"></i> Leave</a>
             {% endif %}
             </div>
