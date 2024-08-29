@@ -81,28 +81,37 @@
               {% endif %}
             {% endif %}
         </td>
-        <td>{{ member.changed_at }}</td>
+        <td>{{ member.last_modified_at }}</td>
         <td>
         <div class="dropdown">
+          {% if member.status != 'declined' %}
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
             {% if request.user.id == project.owner.id and member.user.id != project.owner.id %}
                 {# project owner can manage users other than themselves #}
                 {% if member.status == 'accepted' %}
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Remove</a>
                 {% if member.role == 'editor' %}
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Demote to viewer</a>
+                <a class="dropdown-item" href="javascript:void(0);">
+                  <i class="ri-arrow-down-line me-1"></i> Demote to viewer</a>
                 {% elif member.role == 'viewer' %}
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Promote to editor</a>
+                <a class="dropdown-item" href="javascript:void(0);">
+                  <i class="ri-arrow-up-line me-1"></i> Promote to editor</a>
                 {% endif %}
+                <a class="dropdown-item" href="javascript:void(0);">
+                  <i class="ri-close-line me-1"></i> Remove</a>
                 {% elif member.status == 'invited' %}
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-6-line me-1"></i> Withdraw invitation</a>
-                {% endif %}
+                <a class="dropdown-item" href="javascript:void(0);">
+                  <i class="ri-mail-close-line me-1"></i> Withdraw invitation</a>
+                <a class="dropdown-item" href="javascript:void(0);">
+                  <i class="ri-mail-send-line me-1"></i> Re-send invitation email</a>
+                  {% endif %}
             {% elif member.user.id == request.user.id %}
                 {# members can remove themselves #}
-                <a class="dropdown-item" href="{{ project.leave_url }}"><i class="ri-door-arrow-r-line me-1"></i> Leave</a>
+                <a class="dropdown-item" href="{{ project.leave_url }}">
+                  <i class="ri-door-arrow-r-line me-1"></i> Leave</a>
             {% endif %}
             </div>
+          {% endif %}
         </div>
         </td>
         </tr>

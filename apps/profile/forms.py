@@ -1,7 +1,7 @@
 from django import forms
 from .models import Profile
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Button, HTML
+from crispy_forms.layout import Submit, Button
 
 class ProfileForm(forms.ModelForm):
     class Meta:

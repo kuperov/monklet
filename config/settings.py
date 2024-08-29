@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "apps.pages",
     "apps.projects",
     "apps.profile",
+    "apps.invitations",
     "crispy_forms",
     "crispy_bootstrap5",
 ]
@@ -203,7 +204,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_PASSWORD_MIN_LENGTH = 8
 
 # https://docs.allauth.org/en/latest/installation/quickstart.html

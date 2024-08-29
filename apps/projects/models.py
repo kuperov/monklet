@@ -88,35 +88,53 @@ MEMBERSHIP_STATUS = [
 ]
 
 class Membership(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['invitation_code',]),
+            models.Index(fields=['project',]),
+            models.Index(fields=['user',]),
+        ]
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='memberships')
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='memberships')
     invitation_email = models.CharField(max_length=100, blank=False, null=False)
     invitation_name = models.CharField(max_length=100, blank=False, null=False)
     role = models.CharField(max_length=6, choices=MEMBERSHIP_ROLES)
     status = models.CharField(max_length=10, choices=MEMBERSHIP_STATUS)
-    changed_at = models.DateTimeField(null=False, blank=False, default=now)
+    last_modified_at = models.DateTimeField(null=False, blank=False, default=now)
     invitation_message = models.TextField(null=True, blank=True)
+    invitation_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
         return f"{self.name} on {self.project.name} ({self.status} {self.role})"
 
     @property
     def name(self):
-        try:
-            return self.user.get_full_name()
-        except ObjectDoesNotExist:
-            return self.invitation_name
+        if self.user:
+            try:
+                return self.user.get_full_name()
+            except ObjectDoesNotExist:
+                pass
+        return self.invitation_name
 
     @property
     def avatar_url(self):
-        try:
-            return self.user.profile.avatar_url
-        except ObjectDoesNotExist:
-            return settings.STATIC_URL + 'img/avatars/generic.svg'
+        if self.user:
+            try:
+                return self.user.profile.avatar_url
+            except ObjectDoesNotExist:
+                pass
+        return settings.STATIC_URL + 'img/avatars/generic.svg'
 
     @property
     def email(self):
-        try:
-            return self.user.email
-        except ObjectDoesNotExist:
-            return self.invitation_email
+        if self.user:
+            try:
+                return self.user.email
+            except ObjectDoesNotExist:
+                pass
+        return self.invitation_email
+
+    @property
+    def invitation_landing_url(self):
+        return reverse_lazy('invitation-landing', kwargs = {'code': self.invitation_code})

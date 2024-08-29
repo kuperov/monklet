@@ -4,6 +4,7 @@ from web_project.template_helpers.theme import TemplateHelper
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 
 from apps.projects.models import Project
 from .models import Profile
@@ -40,12 +41,12 @@ def profile(request):
 
 @login_required
 def profile_edit(request, pk):
-    profile = get_object_or_404(Profile, pk=pk, user=request.user)
-    if profile.user.id != request.user.id and not profile.user.is_superuser:
-        return redirect('profile')
+    profile = get_object_or_404(Profile, pk=pk)
+    if not request.user.is_superuser and profile.user != request.user:
+        return HttpResponseForbidden("You are not authorized to access this page.")
     if request.method == 'POST':
-        form = ProfileForm(request.post)
-        if form.is_valid:
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully")
             return redirect('profile')

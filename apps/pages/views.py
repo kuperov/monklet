@@ -27,7 +27,6 @@ class LandingPageView(PagesView):
         context = super().get_context_data(**kwargs)
 
         if self.request.user.is_authenticated:
-            #context["redirect_url"] = "/console/"
             return redirect(reverse_lazy('profile'))
         return context
 
@@ -43,13 +42,12 @@ def comingsoon(request):
     else:
         form = EnquiryForm()
 
-    return render(
-        request,
-        "comingsoon.html",
-        {"form": form, "layout_path": TemplateHelper.set_layout("layout_blank.html")},
-    )
+    ctx = {"form": form}
+    ctx['layout_path'] = TemplateHelper.set_layout("layout_blank.html")
+    return render(request, "comingsoon.html", ctx)
 
 
 def enquiry_success(request):
-    return render(request, "enquiry_success.html",
-                  {"layout_path": TemplateHelper.set_layout("layout_blank.html")})
+    ctx = {}
+    ctx['layout_path'] = TemplateHelper.set_layout("layout_blank.html")
+    return render(request, "enquiry_success.html", ctx)

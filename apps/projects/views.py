@@ -14,7 +14,7 @@ def menu(project: Project):
     menu = [{'url': '/profile/', 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'Home'}]
     if project:
         menu += [
-            {'menu_header': project.name},
+            {'menu_header': "Current project"},
             {'url': project.url(), 'icon': 'menu-icon tf-icons ri-dashboard-line', 'name': 'Dashboard'},
             {'url': project.settings_url(), 'icon': 'menu-icon tf-icons ri-settings-2-line', 'name': 'Project settings'},
             {'url': project.members_url(), 'icon': 'menu-icon tf-icons ri-group-3-line', 'name': 'Members'},

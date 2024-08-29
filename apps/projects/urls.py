@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    project, project_settings, project_new, project_delete, 
+    project, project_settings, project_new, project_delete,
     project_leave, project_members, project_data, project_analysis,
     project_bots, project_invitations, project_questions,
     project_responses
