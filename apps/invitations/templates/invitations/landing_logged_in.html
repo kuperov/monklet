@@ -3,8 +3,18 @@
 {% load i18n crispy_forms_tags %}
 
 {% block content %}
-<h1>Invitation</h1>
-<p><b>You are logged in as {{ user }}.</b></p>
-<p>Accept invitation?</p>
-{% crispy form %}
+<div class="misc-wrapper">
+  {% if user.is_authenticated %}
+  <h4 class="mb-2 mx-2">Invitation: {{project.name}}</h4>
+  <p class="mb-10 mx-2"><b>You are logged in as {{ user }}.</b></p>
+  <p class="mb-10 mx-2">Accept invitation?</p>
+  {% crispy form %}
+{% else %}
+  <h4 class="mb-2 mx-2">Invitation: {{project.name}}</h4>
+  <p class="mb-10 mx-2">Please create an account to respond to this invitation. Signing up is quick and free.</p>
+  <p class="mb-10 mx-2"><a class='btn btn-primary' href="{% url 'account_signup' %}?next={{ return_url }}">Sign up</a></p>
+  <p class="mb-10 mx-2">Already have an account? Log in below:</p>
+  <p class="mb-10 mx-2"><a class='btn btn-secondary' href="{% url 'account_login' %}?next={{ return_url }}">Log in</a></p>
+{% endif %}
+</div>
 {% endblock content %}

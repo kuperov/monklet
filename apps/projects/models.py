@@ -3,8 +3,6 @@ from django.db import models
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.utils.timezone import now
-from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
 
 import markdown
 
@@ -19,17 +17,24 @@ class Project(models.Model):
     deleted_at = models.DateTimeField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def accepted_members(self):
-        return self.members.filter(status='accepted')
+    def can_view(self, user: User):
+        if user == self.owner:
+            return True
+        return Member.objects.filter(project=self, user=user).exists()
+
+    def can_edit(self, user: User):
+        if user == self.owner:
+            return True
+        return Member.objects.filter(project=self, user=user, role='editor').exists()
 
     @property
     def member_count(self):
-        return self.accepted_members().count() + 1  # include owner
+        return self.members.count() + 1  # include owner
 
     def is_member(self, user):
         if self.owner == user:
             return True
-        return Membership.objects.filter(project=self, user=user).exists()
+        return Member.objects.filter(project=self, user=user).exists()
 
     def __str__(self):
         return self.name
@@ -75,66 +80,38 @@ class Project(models.Model):
         return reverse_lazy('project-files', kwargs={"pk": self.id})
 
 
-MEMBERSHIP_ROLES = [
+MEMBER_ROLES = [
     ('viewer', 'Viewer'),
     ('editor', 'Editor')
 ]
-MEMBERSHIP_STATUS = [
-    ('invited', 'Invited'),
-    ('accepted', 'Accepted'),
-    ('declined', 'Declined'),
-    ('removed', 'Removed'),
-    ('withdrawn', 'Withdraw invitation')
-]
 
-class Membership(models.Model):
+class Member(models.Model):
+    """A member of a project.
+
+    Created when an invitation is accepted, deleted when member is removed or leaves.
+    """
     class Meta:
         indexes = [
-            models.Index(fields=['invitation_code',]),
             models.Index(fields=['project',]),
             models.Index(fields=['user',]),
         ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='memberships')
-    invitation_email = models.CharField(max_length=100, blank=False, null=False)
-    invitation_name = models.CharField(max_length=100, blank=False, null=False)
-    role = models.CharField(max_length=6, choices=MEMBERSHIP_ROLES)
-    status = models.CharField(max_length=10, choices=MEMBERSHIP_STATUS)
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, related_name='projects')
+    role = models.CharField(max_length=6, choices=MEMBER_ROLES)
     last_modified_at = models.DateTimeField(null=False, blank=False, default=now)
-    invitation_message = models.TextField(null=True, blank=True)
-    invitation_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
-        return f"{self.name} on {self.project.name} ({self.status} {self.role})"
+        return f"{self.name} ({self.role} on {self.project.name})"
 
     @property
     def name(self):
-        if self.user:
-            try:
-                return self.user.get_full_name()
-            except ObjectDoesNotExist:
-                pass
-        return self.invitation_name
+        return self.user.get_full_name()
 
     @property
     def avatar_url(self):
-        if self.user:
-            try:
-                return self.user.profile.avatar_url
-            except ObjectDoesNotExist:
-                pass
-        return settings.STATIC_URL + 'img/avatars/generic.svg'
+        return self.user.profile.avatar_url
 
     @property
     def email(self):
-        if self.user:
-            try:
-                return self.user.email
-            except ObjectDoesNotExist:
-                pass
-        return self.invitation_email
-
-    @property
-    def invitation_landing_url(self):
-        return reverse_lazy('invitation-landing', kwargs = {'code': self.invitation_code})
+        return self.user.email

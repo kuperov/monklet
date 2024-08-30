@@ -1,9 +1,5 @@
 from django.contrib import admin
-from .models import Project, Membership
+from .models import Project, Member
 
 admin.site.register(Project)
-
-class MembershipAdmin(admin.ModelAdmin):
-    readonly_fields=('invitation_code','invitation_landing_url')
-
-admin.site.register(Membership, MembershipAdmin)
+admin.site.register(Member)

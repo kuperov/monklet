@@ -28,7 +28,7 @@
         "test",
         "apps"
       ],
-      "django": true
+      "django": false
     }
   ]
 }

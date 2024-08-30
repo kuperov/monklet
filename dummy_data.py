@@ -59,8 +59,9 @@ def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
         django.setup()
-        from apps.projects.models import Project, Membership
         from django.contrib.auth.models import User
+        from apps.projects.models import Project, Member
+        from apps.invitations.models import MemberInvitation
         if User.objects.count() <= max_index + 1:
             for i in range(1 + max_index - User.objects.count()):
                 u = User(**user_data[i])
@@ -74,25 +75,21 @@ def main():
             proj.save()
             for i, m in enumerate(spec['members']):
                 name = f"{user_data[m]['first_name']} {user_data[m]['last_name']}"
-                mship = Membership(
+                mship = Member(
                     project=proj,
                     user=users[m],
-                    invitation_email=user_data[m]['email'],
-                    invitation_name=name,
-                    invitation_message='Please work with us',
-                    role=['editor','viewer'][i % 2],
-                    status='accepted')
+                    role=['editor','viewer'][i % 2]
+                )
                 mship.save()
             for i, m in enumerate(spec['invited']):
                 name = f"{user_data[m]['first_name']} {user_data[m]['last_name']}"
-                mship = Membership(
+                mship = MemberInvitation(
                     project=proj,
-                    user=None,
-                    invitation_email=non_user_data[m]['email'],
-                    invitation_name=name,
-                    invitation_message='Please work with us',
-                    role=['editor','viewer'][i % 2],
-                    status='invited')
+                    email=non_user_data[m]['email'],
+                    name=name,
+                    message='Please work with us',
+                    role=['editor','viewer'][i % 2]
+                )
                 mship.save()
     except ImportError as exc:
         raise ImportError(
