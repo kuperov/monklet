@@ -47,39 +47,47 @@ class Project(models.Model):
         md = markdown.Markdown(extensions=["fenced_code"])
         return md.convert(self.description)
 
+    @property
     def url(self):
         return reverse_lazy('project', kwargs={'pk': self.id})
 
+    @property
     def settings_url(self):
         return reverse_lazy('project-settings', kwargs={'pk': self.id})
 
+    @property
     def delete_url(self):
         return reverse_lazy('project-delete', kwargs={'pk': self.id})
 
+    @property
     def leave_url(self):
         return reverse_lazy('project-leave', kwargs={'pk': self.id})
 
+    @property
     def members_url(self):
         return reverse_lazy('project-members', kwargs={'pk': self.id})
 
-    def data_url(self):
-        return reverse_lazy('project-data', kwargs={"pk": self.id})
-
+    @property
     def analysis_url(self):
         return reverse_lazy('project-analysis', kwargs={"pk": self.id})
 
+    @property
     def questions_url(self):
         return reverse_lazy('project-questions', kwargs={"pk": self.id})
 
+    @property
     def bots_url(self):
         return reverse_lazy('project-bots', kwargs={"pk": self.id})
 
+    @property
     def invitations_url(self):
         return reverse_lazy('project-invitations', kwargs={"pk": self.id})
 
+    @property
     def responses_url(self):
         return reverse_lazy('project-responses', kwargs={"pk": self.id})
 
+    @property
     def files_url(self):
         return reverse_lazy('project-files', kwargs={"pk": self.id})
 

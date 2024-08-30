@@ -34,6 +34,6 @@ def invitation_respond(request, code):
     if request.method == 'POST' and request.POST.get('yes'):
         inv.accept(request.user)
         inv.save()
-        return redirect(inv.project.url())
+        return redirect(inv.project.url)
     else:
         HttpResponseForbidden("User action not permitted.")

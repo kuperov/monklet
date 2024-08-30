@@ -81,7 +81,7 @@ class InvitationTestCase(TestCase):
         self.assertContains(resp, 'Yes, accept', status_code=200)
         accept_action = reverse_lazy('invitation-respond', kwargs={'code': self.invitation.pk})
         resp = self.client.post(accept_action, {'yes': 'Yes, accept'}, follow=False)
-        self.assertRedirects(resp, self.project.url())
+        self.assertRedirects(resp, self.project.url)
         proj = Project.objects.get(pk=self.project.pk)
         self.assertEqual(proj.member_count, 2)
         self.assertTrue(self.project.is_member(recip))

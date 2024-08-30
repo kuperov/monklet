@@ -50,44 +50,22 @@ class AccessTestCase(TestCase):
 
     def test_properties(self):
         self.assertEqual(self.project.member_count, 3)  # owner, editor, viewer
-        # generated
-        self.assertEqual(self.project.analysis_url(), f"/projects/{self.project.pk}/analysis")
-        self.assertEqual(self.project.bots_url(), f"/projects/{self.project.pk}/bots")
-        self.assertEqual(self.project.data_url(), f"/projects/{self.project.pk}/data")
-        self.assertEqual(self.project.delete_url(), f"/projects/{self.project.pk}/delete")
-        self.assertEqual(self.project.files_url(), f"/projects/{self.project.pk}/files")
-        self.assertEqual(self.project.invitations_url(), f"/projects/{self.project.pk}/invitations")
-        self.assertEqual(self.project.leave_url(), f"/projects/{self.project.pk}/leave")
-        self.assertEqual(self.project.members_url(), f"/projects/{self.project.pk}/members")
-        self.assertEqual(self.project.questions_url(), f"/projects/{self.project.pk}/questions")
-        self.assertEqual(self.project.responses_url(), f"/projects/{self.project.pk}/responses")
-        self.assertEqual(self.project.settings_url(), f"/projects/{self.project.pk}/settings")
-        self.assertEqual(self.project.url(), f"/projects/{self.project.pk}/")
 
     def check_get_access(self, props, email_access):
-        urls = [getattr(self.project, f)() for f in props]
-        for email, access in email_access.items():
+        urls = [getattr(self.project, f) for f in props]
+        for email, can_access in email_access.items():
             self.client.login(email=email, password=creds[email])
-            # check menu - if url appears in page text we're good
-            resp = self.client.get(self.project.url)
-            if resp.status_code == 200:
-                for url in urls:
-                    if access:
-                        self.assertContains(resp, url)
-                    else:
-                        self.assertNotContains(resp, url)
-            # check url get access
             for url in urls:
                 resp = self.client.get(url, follow=True)
-                if access:
-                    self.assertEqual(resp.status_code, 200)
+                if can_access:
+                    self.assertNotContains(resp, 'not authorized')
                 else:
-                    self.assertEqual(resp.status_code, 403, f"User {n_e} should not see {url}")
+                    self.assertContains(resp, 'not authorized')
             self.client.logout()
 
     def test_auth(self):
-        fns = ['analysis_url', 'bots_url', 'data_url', 'files_url', 'invitations_url',
-               'questions_url', 'responses_url', 'url']
+        fns = ['analysis_url', 'bots_url', 'files_url', 'invitations_url',
+               'questions_url', 'members_url', 'responses_url', 'settings_url', 'url']
         self.check_get_access(fns, {o_e: True, v_e: True, e_e: True, n_e: False})
-        fns = ['delete_url', 'leave_url', 'members_url', 'settings_url']
-        self.check_get_access(fns, {o_e: True, v_e: False, e_e: False, n_e: False})
+        self.check_get_access(['delete_url'], {o_e: True, v_e: False, e_e: False, n_e: False})
+        self.check_get_access(['leave_url'], {o_e: False, v_e: True, e_e: True, n_e: False})

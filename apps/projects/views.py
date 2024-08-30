@@ -1,11 +1,11 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from web_project.template_helpers.theme import TemplateHelper
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.timezone import now
-from django.http import HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 
 from .models import Project
 from .forms import ProjectForm
@@ -16,19 +16,19 @@ def menu(project: Project):
     if project:
         menu += [
             {'menu_header': "Current project"},
-            {'url': project.url(), 'icon': 'menu-icon tf-icons ri-dashboard-line', 'name': 'Dashboard'},
-            {'url': project.settings_url(), 'icon': 'menu-icon tf-icons ri-settings-2-line', 'name': 'Project settings'},
-            {'url': project.members_url(), 'icon': 'menu-icon tf-icons ri-group-3-line', 'name': 'Members'},
+            {'url': project.url, 'icon': 'menu-icon tf-icons ri-dashboard-line', 'name': 'Dashboard'},
+            {'url': project.settings_url, 'icon': 'menu-icon tf-icons ri-settings-2-line', 'name': 'Project settings'},
+            {'url': project.members_url, 'icon': 'menu-icon tf-icons ri-group-3-line', 'name': 'Members'},
             {'url': '#letters', 'icon': 'menu-icon tf-icons ri-heart-3-line', 'name': 'Consent letters'},
             {'menu_header': 'Design'},
-            {'url': project.questions_url(), 'icon': 'menu-icon tf-icons ri-question-line', 'name': 'Questions'},
-            {'url': project.bots_url(), 'icon': 'menu-icon tf-icons ri-robot-2-line', 'name': 'Bots'},
-            {'url': project.invitations_url(), 'icon': 'menu-icon tf-icons ri-mail-send-line', 'name': 'Invitations'},
+            {'url': project.questions_url, 'icon': 'menu-icon tf-icons ri-question-line', 'name': 'Questions'},
+            {'url': project.bots_url, 'icon': 'menu-icon tf-icons ri-robot-2-line', 'name': 'Bots'},
+            {'url': project.invitations_url, 'icon': 'menu-icon tf-icons ri-mail-send-line', 'name': 'Invitations'},
             {'menu_header': 'Data'},
-            {'url': project.responses_url(), 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'Bot sessions'},
-            {'url': project.files_url(), 'icon': 'menu-icon tf-icons ri-file-upload-line', 'name': 'Uploaded transcripts'},
+            {'url': project.responses_url, 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'Bot sessions'},
+            {'url': project.files_url, 'icon': 'menu-icon tf-icons ri-file-upload-line', 'name': 'Uploaded transcripts'},
             {'menu_header': 'Analysis'},
-            {'url': project.analysis_url(), 'icon': 'menu-icon tf-icons ri-bar-chart-box-line', 'name': 'Analysis'},
+            {'url': project.analysis_url, 'icon': 'menu-icon tf-icons ri-bar-chart-box-line', 'name': 'Analysis'},
     ]
     menu += [{'menu_header': 'Session'},
             {'url': '/admin/', 'icon': 'menu-icon tf-icons ri-tools-line', 'name': 'Site administration'},
@@ -38,9 +38,11 @@ def menu(project: Project):
     return {'menu': menu}
 
 @login_required
-@permission_required('projects.view', raise_exception=True)
+#@permission_required('projects.view', raise_exception=True)
 def project(request, pk):
-    proj = get_object_or_404(Project, pk=pk, owner=request.user)
+    proj = get_object_or_404(Project, pk=pk)
+    if not proj.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
     ctx = {
         "project": proj,
         "menu_data": menu(proj)
@@ -50,7 +52,9 @@ def project(request, pk):
 
 @login_required
 def project_settings(request, pk):
-    project = get_object_or_404(Project, pk=pk, owner=request.user)
+    project = get_object_or_404(Project, pk=pk)
+    if not project.owner == request.user:
+        raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
@@ -86,8 +90,9 @@ def project_new(request):
 
 @login_required
 def project_delete(request, pk):
-    project = get_object_or_404(Project, pk=pk, owner=request.user)
-    # check: does this enforce owner?
+    project = get_object_or_404(Project, pk=pk)
+    if project.owner != request.user:
+        raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
         project.deleted_at = now
         project.save()
@@ -103,8 +108,8 @@ def project_delete(request, pk):
 @login_required
 def project_leave(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise HttpResponseForbidden("User action not permitted.")
+    if not project.can_view(request.user) or project.owner == request.user:
+        raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
         project.members.remove(request.user)
         project.save()
@@ -121,8 +126,8 @@ def project_leave(request, pk):
 @login_required
 def project_members(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        return redirect("profile")
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
     ctx = {
         "project": project,
         "menu_data": menu(project)
@@ -131,22 +136,10 @@ def project_members(request, pk):
     return render(request, "projects/members.html", ctx)
 
 @login_required
-def project_data(request, pk):
-    project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        return redirect("profile")
-    ctx = {
-        "project": project,
-        "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/data.html", ctx)
-
-@login_required
 def project_bots(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        return redirect("profile")
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
     ctx = {
         "project": project,
         "menu_data": menu(project)
@@ -158,7 +151,7 @@ def project_bots(request, pk):
 def project_analysis(request, pk):
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
-        raise HttpResponseForbidden("User action not permitted.")
+        raise PermissionDenied("User action not permitted.")
     ctx = {
         "project": project,
         "menu_data": menu(project)
@@ -170,8 +163,8 @@ def project_analysis(request, pk):
 @login_required
 def project_invitations(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        return redirect("profile")
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
     ctx = {
         "project": project,
         "menu_data": menu(project)
@@ -182,8 +175,8 @@ def project_invitations(request, pk):
 @login_required
 def project_questions(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        return redirect("profile")
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
     ctx = {
         "project": project,
         "menu_data": menu(project)
@@ -194,11 +187,23 @@ def project_questions(request, pk):
 @login_required
 def project_responses(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        return redirect("profile")
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
     ctx = {
         "project": project,
         "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/responses.html", ctx)
+
+@login_required
+def project_files(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    ctx = {
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "projects/files.html", ctx)
