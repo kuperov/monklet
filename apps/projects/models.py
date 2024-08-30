@@ -4,6 +4,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.utils.timezone import now
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 import markdown
 
@@ -19,7 +21,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(default=now, null=False, editable=False)
     last_modified_at = models.DateTimeField(default=now, null=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_projects')
 
     def can_view(self, user: User):
         if user == self.owner:
@@ -109,7 +111,7 @@ class Member(models.Model):
         ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
-    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, related_name='projects')
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, related_name='project_memberships')
     role = models.CharField(max_length=6, choices=MEMBER_ROLES)
     last_modified_at = models.DateTimeField(null=False, blank=False, default=now)
 
@@ -122,7 +124,10 @@ class Member(models.Model):
 
     @property
     def avatar_url(self):
-        return self.user.profile.avatar_url
+        try:
+            return self.user.profile.avatar_url
+        except ObjectDoesNotExist:
+            settings.STATIC_URL + 'img/avatars/generic.svg'
 
     @property
     def email(self):

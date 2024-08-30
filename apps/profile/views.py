@@ -6,7 +6,6 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 
-from apps.projects.models import Project
 from .models import Profile
 from .forms import ProfileForm
 
@@ -30,9 +29,8 @@ def profile(request):
     except ObjectDoesNotExist:
         profile = Profile(user=request.user)
         profile.save()
-    projects = Project.objects.filter(owner=request.user, deleted_at=None)
     ctx = {
-        "projects": projects,
+        "profile": profile,
         "menu_data": menu(),
         "date_joined": request.user.date_joined.strftime("%d %b, %Y")
     }

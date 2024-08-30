@@ -10,46 +10,84 @@
 {% endblock page_css %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <div class="card mb-6">
-      <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-4">
-        <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
-          <img src="{{ user.profile.avatar_url }}" alt="user image" class="d-block h-auto ms-0 ms-sm-5 rounded user-profile-img" />
+<div class="card mb-6">
+  <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-4">
+    <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
+      <img src="{{ profile.avatar_url }}" alt="user image" class="d-block h-auto ms-0 ms-sm-5 rounded user-profile-img" />
+    </div>
+    <div class="flex-grow-1 mt-3 mt-lg-5">
+      <div class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
+        <div class="user-profile-info">
+          <h4 class="mb-2 mt-lg-6">{{ user.get_full_name }}</h4>
+          <ul class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4">
+            {% if profile.institution %}
+            <li class="list-inline-item">
+              <i class='ri-school-line me-2 ri-24px'></i><span class="fw-medium">{{ profile.institution }}</span>
+            </li>
+            {% endif %}
+            {% if profile.location %}
+            <li class="list-inline-item">
+              <i class='ri-map-pin-line me-2 ri-24px'></i> <span class="fw-medium">{{ profile.location }}</span>
+            </li>
+            {% endif %}
+            <li class="list-inline-item">
+              <i class='ri-calendar-line me-2 ri-24px'></i> <span class="fw-medium">Joined {{ date_joined }}</span>
+            </li>
+          </ul>
         </div>
-        <div class="flex-grow-1 mt-3 mt-lg-5">
-          <div class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
-            <div class="user-profile-info">
-              <h4 class="mb-2 mt-lg-6">{{ user.get_full_name }}</h4>
-              <ul class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4">
-                {% if user.profile.institution %}
-                <li class="list-inline-item">
-                  <i class='ri-school-line me-2 ri-24px'></i><span class="fw-medium">{{ user.profile.institution }}</span>
-                </li>
-                {% endif %}
-                {% if user.profile.location %}
-                <li class="list-inline-item">
-                  <i class='ri-map-pin-line me-2 ri-24px'></i> <span class="fw-medium">{{ user.profile.location }}</span>
-                </li>
-                {% endif %}
-                <li class="list-inline-item">
-                  <i class='ri-calendar-line me-2 ri-24px'></i> <span class="fw-medium">Joined {{ date_joined }}</span>
-                </li>
-              </ul>
-            </div>
-            <a href="{{ user.profile.edit_url }}" class="btn">
-              <i class='ri-edit-line ri-16px me-1_5'></i>Edit
-            </a>
-          </div>
-        </div>
+        <a href="{{ profile.edit_url }}" class="btn">
+          <i class='ri-edit-line ri-16px me-1_5'></i>Edit
+        </a>
       </div>
     </div>
   </div>
 </div>
 
-<div class="row g-6">
-  {% for project in projects %}
-  {% include 'profile/_project_partial.html' with project=project %}
-  {% endfor %}
+<div class="card">
+  <h5 class="card-header">My projects</h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Owner</th>
+          <th>Updated</th>
+          <th>Members</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        {% for proj in profile.all_projects %}
+        <tr>
+          <td><a href="{{proj.url}}">{{ proj.name }}</a></td>
+          <td>{{ proj.owner_name }}</td>
+          <td>{{ proj.last_modified_at | naturaltime }}</td>
+          <td>
+            <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
+              {% for member in proj.members %}
+                <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" title="{{ member.name }}" class="avatar avatar-sm pull-up">
+                <img class="rounded-circle" src="{{ member.avatar_url }}">
+                </li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            <div class="dropdown">
+              <button type="button" class="btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" aria-expanded="false"><i class="ri-more-2-line ri-22px text-muted"></i></button>
+              <ul class="dropdown-menu dropdown-menu-end">
+              {% if proj.owner.id == request.user.id %}
+              <li><a class="dropdown-item" href="{{ proj.settings_url }}">Project settings</a></li>
+              <li><a class="dropdown-item text-danger" href="{{ proj.delete_url }}">Delete project</a></li>
+              {% else %}
+              <li><a class="dropdown-item text-warning" href="{{ proj.leave_url }}">Leave project</a></li>
+              {% endif %}
+              </ul>
+          </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
