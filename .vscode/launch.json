@@ -17,6 +17,18 @@
         "0.0.0.0:8765"
       ],
       "django": true
+    },
+    {
+      "name": "Debug tests",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/manage.py",
+      "console": "integratedTerminal",
+      "args": [
+        "test",
+        "apps"
+      ],
+      "django": true
     }
   ]
 }
