@@ -8,6 +8,7 @@ Django==5.1
 django-allauth==64.1.0
 django-anymail==11.1
 django-crispy-forms==2.3
+django-extensions==3.2.3
 gunicorn==22.0.0
 idna==3.8
 Markdown==3.7

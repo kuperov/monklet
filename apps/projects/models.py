@@ -1,12 +1,16 @@
 import uuid
 from django.db import models
 from django.urls import reverse_lazy
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from django.utils.timezone import now
 
 import markdown
 
 class Project(models.Model):
+    class Meta:
+        permissions = (("can_delete_own", "Can delete own project"),)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(null=True, blank=True)

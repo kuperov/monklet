@@ -1,10 +1,11 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from web_project.template_helpers.theme import TemplateHelper
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.timezone import now
+from django.http import HttpResponseForbidden
 
 from .models import Project
 from .forms import ProjectForm
@@ -37,6 +38,7 @@ def menu(project: Project):
     return {'menu': menu}
 
 @login_required
+@permission_required('projects.view', raise_exception=True)
 def project(request, pk):
     proj = get_object_or_404(Project, pk=pk, owner=request.user)
     ctx = {
@@ -85,6 +87,7 @@ def project_new(request):
 @login_required
 def project_delete(request, pk):
     project = get_object_or_404(Project, pk=pk, owner=request.user)
+    # check: does this enforce owner?
     if request.method == "POST":
         project.deleted_at = now
         project.save()
@@ -100,9 +103,8 @@ def project_delete(request, pk):
 @login_required
 def project_leave(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        messages.error(request, f"You are not a member of {project.name}.")
-        return redirect("profile")
+    if not project.can_view(request.user):
+        raise HttpResponseForbidden("User action not permitted.")
     if request.method == "POST":
         project.members.remove(request.user)
         project.save()
@@ -155,8 +157,8 @@ def project_bots(request, pk):
 @login_required
 def project_analysis(request, pk):
     project = get_object_or_404(Project, pk=pk)
-    if not project.is_member(request.user):
-        return redirect("profile")
+    if not project.can_view(request.user):
+        raise HttpResponseForbidden("User action not permitted.")
     ctx = {
         "project": project,
         "menu_data": menu(project)

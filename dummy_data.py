@@ -59,7 +59,8 @@ def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
         django.setup()
-        from django.contrib.auth.models import User
+        from django.contrib.auth import get_user_model
+User = get_user_model()
         from apps.projects.models import Project, Member
         from apps.invitations.models import MemberInvitation
         if User.objects.count() <= max_index + 1:

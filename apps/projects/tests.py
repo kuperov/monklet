@@ -1,13 +1,15 @@
 
 from django.test import TestCase
 from apps.projects.models import Project, Member
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 o_e, o_pw, o_n = 'a@b.com', 'super secret', ['John', 'Green'] # owner
 v_e, v_pw, v_n = 'b@b.com', 'secret', ['Bob', 'Black']  # viewer
 e_e, e_pw, e_n = 'c@b.com', 'secret', ['Alex', 'White']  # editor
-i_e, i_pw = 'd@b.com', 'secret'  # invited
 n_e, n_pw = 'e@b.com', 'secret'  # no access
+
+creds = {o_e: o_pw, v_e: v_pw, e_e: e_pw, n_e: n_pw}
 
 class AccessTestCase(TestCase):
 
@@ -61,3 +63,31 @@ class AccessTestCase(TestCase):
         self.assertEqual(self.project.responses_url(), f"/projects/{self.project.pk}/responses")
         self.assertEqual(self.project.settings_url(), f"/projects/{self.project.pk}/settings")
         self.assertEqual(self.project.url(), f"/projects/{self.project.pk}/")
+
+    def check_get_access(self, props, email_access):
+        urls = [getattr(self.project, f)() for f in props]
+        for email, access in email_access.items():
+            self.client.login(email=email, password=creds[email])
+            # check menu - if url appears in page text we're good
+            resp = self.client.get(self.project.url)
+            if resp.status_code == 200:
+                for url in urls:
+                    if access:
+                        self.assertContains(resp, url)
+                    else:
+                        self.assertNotContains(resp, url)
+            # check url get access
+            for url in urls:
+                resp = self.client.get(url, follow=True)
+                if access:
+                    self.assertEqual(resp.status_code, 200)
+                else:
+                    self.assertEqual(resp.status_code, 403, f"User {n_e} should not see {url}")
+            self.client.logout()
+
+    def test_auth(self):
+        fns = ['analysis_url', 'bots_url', 'data_url', 'files_url', 'invitations_url',
+               'questions_url', 'responses_url', 'url']
+        self.check_get_access(fns, {o_e: True, v_e: True, e_e: True, n_e: False})
+        fns = ['delete_url', 'leave_url', 'members_url', 'settings_url']
+        self.check_get_access(fns, {o_e: True, v_e: False, e_e: False, n_e: False})

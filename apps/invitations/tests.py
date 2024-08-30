@@ -1,7 +1,8 @@
 
 from django.core import mail
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from apps.projects.models import Project, Member
 from django.urls import reverse_lazy
 from django.utils.timezone import now
