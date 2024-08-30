@@ -9,19 +9,22 @@ from django.core import mail
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-from apps.projects.models import Project, Member
+from apps.projects.models import Project, Member, MEMBER_ROLES
 
 class MemberInvitation(models.Model):
     """An email sent to a potential collaborator. One-to-many with Member.
 
     Links expire after `expires_at`, which is updated to `now()` if revoked.
     """
+    class Meta:
+        ordering = ['-created_at']
+
     def default_expiry():
         return now() + datetime.timedelta(days=settings.INVITATION_EXPIRY_DAYS)
 
     code = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, unique=True)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=False, null=False)
-    role = models.CharField(max_length=6, blank=False, null=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=False, null=False, related_name='member_invitations')
+    role = models.CharField(max_length=6, blank=False, null=False, choices=MEMBER_ROLES)
     email = models.CharField(max_length=100, blank=False, null=False)
     name = models.CharField(max_length=100, blank=False, null=False)
     message = models.TextField(blank=True, null=True)
@@ -36,7 +39,7 @@ class MemberInvitation(models.Model):
     def landing_url(self):
         return reverse_lazy('invitation-landing', kwargs = {'code': self.pk})
 
-    def accept(self, user: User) -> Member:
+    def accept(self, user) -> Member:
         """Accept the invitation and marks it expired so it can't be used again."""
         self.accepted_email = user.email
         self.expire()  # saves

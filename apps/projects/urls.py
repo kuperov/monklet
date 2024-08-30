@@ -3,7 +3,7 @@ from .views import (
     project, project_settings, project_new, project_delete,
     project_leave, project_members, project_files, project_analysis,
     project_bots, project_invitations, project_questions,
-    project_responses
+    project_responses, project_invite
 )
 
 
@@ -20,4 +20,5 @@ urlpatterns = [
     path("<str:pk>/questions", project_questions, name="project-questions"),
     path("<str:pk>/responses", project_responses, name="project-responses"),
     path("<str:pk>/files", project_files, name="project-files"),
+    path("<str:pk>/invite", project_invite, name="project-invite"),
 ]

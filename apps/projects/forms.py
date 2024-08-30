@@ -1,7 +1,9 @@
 from django import forms
-from .models import Project
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Button, HTML
+from crispy_forms.layout import Submit, Button
+
+from .models import Project
+from apps.invitations.models import MemberInvitation
 
 # another possibility: https://stackoverflow.com/a/56719980
 
@@ -19,6 +21,17 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(cancel())
         self.helper.add_input(save())
-        # calling view should set helper.form_action
+        self.helper.add_input(cancel())
+
+
+class MemberInvitationForm(forms.ModelForm):
+    class Meta:
+        model = MemberInvitation
+        fields = ["name", "email", "role"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(save())
+        self.helper.add_input(cancel())

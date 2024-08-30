@@ -14,7 +14,7 @@ from .forms import ProfileForm
 def menu():
     return {
         'menu': [
-            {'url': '/profile/', 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'Home'},
+            {'url': '/profile/', 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'My projects'},
             {'url': reverse_lazy('project-new'), 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'New project'},
             {'menu_header': 'Session'},
             {'url': '/admin/', 'icon': 'menu-icon tf-icons ri-tools-line', 'name': 'Admin'},

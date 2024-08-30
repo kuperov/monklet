@@ -12,7 +12,6 @@
     <div class="{{container_class}}">
 {% endif %}
 
-      <!--  Brand demo (display only for navbar-full and hide on below xl) -->
       {% if navbar_full %}
       <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-4">
         <a href="{% url 'index' %}" class="app-brand-link gap-2">
@@ -30,7 +29,6 @@
       </div>
       {% endif %}
 
-      <!-- ! Not required for layout-without-menu -->
       {% if not navbar_hide_toggle %}
       <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 {{ menu_horizontal|yesno:'d-xl-none,' }} {{ content_navbar|yesno:'d-xl-none,' }}">
         <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
@@ -40,6 +38,10 @@
       {% endif %}
 
       <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+
+        {% if project %}
+        <h4 class="mt-3">{{ project.name }}</h4>
+        {% endif %}
 
         <!-- Style Switcher -->
         <div class="navbar-nav align-items-center">

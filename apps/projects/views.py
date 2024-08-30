@@ -8,7 +8,7 @@ from django.utils.timezone import now
 from django.core.exceptions import PermissionDenied
 
 from .models import Project
-from .forms import ProjectForm
+from .forms import ProjectForm, MemberInvitationForm
 
 
 def menu(project: Project):
@@ -65,10 +65,11 @@ def project_settings(request, pk):
         form = ProjectForm(instance=project)
     ctx = {
         "form": form,
+        "project": project,
         "menu_data": menu(project=project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/detail.html", ctx)
+    return render(request, "projects/settings.html", ctx)
 
 @login_required
 def project_new(request):
@@ -207,3 +208,26 @@ def project_files(request, pk):
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "projects/files.html", ctx)
+
+@login_required
+def project_invite(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    if request.method == "POST":
+        form = MemberInvitationForm(request.POST)
+        if form.is_valid():
+            inv = form.save(commit=False)
+            inv.project = project
+            inv.send_email()  # saves
+            messages.success(request, "Invitation sent")
+            return redirect(project.members_url)
+    else:
+        form = MemberInvitationForm()
+    ctx = {
+        "form": form,
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "projects/invite_member.html", ctx)

@@ -29,95 +29,155 @@
 {% endblock page_css %}
 
 {% block content %}
+<p class="mb-10">
+  To add new members, <a href="{% url 'project-invite' pk=project.pk %}">send a new invitation</a>.
+</p>
+
 <div class="card">
-    <div class="card-header">
-        <h5>Project members</h5>
-        <p>Members can access all data, chatbots, and analysis in this project.</p>
+  <div class="card-header px-0 pt-0">
+    <div class="nav-align-top">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#members-tab" aria-controls="members-tab" aria-selected="true">
+            Members
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#invitations-tab" aria-controls="invitations-tab" aria-selected="false">
+            Invitations
+          </button>
+        </li>
+      </ul>
     </div>
-  <div class="card-datatable table-responsive">
-    <table class="datatables-transaction table">
-      <thead class="table-light">
-        <tr class="text-nowrap">
-            <th></th>
-            <th>Member name</th>
-            <th>Email address</th>
-            <th>Role</th>
-            <th>Updated</th>
-            <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-        <td class="avatar avatar-sm">
-            <img class="rounded-circle" src="{{ project.owner.profile.avatar_url }}" alt="Avatar"/>
-        </td>
-        <td>{{ project.owner.get_full_name }}</td>
-        <td><a href="mailto:{{ project.owner.email }}">{{ project.owner.email }}</a></td>
-        <td>
-            <span class="badge rounded-pill bg-label-primary me-1">Owner</span>
-        </td>
-        <td>{# no updated field #}</td>
-        <td>{# no actions for owner #}</td>
-        </tr>
-        {% for member in project.members.all %}
-        <tr>
-        <td class="avatar avatar-sm">
-            <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar"/>
-        </td>
-        <td>{{ member.name }}</td>
-        <td><a href="mailto:{{ member.email }}">{{ member.email }}</a></td>
-        <td>
-            {% if member.status == 'invited' %}
-            <span class="badge rounded-pill bg-label-warning me-1">Invitation pending</span>
-            {% elif member.status == 'withdrawn' %}
-            <span class="badge rounded-pill bg-label-danger me-1">Invitation withdrawn</span>
-            {% elif member.status == 'declined' %}
-            <span class="badge rounded-pill bg-label-danger me-1">Invitation declined</span>
-            {% elif member.status == 'accepted' %}
-              {% if member.role == 'editor' %}
+  </div>
+    <div class="tab-content p-0">
+      <div class="tab-pane fade show active table-responsive card-datatable" id="members-tab" role="tabpanel">
+          <table class="datatables-transaction table">
+            <thead class="table-light">
+              <tr class="text-nowrap">
+                  <th></th>
+                  <th>Member name</th>
+                  <th>Email address</th>
+                  <th>Role</th>
+                  <th>Updated</th>
+                  <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+              <td>
+                <div class="avatar avatar-sm">
+                  <img class="rounded-circle" src="{{ project.owner.profile.avatar_url }}" alt="Avatar"/>
+                </div>
+              </td>
+              <td>{{ project.owner.get_full_name }}</td>
+              <td><a href="mailto:{{ project.owner.email }}">{{ project.owner.email }}</a></td>
+              <td>
+                  <span class="badge rounded-pill bg-label-primary me-1">Owner</span>
+              </td>
+              <td>{# no updated field #}</td>
+              <td>{# no actions for owner #}</td>
+              </tr>
+              {% for member in project.members.all %}
+              <tr>
+              <td>
+                <div class="avatar avatar-sm">
+                  <img class="rounded-circle" src="{{ member.avatar_url }}" alt="Avatar"/>
+                </div>
+              </td>
+              <td>{{ member.name }}</td>
+              <td><a href="mailto:{{ member.email }}">{{ member.email }}</a></td>
+              <td>
+                {% if member.role == 'editor' %}
+                <span class="badge rounded-pill bg-label-success me-1">Editor</span>
+                {% else %}
+                <span class="badge rounded-pill bg-label-info me-1">Viewer</span>
+                {% endif %}
+              </td>
+              <td>{{ member.last_modified_at }}</td>
+              <td>
+              <div class="dropdown">
+                {% if member.status != 'declined' %}
+                  <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+                  <div class="dropdown-menu">
+                  {% if request.user == project.owner %}
+                      {# project owner can manage users #}
+                      {% if member.role == 'editor' %}
+                      <a class="dropdown-item" href="javascript:void(0);">
+                        <i class="ri-arrow-down-line me-1"></i> Demote to viewer</a>
+                      {% elif member.role == 'viewer' %}
+                      <a class="dropdown-item" href="javascript:void(0);">
+                        <i class="ri-arrow-up-line me-1"></i> Promote to editor</a>
+                      {% endif %}
+                      <a class="dropdown-item" href="javascript:void(0);">
+                        <i class="ri-close-line me-1"></i> Remove</a>
+                  {% elif member.user.id == request.user.id %}
+                      {# members can remove themselves #}
+                      <a class="dropdown-item" href="javascript:void(0);">
+                        <i class="ri-door-arrow-r-line me-1"></i> Leave</a>
+                  {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+      </div>
+      <div class="tab-pane fade show table-responsive card-datatable" id="invitations-tab" role="tabpanel">
+      <table class="datatables-transaction table">
+          <thead class="table-light">
+            <tr class="text-nowrap">
+                <th>Recipient</th>
+                <th>Email address</th>
+                <th>Invitation expiry</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if not project.member_invitations.exists %}
+            <tr>
+              <td colspan='6'>
+                <p>No invitations</p>
+              </td>
+            </tr>
+            {% endif %}
+            {% for inv in project.member_invitations.all %}
+            <tr>
+            <td>{{ inv.name }}</td>
+            <td><a href="mailto:{{ inv.email }}">{{ inv.email }}</a></td>
+            <td>{{ inv.expires_at }}</td>
+            <td>
+              {% if inv.role == 'editor' %}
               <span class="badge rounded-pill bg-label-success me-1">Editor</span>
-              {% elif member.role == 'viewer' %}
+              {% else %}
               <span class="badge rounded-pill bg-label-info me-1">Viewer</span>
               {% endif %}
-            {% endif %}
-        </td>
-        <td>{{ member.last_modified_at }}</td>
-        <td>
-        <div class="dropdown">
-          {% if member.status != 'declined' %}
-            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
-            <div class="dropdown-menu">
-            {% if request.user.id == project.owner.id and member.user.id != project.owner.id %}
-                {# project owner can manage users other than themselves #}
-                {% if member.status == 'accepted' %}
-                {% if member.role == 'editor' %}
-                <a class="dropdown-item" href="javascript:void(0);">
-                  <i class="ri-arrow-down-line me-1"></i> Demote to viewer</a>
-                {% elif member.role == 'viewer' %}
-                <a class="dropdown-item" href="javascript:void(0);">
-                  <i class="ri-arrow-up-line me-1"></i> Promote to editor</a>
-                {% endif %}
-                <a class="dropdown-item" href="javascript:void(0);">
-                  <i class="ri-close-line me-1"></i> Remove</a>
-                {% elif member.status == 'invited' %}
-                <a class="dropdown-item" href="javascript:void(0);">
-                  <i class="ri-mail-close-line me-1"></i> Withdraw invitation</a>
-                <a class="dropdown-item" href="javascript:void(0);">
-                  <i class="ri-mail-send-line me-1"></i> Re-send invitation email</a>
+            </td>
+            <td>{{ inv.status }}
+            <td>
+            <div class="dropdown">
+              {% if request.user == project.owner %}
+                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+                <div class="dropdown-menu">
+                  {% if inv.is_valid %}
+                  <a class="dropdown-item" href="javascript:void(0);">
+                    <i class="ri-close-line me-1"></i> Cancel</a>
                   {% endif %}
-            {% elif member.user.id == request.user.id %}
-                {# members can remove themselves #}
-                <a class="dropdown-item" href="{{ project.leave_url }}">
-                  <i class="ri-door-arrow-r-line me-1"></i> Leave</a>
-            {% endif %}
+                  <a class="dropdown-item" href="javascript:void(0);">
+                    <i class="ri-mail-send-line me-1"></i> Re-send</a>
+                </div>
+              {% endif %}
             </div>
-          {% endif %}
-        </div>
-        </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
   </div>
 </div>
 
