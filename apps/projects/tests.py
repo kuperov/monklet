@@ -58,6 +58,8 @@ class AccessTestCase(TestCase):
             for url in urls:
                 resp = self.client.get(url, follow=True)
                 if can_access:
+                    if 'not authorized' in resp.content.decode('utf-8'):
+                        breakpoint()
                     self.assertNotContains(resp, 'not authorized')
                 else:
                     self.assertContains(resp, 'not authorized')
@@ -65,7 +67,8 @@ class AccessTestCase(TestCase):
 
     def test_auth(self):
         fns = ['analysis_url', 'bots_url', 'files_url', 'invitations_url',
-               'questions_url', 'members_url', 'responses_url', 'settings_url', 'url']
+               'questions_url', 'members_url', 'responses_url', 'url']
         self.check_get_access(fns, {o_e: True, v_e: True, e_e: True, n_e: False})
+        self.check_get_access(['settings_url'], {o_e: True, v_e: False, e_e: False, n_e: False})
         self.check_get_access(['delete_url'], {o_e: True, v_e: False, e_e: False, n_e: False})
         self.check_get_access(['leave_url'], {o_e: False, v_e: True, e_e: True, n_e: False})

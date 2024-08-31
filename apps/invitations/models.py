@@ -8,6 +8,8 @@ from django.conf import settings
 from django.core import mail
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from apps.projects.models import Project, Member, MEMBER_ROLES
 
@@ -75,31 +77,35 @@ class MemberInvitation(models.Model):
         else:
             return 'Invalid'
 
-    def send_email(self) -> int:
-        """Send invitation email. Side effect: updates sent_at and saves model object."""
-        subj = f"Collaborate on {self.project.name}"
-        from django.template.loader import render_to_string
-        from django.utils.html import strip_tags
+    def send_email(self, request) -> int:
+        """Render and send invitation email.
+
+        Side effect: updates and saves model object.
+        The request is required to obtain a complete landing
+        URL, which is different per environment.
+        """
         ctx = {
             'name': self.name,
             'project_name': self.project.name,
-            'landing_url': self.landing_url
+            'landing_url': request.build_absolute_uri(self.landing_url)
         }
-        html = render_to_string('invitations/member_email.html', ctx)
-        plain = strip_tags(html)
+        self.message = render_to_string('invitations/member_email.html', ctx)
+        plain = strip_tags(self.message)
+        self.subject = f"Collaborate on {self.project.name}"
         result = mail.send_mail(
-            subject=subj,
+            subject=self.subject,
             message=plain,
             from_email=settings.EMAIL_SENDER,
             recipient_list=[self.email],
-            html_message=html
+            html_message=self.message,
+            fail_silently=True
         )
-        self.sent_at = now()
-        self.message = html
+        if result:
+            self.sent_at = now()
         self.save()
         return result
 
-    def resend_email(self):
+    def resend_email(self, request) -> int:
         """Resend invitation by expiring this one and issuing another."""
         inv = MemberInvitation.objects.create(
             project=self.project,

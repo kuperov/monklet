@@ -7,11 +7,17 @@ from apps.projects.models import Project, Member
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from datetime import timedelta
+from django.conf import settings
 
 from apps.invitations.models import MemberInvitation
 
 o_e, o_pw, o_n = 'a@b.com', 'super secret', ['John', 'Green'] # owner
 r_e, r_pw = 'r@s.com', 'very secret'  # recipient
+
+
+class ReqMock:
+    def build_absolute_uri(self, uri):
+        return settings.BASE_URL+uri
 
 
 class InvitationModelTestCase(TestCase):
@@ -28,7 +34,7 @@ class InvitationModelTestCase(TestCase):
         default = MemberInvitation.objects.create(project=self.project, email=r_e, role='editor')
         self.assertEqual(default.status, 'Not sent')
         self.assertFalse(default.is_valid)
-        default.send_email()
+        default.send_email(ReqMock())
         self.assertEqual(default.status, 'Valid')
         self.assertTrue(default.is_valid)
         self.assertFalse(default.is_expired)
@@ -93,10 +99,9 @@ class InvitationTestCase(TestCase):
 
     def test_email_sending(self):
         mail.outbox.clear()
-        self.invitation.send_email()
+        req_mock = ReqMock()
+        self.invitation.send_email(req_mock)
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual('Collaborate on Foo', msg.subject)
-        self.assertTrue(self.project)
-
-    # test resend email
+        self.assertTrue(f'{settings.BASE_URL}{self.invitation.landing_url}' in msg.body)
