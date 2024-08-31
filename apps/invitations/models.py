@@ -87,6 +87,7 @@ class MemberInvitation(models.Model):
         ctx = {
             'name': self.name,
             'project_name': self.project.name,
+            'expiry_days': settings.INVITATION_EXPIRY_DAYS,
             'landing_url': request.build_absolute_uri(self.landing_url)
         }
         self.message = render_to_string('invitations/member_email.html', ctx)
@@ -96,7 +97,7 @@ class MemberInvitation(models.Model):
             subject=self.subject,
             message=plain,
             from_email=settings.EMAIL_SENDER,
-            recipient_list=[self.email],
+            recipient_list=[f"{self.name} <{self.email}>"],
             html_message=self.message,
             fail_silently=True
         )

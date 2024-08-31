@@ -219,7 +219,7 @@ def project_invite(request, pk):
         if form.is_valid():
             inv = form.save(commit=False)
             inv.project = project
-            inv.send_email()  # saves
+            inv.send_email(request)  # saves
             messages.success(request, "Invitation sent")
             return redirect(project.members_url)
     else:

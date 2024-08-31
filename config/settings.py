@@ -227,7 +227,7 @@ if DEBUG:
     EMAIL_HOST = "localhost"
     # https://docs.djangoproject.com/en/dev/ref/settings/#email-port
     EMAIL_PORT = 1025
-    EMAIL_SENDER = 'noreply@localhost'
+    EMAIL_SENDER = 'support@monklet.com'
 else:
     # Use mailgun in prod via Anymail
     # https://anymail.readthedocs.io/en/stable/installation/#installing-anymail
@@ -243,6 +243,6 @@ else:
             "MAILGUN_API_URL", default="https://api.mailgun.net/v3"
         ),
     }
-    EMAIL_SENDER = 'noreply@monklet.com'
+    EMAIL_SENDER = 'support@monklet.com'
 
-INVITATION_EXPIRY_DAYS = 7.
+INVITATION_EXPIRY_DAYS = 7

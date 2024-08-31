@@ -2,11 +2,12 @@
 
 {% block content %}
 <p>Dear {{name}}</p>
-<p>You have been invited to collaborate on {{project_name}}
+<p>You have been invited to collaborate on <i>{{project_name}}</i>
 on Monklet, a platform for AI-driven qualitative analysis.</p>
 <p>To accept the invitation, please open this link in your browser:<br/>
 <a href="{{landing_url}}">{{landing_url}}</a>
 </p>
+<p>This link will expire in {expiry_days} days.</p>
 <p>Please contact support if you have any difficulty.</p>
 <p>Kind regards<br/><br/>
   The Monklet Team
