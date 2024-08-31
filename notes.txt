@@ -1,13 +1,21 @@
 ## things to fix
 
-  [ ] show member projects, not owned project
-  [ ] sort projects by last updated
+  [x] show member projects, not owned project
+  [x] sort projects by last updated
   [ ] project dashboard
-  [ ] intelligently switch between leave and delete project
+  [x] intelligently switch between leave and delete project
   [ ] modal to check delete/leave project
   [ ] edit project settings
   [ ] add/edit/remove questions
   [ ] add/edit/remove chatbot
+  [ ] move invitations back to project app
+  [ ] simplify the mess of templates
+  [ ] async views
+  [ ] style login templates
+  [ ] custom user object
+  [ ] tests for profile list/edit/creation
+  [ ] tests for member management
+  [ ] leave, delete, expire features
 
 ## context variables for layout
 
@@ -23,12 +31,12 @@ ideally, we want very few of these and no metaprogramming in the page load cycle
                        is_menu : True
                      is_footer : True
                navbar_detached : True
-             header_type_class : 
+             header_type_class :
              navbar_type_class : layout-navbar-hidden
-          menu_collapsed_class : 
-              menu_fixed_class : 
-            footer_fixed_class : 
-             rtl_support_value : 
+          menu_collapsed_class :
+              menu_fixed_class :
+            footer_fixed_class :
+             rtl_support_value :
                 rtl_mode_value : ltr
           text_direction_value : ltr
    show_dropdown_onhover_value : false

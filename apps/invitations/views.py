@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpRequest, HttpResponse
 
 from apps.invitations.models import MemberInvitation
 from apps.invitations.forms import InvitationResponseForm
 
 
 # at this point users are possibly unauthenticated
-def invitation_landing(request, code):
+def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
     inv = get_object_or_404(MemberInvitation, pk=code)
     if not inv.is_valid:
         return render(request, 'invitations/not_available.html')
@@ -23,7 +23,7 @@ def invitation_landing(request, code):
         ctx = {'form': form}
         return render(request, 'invitations/landing_logged_in.html', ctx)
 
-def invitation_respond(request, code):
+def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
     inv = get_object_or_404(MemberInvitation, pk=code)
     if not inv.is_valid:
         return render(request, 'invitations/not_available.html')

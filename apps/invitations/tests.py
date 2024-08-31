@@ -70,7 +70,6 @@ class InvitationTestCase(TestCase):
         resp = self.client.post(accept_action, data={'yes': 'Yes, accept'}, follow=False)
         self.assertContains(resp, 'not permitted', status_code=403)
 
-
     def test_accept_invitation(self):
         self.assertEqual(self.project.member_count, 1)
         self.assertFalse(self.invitation.is_expired)

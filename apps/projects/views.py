@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.timezone import now
 from django.core.exceptions import PermissionDenied
+from django.http import HttpRequest, HttpResponse
 
 from .models import Project
 from .forms import ProjectForm, MemberInvitationForm
@@ -39,7 +40,7 @@ def menu(project: Project):
 
 @login_required
 #@permission_required('projects.view', raise_exception=True)
-def project(request, pk):
+def project(request: HttpRequest, pk: str) -> HttpResponse:
     proj = get_object_or_404(Project, pk=pk)
     if not proj.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -51,7 +52,7 @@ def project(request, pk):
     return render(request, "projects/project.html", ctx)
 
 @login_required
-def project_settings(request, pk):
+def project_settings(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.owner == request.user:
         raise PermissionDenied("User action not permitted.")
@@ -69,10 +70,10 @@ def project_settings(request, pk):
         "menu_data": menu(project=project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/settings.html", ctx)
+    return render(request, "projects/detail.html", ctx)
 
 @login_required
-def project_new(request):
+def project_new(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = ProjectForm(request.POST)
         if form.is_valid():
@@ -90,7 +91,7 @@ def project_new(request):
     return render(request, "projects/detail.html", ctx)
 
 @login_required
-def project_delete(request, pk):
+def project_delete(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if project.owner != request.user:
         raise PermissionDenied("User action not permitted.")
@@ -107,7 +108,7 @@ def project_delete(request, pk):
     return render(request, "projects/delete.html", ctx)
 
 @login_required
-def project_leave(request, pk):
+def project_leave(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user) or project.owner == request.user:
         raise PermissionDenied("User action not permitted.")
@@ -125,7 +126,7 @@ def project_leave(request, pk):
 
 
 @login_required
-def project_members(request, pk):
+def project_members(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -137,7 +138,7 @@ def project_members(request, pk):
     return render(request, "projects/members.html", ctx)
 
 @login_required
-def project_bots(request, pk):
+def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -149,7 +150,7 @@ def project_bots(request, pk):
     return render(request, "projects/bots.html", ctx)
 
 @login_required
-def project_analysis(request, pk):
+def project_analysis(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -162,7 +163,7 @@ def project_analysis(request, pk):
 
 
 @login_required
-def project_invitations(request, pk):
+def project_invitations(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -174,7 +175,7 @@ def project_invitations(request, pk):
     return render(request, "projects/invitations.html", ctx)
 
 @login_required
-def project_questions(request, pk):
+def project_questions(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -186,7 +187,7 @@ def project_questions(request, pk):
     return render(request, "projects/questions.html", ctx)
 
 @login_required
-def project_responses(request, pk):
+def project_responses(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -198,7 +199,7 @@ def project_responses(request, pk):
     return render(request, "projects/responses.html", ctx)
 
 @login_required
-def project_files(request, pk):
+def project_files(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -210,7 +211,7 @@ def project_files(request, pk):
     return render(request, "projects/files.html", ctx)
 
 @login_required
-def project_invite(request, pk):
+def project_invite(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")

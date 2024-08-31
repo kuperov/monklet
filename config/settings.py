@@ -86,10 +86,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "config.context_processors.language_code",
-                "config.context_processors.my_setting",
-                "config.context_processors.get_cookie",
-                "config.context_processors.environment",
+                # "config.context_processors.language_code",
+                # "config.context_processors.get_cookie",
+                # "config.context_processors.environment",
             ],
             "libraries": {
                 "theme": "web_project.template_tags.theme",

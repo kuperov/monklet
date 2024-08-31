@@ -4,7 +4,7 @@ from web_project.template_helpers.theme import TemplateHelper
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpRequest, HttpResponse
 
 from .models import Profile
 from .forms import ProfileForm
@@ -23,7 +23,7 @@ def menu():
     }
 
 @login_required
-def profile(request):
+def profile(request: HttpRequest) -> HttpResponse:
     try:
         profile = request.user.profile
     except ObjectDoesNotExist:
@@ -38,7 +38,7 @@ def profile(request):
     return render(request, "profile/profile.html", ctx)
 
 @login_required
-def profile_edit(request, pk):
+def profile_edit(request: HttpRequest, pk: str) -> HttpResponse:
     profile = get_object_or_404(Profile, pk=pk)
     if not request.user.is_superuser and profile.user != request.user:
         return HttpResponseForbidden("You are not authorized to access this page.")
