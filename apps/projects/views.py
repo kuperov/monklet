@@ -212,19 +212,6 @@ def question_delete(_request: HttpRequest, pk: str) -> HttpResponse:
     question.delete()
     return redirect('project-questions', pk=project_id)
 
-
-@login_required
-def project_responses(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
-    ctx = {
-        "project": project,
-        "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/responses.html", ctx)
-
 @login_required
 def project_files(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
@@ -393,7 +380,7 @@ def consent_letter_delete(_request: HttpRequest, pk: str) -> HttpResponse:
     return redirect('project-consent-letters', pk=project_id)
 
 @login_required
-def project_invitations(request: HttpRequest, pk: str) -> HttpResponse:
+def project_interviews_invited(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -428,3 +415,17 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "interviews/new.html", ctx)
+
+@login_required
+def project_interviews_sessions(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    interviews = project.interviews.exclude(status=['test', 'invited'])
+    ctx = {
+        "project": project,
+        "interviews": interviews,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "interviews/sessions.html", ctx)
