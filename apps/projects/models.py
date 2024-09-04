@@ -1,4 +1,6 @@
 import uuid
+from typing import Dict
+
 from django.db import models
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
@@ -93,6 +95,10 @@ class Project(models.Model):
     def files_url(self):
         return reverse_lazy('project-files', kwargs={"pk": self.id})
 
+    @property
+    def consent_letters_url(self):
+        return reverse_lazy('project-consent-letters', kwargs={"pk": self.id})
+
 
 MEMBER_ROLES = [
     ('viewer', 'Viewer'),
@@ -132,3 +138,129 @@ class Member(models.Model):
     @property
     def email(self):
         return self.user.email
+
+class Question(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="questions")
+    question = models.TextField("Question")
+    order = models.IntegerField("Order")
+    is_enabled = models.BooleanField("Enabled", default=True, null=False)
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self) -> str:
+        return f"Question '{self.question} on {self.project.name}"
+
+BOT_STATUS = [
+    ('test', 'Testing'),
+    ('live', 'Available'),
+    ('disabled', 'Disabled')
+]
+
+class ConsentLetter(models.Model):
+    id = models.UUIDField("Identifier", unique=True, primary_key=True, default=uuid.uuid4, null=False, editable=False)
+    name = models.CharField("Short name", max_length=100, null=False, blank=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='consent_letters')
+    short_md = models.TextField("Short version")
+    letter_md = models.TextField("Letter")
+
+    def __str__(self):
+        return f"{self.name} on {self.project.name}"
+
+
+AI_MODELS = [
+    ('gemini-flash-1.5', 'Gemini Flash 1.5')
+]
+
+BOT_STATUSES = [
+    ('test', 'Testing'),
+    ('live', 'Live'),
+    ('disabled', 'Disabled')
+]
+
+def default_bot_config() -> Dict[str,str]:
+    return {
+        'temperature': 0.5,
+        'top_p': 0.9,
+        'top_k': 64,
+        'max_output_tokens': 8192,
+    }
+
+class Bot(models.Model):
+    id = models.UUIDField("Identifier", unique=True, primary_key=True, default=uuid.uuid4, null=False, editable=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="bots")
+    name = models.CharField("Bot name", max_length=100)
+    description = models.TextField("Description")
+    version = models.Field(default=1)
+    prompt = models.TextField("Model prompt")
+    aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
+    config = models.JSONField("LLM options", default=default_bot_config)
+    end_string = models.CharField("Termination string", max_length=100, default='ENDOFINTERVIEW')
+    status = models.CharField(max_length=20, choices=BOT_STATUSES, default='test')
+    allow_public = models.BooleanField("Allow uninvited use", default=False, null=False)
+
+    def __str__(self):
+        return f"{self.name} ({self.version})"
+
+INTERVIEW_STATUS = [
+    ('invited', 'Participant invited'),
+    ('started', 'Started'),
+    ('complete', 'Complete'),
+    ('test', 'Test interview')
+]
+
+class Interview(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="interviews")
+    bot = models.ForeignKey(Bot, on_delete=models.CASCADE, related_name="interviews")
+    subject_email = models.EmailField("Recipient email", blank=False, null=False)
+    subject_name = models.CharField("Recipient name", max_length=50, blank=False, null=False)
+    created_at = models.DateTimeField(default=now, blank=False, null=False)
+    started_at = models.DateTimeField("Time conversation started", blank=True, null=True)
+    consent_letter = models.ForeignKey(ConsentLetter, on_delete=models.CASCADE)
+    has_consented = models.BooleanField("Has given informed consent", default=False, blank=False, null=False)
+    status = models.CharField(max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False)
+
+    class Meta:
+        ordering = ['subject_name']
+
+    def __str__(self):
+        return f"{self.subject_name} for {self.project.name}"
+
+
+SENDER_CHOICES = [
+    ('ai', 'AI'),
+    ('researcher', 'Researcher'),
+    ('subject', 'Subject'),
+]
+
+class Message(models.Model):
+    interview = models.ForeignKey(Interview, on_delete=models.CASCADE, null=False, blank=False)
+    sender = models.CharField(max_length=10, choices=SENDER_CHOICES, blank=False, null=False)
+    sent_at = models.DateTimeField("Sent at (server time)", default=now)
+    message = models.TextField("Message text")
+
+    def display(self) -> Dict[str, str]:
+        """Convert to dict for rendering as JSON"""
+        return {'message': self.message}
+
+    def __str__(self):
+        return f"{self.sender}: {self.message}"
+
+class Dimension(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    name = models.CharField("Dimension name", max_length=100)
+    order = models.IntegerField("Order")
+
+    def __str__(self):
+        return f"Dimension {self.name} on {self.project}"
+
+class InvitationEmail(models.Model):
+    # redundant ref to project to make lookup simple
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    interview = models.ForeignKey(Interview, on_delete=models.CASCADE)
+    sent_at = models.DateTimeField(default=now)
+    email = models.EmailField()
+    message = models.TextField()
+    subject = models.CharField(max_length=200)
+
+    def __str__(self):
+        return "f{self.email} at {self.sent_at} for {self.project.name}"

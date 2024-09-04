@@ -8,8 +8,8 @@ from django.utils.timezone import now
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 
-from .models import Project
-from .forms import ProjectForm, MemberInvitationForm
+from .models import Project, Interview, Question, Bot, ConsentLetter
+from .forms import ProjectForm, MemberInvitationForm, QuestionForm, BotForm, ConsentLetterForm, InterviewForm
 
 
 def menu(project: Project):
@@ -20,7 +20,7 @@ def menu(project: Project):
             {'url': project.url, 'icon': 'menu-icon tf-icons ri-dashboard-line', 'name': 'Dashboard'},
             {'url': project.settings_url, 'icon': 'menu-icon tf-icons ri-settings-2-line', 'name': 'Project settings'},
             {'url': project.members_url, 'icon': 'menu-icon tf-icons ri-group-3-line', 'name': 'Members'},
-            {'url': '#letters', 'icon': 'menu-icon tf-icons ri-heart-3-line', 'name': 'Consent letters'},
+            {'url': project.consent_letters_url, 'icon': 'menu-icon tf-icons ri-heart-3-line', 'name': 'Consent letters'},
             {'menu_header': 'Design'},
             {'url': project.questions_url, 'icon': 'menu-icon tf-icons ri-question-line', 'name': 'Questions'},
             {'url': project.bots_url, 'icon': 'menu-icon tf-icons ri-robot-2-line', 'name': 'Bots'},
@@ -135,19 +135,7 @@ def project_members(request: HttpRequest, pk: str) -> HttpResponse:
         "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/members.html", ctx)
-
-@login_required
-def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
-    ctx = {
-        "project": project,
-        "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/bots.html", ctx)
+    return render(request, "members/list.html", ctx)
 
 @login_required
 def project_analysis(request: HttpRequest, pk: str) -> HttpResponse:
@@ -163,18 +151,6 @@ def project_analysis(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_invitations(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
-    ctx = {
-        "project": project,
-        "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/invitations.html", ctx)
-
-@login_required
 def project_questions(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
@@ -184,7 +160,58 @@ def project_questions(request: HttpRequest, pk: str) -> HttpResponse:
         "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/questions.html", ctx)
+    return render(request, "questions/list.html", ctx)
+
+@login_required
+def project_questions_new(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid:
+            q = form.save(commit=False)
+            q.project = project
+            q.order = 1 + project.questions.count()
+            q.save()
+            messages.add_message(request, messages.SUCCESS, "Question added")
+            return redirect('project-questions', pk=project.pk)
+    else:
+        form = QuestionForm()
+    ctx = {
+        "form": form,
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "questions/detail.html", ctx)
+
+@login_required
+def question_edit(request: HttpRequest, pk: str) -> HttpResponse:
+    question = get_object_or_404(Question, pk=pk)
+    if request.method == 'POST':
+        form = QuestionForm(request.POST, instance=question)
+        print(form.fields)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Updated question")
+            return redirect('project-questions', pk=question.project.pk)
+    else:
+        form = QuestionForm(instance=question)
+    ctx = {
+        "form": form,
+        "menu_data": menu(question.project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, 'questions/detail.html', ctx)
+
+@login_required
+def question_delete(_request: HttpRequest, pk: str) -> HttpResponse:
+    question = get_object_or_404(Question, pk=pk)
+    project_id = question.project.pk
+    question.delete()
+    return redirect('project-questions', pk=project_id)
+
 
 @login_required
 def project_responses(request: HttpRequest, pk: str) -> HttpResponse:
@@ -231,4 +258,173 @@ def project_invite(request: HttpRequest, pk: str) -> HttpResponse:
         "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/invite_member.html", ctx)
+    return render(request, "members/invite.html", ctx)
+
+@login_required
+def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    ctx = {
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "bots/list.html", ctx)
+
+@login_required
+def project_bots_new(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    if request.method == 'POST':
+        form = BotForm(request.POST)
+        if form.is_valid:
+            b = form.save(commit=False)
+            b.project = project
+            b.save()
+            messages.add_message(request, messages.SUCCESS, "Bot added")
+            return redirect('project-bots', pk=project.pk)
+    else:
+        form = BotForm()
+    ctx = {
+        "form": form,
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "bots/detail.html", ctx)
+
+@login_required
+def bot_edit(request: HttpRequest, pk: str) -> HttpResponse:
+    bot = get_object_or_404(Bot, pk=pk)
+    if request.method == 'POST':
+        form = BotForm(request.POST, instance=bot)
+        print(form.fields)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Updated bot")
+            return redirect('project-bots', pk=bot.project.pk)
+    else:
+        form = BotForm(instance=bot)
+    ctx = {
+        "form": form,
+        "menu_data": menu(bot.project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, 'bots/detail.html', ctx)
+
+@login_required
+def bot_delete(_request: HttpRequest, pk: str) -> HttpResponse:
+    bot = get_object_or_404(Bot, pk=pk)
+    project_id = bot.project.pk
+    bot.delete()
+    return redirect('project-bots', pk=project_id)
+
+# note: unauthenticated view - interview_code provides security
+def interview(request, interview_code):
+    iv = get_object_or_404(Interview, code=interview_code)
+    return render(request, "interviews/interview.html", {
+        'interview_code': interview_code,
+        'interview': iv,
+        'messages': [m.display() for m in iv.messages]
+    })
+
+
+@login_required
+def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    ctx = {
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "consent_letters/list.html", ctx)
+
+@login_required
+def project_consent_letters_new(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    if request.method == 'POST':
+        form = ConsentLetterForm(request.POST)
+        if form.is_valid:
+            let = form.save(commit=False)
+            let.project = project
+            let.save()
+            messages.add_message(request, messages.SUCCESS, "Consent letter added")
+            return redirect('project-consent-letters', pk=project.pk)
+    else:
+        form = ConsentLetterForm()
+    ctx = {
+        "form": form,
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "consent_letters/detail.html", ctx)
+
+@login_required
+def consent_letter_edit(request: HttpRequest, pk: str) -> HttpResponse:
+    consent_letter = get_object_or_404(ConsentLetter, pk=pk)
+    if request.method == 'POST':
+        form = ConsentLetterForm(request.POST, instance=consent_letter)
+        print(form.fields)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Updated consent_letter")
+            return redirect('project-consent-letters', pk=consent_letter.project.pk)
+    else:
+        form = ConsentLetterForm(instance=consent_letter)
+    ctx = {
+        "form": form,
+        "menu_data": menu(consent_letter.project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, 'consent_letters/detail.html', ctx)
+
+@login_required
+def consent_letter_delete(_request: HttpRequest, pk: str) -> HttpResponse:
+    consent_letter = get_object_or_404(ConsentLetter, pk=pk)
+    project_id = consent_letter.project.pk
+    consent_letter.delete()
+    return redirect('project-consent-letters', pk=project_id)
+
+@login_required
+def project_invitations(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    interviews = project.interviews.exclude(status='test')
+    ctx = {
+        "project": project,
+        "interviews": interviews,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "interviews/invited.html", ctx)
+
+@login_required
+def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    if request.method == 'POST':
+        form = InterviewForm(request.POST)
+        if form.is_valid:
+            b = form.save(commit=False)
+            b.project = project
+            b.save()
+            messages.add_message(request, messages.SUCCESS, "Interview added")
+            return redirect('project-invitations', pk=project.pk)
+    else:
+        form = InterviewForm()
+    ctx = {
+        "form": form,
+        "project": project,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "interviews/new.html", ctx)

@@ -1,0 +1,53 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<h5>Consent letters</h5>
+<p>Consent letters provide information about the study so that prospective
+  respondents can decide whether to participate.
+</p>
+<div class="card">
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead class="table-light">
+        <tr class="text-nowrap">
+            <th>Name</th>
+            <th style='width: 5%;'></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for let in project.consent_letters.all %}
+        <tr>
+        <td>{{ let.name }}</td>
+        <td>
+        <div class="dropdown">
+          {#% if project %#}
+          <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'consent-letter-edit' pk=let.pk %}">
+            <i class="ri-edit-line me-1"></i> Edit</a>
+            <a class="dropdown-item" href="{% url 'consent-letter-delete' pk=let.pk %}">
+              <i class="ri-close-line me-1"></i> Remove</a>
+            </div>
+          {#% endif %#}
+        </div>
+        </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="px-0 pt-0 d-flex justify-content-end">
+      <a class="m-4 btn btn-primary" href="{% url 'project-consent-letters-new' pk=project.pk %}">Add consent letter</a>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

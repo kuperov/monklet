@@ -4,6 +4,8 @@ from apps.projects.models import Project, Member
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+# https://channels.readthedocs.io/en/stable/tutorial/part_4.html
+
 o_e, o_pw, o_n = 'a@b.com', 'super secret', ['John', 'Green'] # owner
 v_e, v_pw, v_n = 'b@b.com', 'secret', ['Bob', 'Black']  # viewer
 e_e, e_pw, e_n = 'c@b.com', 'secret', ['Alex', 'White']  # editor

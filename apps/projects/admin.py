@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Project, Member
+from . import models
 
-admin.site.register(Project)
-admin.site.register(Member)
+admin.site.register(models.Project)
+admin.site.register(models.Member)
+admin.site.register(models.Bot)
+admin.site.register(models.Interview)
+admin.site.register(models.Message)
+admin.site.register(models.Question)
+admin.site.register(models.Dimension)
+admin.site.register(models.ConsentLetter)

@@ -102,20 +102,14 @@
                   <span class="align-middle">My Profile</span>
                 </a>
               </li>
+              {% if user.is_superuser %}
               <li>
-                <a class="dropdown-item" href="#">
+                <a class="dropdown-item" href="{% url 'admin:index' %}">
                   <i class="ri-key-2-line ri-22px me-2"></i>
                   <span class="align-middle">Settings</span>
                 </a>
               </li>
-              <li>
-                <a class="dropdown-item" href="#">
-                  <span class="d-flex align-items-center align-middle">
-                      <i class="flex-shrink-0 ri-file-text-line ri-22px me-2"></i>
-                    <span class="flex-grow-1 align-middle ms-1">Billing</span>
-                  </span>
-                </a>
-              </li>
+              {% endif %}
               <li>
                 <div class="dropdown-divider my-1"></div>
               </li>

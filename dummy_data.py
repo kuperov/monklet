@@ -1,8 +1,6 @@
 import os
 import django
 from django.contrib.auth import get_user_model
-from apps.projects.models import Project, Member
-from apps.invitations.models import MemberInvitation
 
 
 user_data = [
@@ -60,9 +58,11 @@ for p in projects:
 max_index = len(members)
 
 def main():
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
     try:
         django.setup()
+        from apps.projects.models import Project, Member
+        from apps.invitations.models import MemberInvitation
         User = get_user_model()
         if User.objects.count() <= max_index + 1:
             for i in range(1 + max_index - User.objects.count()):

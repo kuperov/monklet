@@ -1,0 +1,63 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<h5>Participant invitations</h5>
+<p>Invitations sent to prospective participants.</p>
+<div class="card">
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead class="table-light">
+        <tr class="text-nowrap">
+            <th>Name</th>
+            <th>Email</th>
+            <th>Bot</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th />
+        </tr>
+      </thead>
+      <tbody>
+        {% for iv in interviews %}
+        <tr>
+        <td>{{ iv.subject_name }}</td>
+        <td>{{ iv.subject_email }}</td>
+        <td>{{ iv.bot.name }}</td>
+        <td>{{ iv.created_at }}</td>
+        <td>{% if iv.status == 'invited' %}
+          <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+          {% elif bot.status == 'started' %}
+          <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+          {% else %}
+          <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+          {% endif %}
+        <td>
+        <div class="dropdown">
+          {#% if project %#}
+          <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'interview-delete' pk=bot.pk %}">
+              <i class="ri-delete-line me-1"></i> Delete</a>
+            </div>
+          {#% endif %#}
+        </div>
+        </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="px-0 pt-0 d-flex justify-content-end">
+      <a class="m-4 btn btn-primary" href="{% url 'project-interviews-invite' pk=project.pk %}">Invite someone</a>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

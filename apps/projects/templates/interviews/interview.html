@@ -1,0 +1,67 @@
+{% extends 'layout/layout_blank.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}Coming Soon{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/page-misc.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<div class="misc-wrapper">
+  {% if interview.status == 'complete' %}
+  <div>This interview has concluded</div>
+  {% else %}
+  <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+  <input id="chat-message-input" type="text" size="100"><br>
+  <input id="chat-message-submit" type="button" value="Send">
+  {% endif %}
+  {{ interview_code|json_script:"interview-code" }}
+  {{ initial_messages|json_script:"initial-messages"}}
+  <script>
+      const interview_code = JSON.parse(document.getElementById('interview-code').textContent);
+      const initial_messages = JSON.parse.parse(document.getElementById('initial-messages').textContent);
+      if (initial_messages) {
+        for (data in initial_messages) {
+          document.querySelector('#chat-log').value += (data.message + '\n');
+        }
+      };
+
+      const protocol = (window.location.protocol == 'https:') ? 'wss:' : 'ws:';
+      const chatSocket = new WebSocket(
+          protocol + '//'
+          + window.location.host
+          + '/ws/interviews/'
+          + interview_code
+          + '/'
+      );
+
+      chatSocket.onmessage = function(e) {
+          const data = JSON.parse(e.data);
+          document.querySelector('#chat-log').value += (data.message + '\n');
+      };
+
+      chatSocket.onclose = function(e) {
+          console.error('Chat socket closed unexpectedly');
+      };
+
+      document.querySelector('#chat-message-input').focus();
+      document.querySelector('#chat-message-input').onkeyup = function(e) {
+          if (e.keyCode === 13) {  // enter, return
+              document.querySelector('#chat-message-submit').click();
+          }
+      };
+
+      document.querySelector('#chat-message-submit').onclick = function(e) {
+          const messageInputDom = document.querySelector('#chat-message-input');
+          const message = messageInputDom.value;
+          chatSocket.send(JSON.stringify({
+              'message': message
+          }));
+          messageInputDom.value = '';
+      };
+  </script>
+</div>
+{% endblock %}
