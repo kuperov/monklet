@@ -1,5 +1,9 @@
 import os
 import django
+from django.contrib.auth import get_user_model
+from apps.projects.models import Project, Member
+from apps.invitations.models import MemberInvitation
+
 
 user_data = [
     {'email': 'alice.johnson@email.com', 'password': 'welcome123', 'first_name': 'Alice', 'last_name': 'Johnson'},
@@ -59,10 +63,7 @@ def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
         django.setup()
-        from django.contrib.auth import get_user_model
         User = get_user_model()
-        from apps.projects.models import Project, Member
-        from apps.invitations.models import MemberInvitation
         if User.objects.count() <= max_index + 1:
             for i in range(1 + max_index - User.objects.count()):
                 u = User(**user_data[i])
