@@ -6,7 +6,8 @@ from .views import (
     project_questions, project_questions_new, question_edit, question_delete,
     project_bots, project_bots_new, bot_edit, bot_delete,
     project_consent_letters, project_consent_letters_new, consent_letter_edit, consent_letter_delete,
-    project_interviews_invited, project_interviews_invite, project_interviews_sessions
+    project_interviews_invited, project_interviews_invite,
+    project_transcripts, project_transcripts_upload,
 )
 
 
@@ -39,5 +40,7 @@ urlpatterns = [
 
     path("projects/<str:pk>/invitations", project_interviews_invited, name="project-invitations"),
     path("projects/<str:pk>/invitations/invite", project_interviews_invite, name="project-interviews-invite"),
-    path("projects/<str:pk>/responses", project_interviews_sessions, name="project-responses"),
+    path("projects/<str:pk>/responses", project_transcripts, name="project-responses"),
+
+    path("projects/<str:pk>/transcripts/upload", project_transcripts_upload, name="project-transcripts-upload"),
 ]

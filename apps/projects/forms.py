@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
 
-from .models import Project, Question, Bot, ConsentLetter, Interview
+from .models import Project, Question, Bot, ConsentLetter, Interview, Transcript
 from apps.invitations.models import MemberInvitation
 
 # another possibility: https://stackoverflow.com/a/56719980
@@ -20,6 +20,9 @@ class ProjectForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['description'].widget.attrs['rows'] = 3
+        self.fields['research_aims'].widget.attrs['rows'] = 3
+        self.fields['funding'].widget.attrs['rows'] = 2
         self.helper = FormHelper()
         self.helper.add_input(save())
         self.helper.add_input(cancel())
@@ -52,10 +55,13 @@ class BotForm(forms.ModelForm):
     class Meta:
         model = Bot
         fields = [
-            "name", "description", "prompt", "version", "aimodel", "end_string", "status", "allow_public"]
+            "name", "description", "prompt", "version", "aimodel",
+            "opening_user_statement", "end_string", "consent_letter",
+            "status", "allow_public"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['description'].widget.attrs['rows'] = 3
         self.helper = FormHelper()
         self.helper.add_input(save())
         self.helper.add_input(cancel())
@@ -69,6 +75,7 @@ class ConsentLetterForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['short_md'].widget.attrs['rows'] = 4
         self.helper = FormHelper()
         self.helper.add_input(save())
         self.helper.add_input(cancel())
@@ -81,6 +88,19 @@ class InterviewForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(save())
+        self.helper.add_input(cancel())
+
+
+class ManualTranscriptForm(forms.ModelForm):
+    class Meta:
+        model = Transcript
+        fields = ["subject_name", "description", "created_at", "full_text"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['description'].widget.attrs['rows'] = 3
         self.helper = FormHelper()
         self.helper.add_input(save())
         self.helper.add_input(cancel())

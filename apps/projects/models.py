@@ -88,7 +88,7 @@ class Project(models.Model):
         return reverse_lazy('project-invitations', kwargs={"pk": self.id})
 
     @property
-    def responses_url(self):
+    def data_url(self):
         return reverse_lazy('project-responses', kwargs={"pk": self.id})
 
     @property
@@ -148,7 +148,7 @@ class Question(models.Model):
         ordering = ['order']
 
     def __str__(self) -> str:
-        return f"Question '{self.question} on {self.project.name}"
+        return self.question
 
 BOT_STATUS = [
     ('test', 'Testing'),
@@ -164,7 +164,7 @@ class ConsentLetter(models.Model):
     letter_md = models.TextField("Letter")
 
     def __str__(self):
-        return f"{self.name} on {self.project.name}"
+        return self.name
 
 
 AI_MODELS = [
@@ -190,13 +190,15 @@ class Bot(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="bots")
     name = models.CharField("Bot name", max_length=100)
     description = models.TextField("Description")
-    version = models.Field(default=1)
+    version = models.CharField(default="1.0", max_length=10)
     prompt = models.TextField("Model prompt")
     aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
     config = models.JSONField("LLM options", default=default_bot_config)
+    opening_user_statement = models.CharField("Opening user statement", default="Hello", max_length=100, blank=True, null=True)
     end_string = models.CharField("Termination string", max_length=100, default='ENDOFINTERVIEW')
+    consent_letter = models.ForeignKey(ConsentLetter, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=BOT_STATUSES, default='test')
-    allow_public = models.BooleanField("Allow uninvited use", default=False, null=False)
+    allow_public = models.BooleanField("Allow public use", default=False, null=False)
 
     def __str__(self):
         return f"{self.name} ({self.version})"
@@ -223,7 +225,7 @@ class Interview(models.Model):
         ordering = ['subject_name']
 
     def __str__(self):
-        return f"{self.subject_name} for {self.project.name}"
+        return self.subject_name
 
 
 SENDER_CHOICES = [
@@ -256,7 +258,7 @@ class Dimension(models.Model):
 class InvitationEmail(models.Model):
     # redundant ref to project to make lookup simple
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    interview = models.ForeignKey(Interview, on_delete=models.CASCADE)
+    interview = models.ForeignKey(Interview, on_delete=models.CASCADE, related_name='emails')
     sent_at = models.DateTimeField(default=now)
     email = models.EmailField()
     message = models.TextField()
@@ -264,3 +266,21 @@ class InvitationEmail(models.Model):
 
     def __str__(self):
         return "f{self.email} at {self.sent_at} for {self.project.name}"
+
+
+class Transcript(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='transcripts')
+    interview = models.ForeignKey(Interview, on_delete=models.SET_NULL, null=True, default=None)
+    subject_name = models.CharField(max_length=100, blank=None)
+    full_text = models.TextField()
+    description = models.TextField()
+    is_excluded = models.BooleanField("Exclude from analysis", default=False, null=False)
+    created_at = models.DateTimeField(null=False, default=now)
+    updated_at = models.DateTimeField(null=False, default=now)
+
+    @property
+    def transcript_type(self):
+        return "Bot" if self.interview else "Manual"
+
+    def __str__(self):
+        return self.description

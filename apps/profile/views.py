@@ -15,10 +15,6 @@ def menu():
         'menu': [
             {'url': '/profile/', 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'My projects'},
             {'url': reverse_lazy('project-new'), 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'New project'},
-            {'menu_header': 'Session'},
-            {'url': '/admin/', 'icon': 'menu-icon tf-icons ri-tools-line', 'name': 'Admin'},
-            {'url': 'asf', 'icon': 'menu-icon tf-icons ri-account-box-line', 'name': 'My account'},
-            {'url': reverse_lazy('account_logout'), 'icon': 'menu-icon tf-icons ri-logout-box-r-line', 'name': 'Log out'},
         ]
     }
 

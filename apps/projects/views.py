@@ -9,7 +9,9 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 
 from .models import Project, Interview, Question, Bot, ConsentLetter
-from .forms import ProjectForm, MemberInvitationForm, QuestionForm, BotForm, ConsentLetterForm, InterviewForm
+from .forms import (
+    ProjectForm, MemberInvitationForm, QuestionForm, BotForm, ConsentLetterForm,
+    InterviewForm, ManualTranscriptForm)
 
 
 def menu(project: Project):
@@ -21,20 +23,13 @@ def menu(project: Project):
             {'url': project.settings_url, 'icon': 'menu-icon tf-icons ri-settings-2-line', 'name': 'Project settings'},
             {'url': project.members_url, 'icon': 'menu-icon tf-icons ri-group-3-line', 'name': 'Members'},
             {'url': project.consent_letters_url, 'icon': 'menu-icon tf-icons ri-heart-3-line', 'name': 'Consent letters'},
-            {'menu_header': 'Design'},
+            {'menu_header': 'Interview design'},
             {'url': project.questions_url, 'icon': 'menu-icon tf-icons ri-question-line', 'name': 'Questions'},
             {'url': project.bots_url, 'icon': 'menu-icon tf-icons ri-robot-2-line', 'name': 'Bots'},
             {'url': project.invitations_url, 'icon': 'menu-icon tf-icons ri-mail-send-line', 'name': 'Invitations'},
-            {'menu_header': 'Data'},
-            {'url': project.responses_url, 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'Bot sessions'},
-            {'url': project.files_url, 'icon': 'menu-icon tf-icons ri-file-upload-line', 'name': 'Uploaded transcripts'},
             {'menu_header': 'Analysis'},
-            {'url': project.analysis_url, 'icon': 'menu-icon tf-icons ri-bar-chart-box-line', 'name': 'Analysis'},
-    ]
-    menu += [{'menu_header': 'Session'},
-            {'url': '/admin/', 'icon': 'menu-icon tf-icons ri-tools-line', 'name': 'Site administration'},
-            {'url': 'account', 'icon': 'menu-icon tf-icons ri-account-box-line', 'name': 'My account'},
-            {'url': reverse_lazy('account_logout'), 'icon': 'menu-icon tf-icons ri-logout-box-r-line', 'name': 'Log out'},
+            {'url': project.data_url, 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'Data'},
+            {'url': project.analysis_url, 'icon': 'menu-icon tf-icons ri-bar-chart-box-line', 'name': 'Harmonized analysis'},
     ]
     return {'menu': menu}
 
@@ -147,7 +142,7 @@ def project_analysis(request: HttpRequest, pk: str) -> HttpResponse:
         "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "projects/analysis.html", ctx)
+    return render(request, "analysis/summary.html", ctx)
 
 
 @login_required
@@ -417,15 +412,35 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
     return render(request, "interviews/new.html", ctx)
 
 @login_required
-def project_interviews_sessions(request: HttpRequest, pk: str) -> HttpResponse:
+def project_transcripts(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    interviews = project.interviews.exclude(status=['test', 'invited'])
     ctx = {
         "project": project,
-        "interviews": interviews,
         "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
-    return render(request, "interviews/sessions.html", ctx)
+    return render(request, "transcripts/list.html", ctx)
+
+@login_required
+def project_transcripts_upload(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    if request.method == 'POST':
+        form = ManualTranscriptForm(request.POST)
+        if form.is_valid:
+            ts = form.save(commit=False)
+            ts.project = project
+            ts.save()
+            messages.add_message(request, messages.SUCCESS, "Transcript added")
+            return redirect('project-transcripts', pk=project.pk)
+    else:
+        form = ManualTranscriptForm()
+    ctx = {
+        "form": form,
+        "menu_data": menu(project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, "transcripts/upload.html", ctx)
