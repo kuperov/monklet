@@ -303,6 +303,20 @@ def bot_delete(_request: HttpRequest, pk: str) -> HttpResponse:
     bot.delete()
     return redirect('project-bots', pk=project_id)
 
+@login_required
+def bot_simulate(request: HttpRequest, pk: str) -> HttpResponse:
+    bot = get_object_or_404(Bot, pk=pk)
+    project = bot.project
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    ctx = {
+        "bot": bot,
+        "project": project,
+        "menu_data": menu(bot.project)
+    }
+    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    return render(request, 'bots/simulate.html', ctx)
+
 # note: unauthenticated view - interview_code provides security
 def interview(request, interview_code):
     iv = get_object_or_404(Interview, code=interview_code)

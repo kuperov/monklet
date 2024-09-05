@@ -4,7 +4,7 @@ from .views import (
     project_leave, project_members, project_files, project_analysis,
     project_invite, interview,
     project_questions, project_questions_new, question_edit, question_delete,
-    project_bots, project_bots_new, bot_edit, bot_delete,
+    project_bots, project_bots_new, bot_simulate, bot_edit, bot_delete,
     project_consent_letters, project_consent_letters_new, consent_letter_edit, consent_letter_delete,
     project_interviews_invited, project_interviews_invite,
     project_transcripts, project_transcripts_upload,
@@ -31,6 +31,7 @@ urlpatterns = [
     path("projects/<str:pk>/bots", project_bots, name="project-bots"),
     path("projects/<str:pk>/bots/new", project_bots_new, name="project-bots-new"),
     path("bot/<str:pk>/edit", bot_edit, name="bot-edit"),
+    path("bot/<str:pk>/simulate", bot_simulate, name="bot-simulate"),
     path("bot/<str:pk>/delete", bot_delete, name="bot-delete"),
 
     path("projects/<str:pk>/consent-letters", project_consent_letters, name="project-consent-letters"),

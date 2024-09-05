@@ -1,0 +1,211 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n humanize %}
+
+{% block title %}Simulator: {{bot.name}} - {{ project.name }}{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/app-chat.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/app-chat.js' %}"></script>
+<script>
+  {% comment %} {% for chat in current_chat.messages %}
+  {% endblock %} {% endcomment %}
+
+  add_my_message(["oi hello", "sup bruh"], "8:23 AM", "{{ user.profile.avatar_url }}");
+  add_remote_message(["what do you want, you goose"], "8:29 AM", "{{ user.profile.avatar_url }}");
+  add_my_message(["got any food"], "8:31 AM", "{{ user.profile.avatar_url }}");
+</script>
+{% endblock page_js %}
+
+{% block content %}
+{% comment %} <h5>Simulator: {{bot.name}}</h5>
+<p>Use this page to develop the bot's prompt. These conversations will not be used as source data.</p>
+<p><a href="javascript:history.back()">Go back</a></p> {% endcomment %}
+
+<div class="app-chat card overflow-hidden">
+  <div class="row g-0">
+    <!-- Test interview list -->
+    <div class="col app-chat-contacts app-sidebar flex-grow-0 overflow-hidden border-end" id="app-chat-contacts">
+      <div class="sidebar-header h-px-75 px-5 border-bottom d-flex align-items-center">
+        <div class="d-flex align-items-center me-4 me-lg-0">
+          <div class="flex-shrink-0 avatar avatar-online me-4" data-bs-toggle="sidebar" data-overlay="app-overlay-ex" data-target="#app-chat-sidebar-left">
+            <img class="user-avatar rounded-circle cursor-pointer" src="{{ user.profile.avatar_url }}" alt="Avatar">
+          </div>
+          <div class="flex-grow-1">
+            <h6>Bot simulator</h6>
+          </div>
+          <!-- div class="flex-grow-1 input-group input-group-sm input-group-merge rounded-pill">
+            <span class="input-group-text" id="basic-addon-search31"><i class="ri-search-line lh-1 ri-20px"></i></span>
+            <input type="text" class="form-control chat-search-input" placeholder="Search..." aria-label="Search..." aria-describedby="basic-addon-search31">
+          </div -->
+        </div>
+        <i class="ri-close-line ri-20px cursor-pointer position-absolute top-50 end-0 translate-middle fs-4 d-lg-none d-block" data-overlay data-bs-toggle="sidebar" data-target="#app-chat-contacts"></i>
+      </div>
+      <div class="sidebar-body">
+
+        <!-- Chats -->
+        <ul class="list-unstyled chat-contact-list py-2 mb-0" id="chat-list">
+          <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
+            <h5 class="text-primary mb-0">Test interviews</h5>
+          </li>
+          <li class="chat-contact-list-item chat-list-item-0 d-none">
+            <h6 class="text-muted mb-0">No interviews found</h6>
+          </li>
+          {% for iv in bot.test_interviews %}
+          <li class="chat-contact-list-item mb-1">
+            <a class="d-flex align-items-center">
+              <div class="flex-shrink-0 avatar avatar-online">
+                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
+              </div>
+              <div class="chat-contact-info flex-grow-1 ms-4">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="chat-contact-name text-truncate fw-normal m-0">{{ iv.bot.name }}</h6>
+                  {% if iv.updated_at %}
+                  <small class="text-muted">{{ iv.updated_at | naturaltime }}</small>
+                  {% endif %}
+                </div>
+                <small class="chat-contact-status text-truncate">last message preview</small>
+              </div>
+            </a>
+          </li>
+          {% endfor %}
+          <li class="chat-contact-list-item chat-list-item-0">
+            <h6 class="text-muted mb-0">Create new</h6>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- /Chat contacts -->
+
+    <!-- Chat History -->
+    <div class="col app-chat-history">
+      <div class="chat-history-wrapper">
+        <div class="chat-history-header border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex overflow-hidden align-items-center">
+              <i class="ri-menu-line ri-24px cursor-pointer d-lg-none d-block me-4" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-contacts"></i>
+              <div class="flex-shrink-0 avatar avatar-online">
+                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right">
+              </div>
+              <div class="chat-contact-info flex-grow-1 ms-4">
+                <h6 class="m-0 fw-normal">{{ bot.name }}</h6>
+                <small class="user-status text-body">Version {{ bot.version }}</small>
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <div class="dropdown">
+                <button class="btn  btn-sm btn-icon btn-text-secondary text-body rounded-pill dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-expanded="true" id="chat-header-actions"><i class="ri-more-2-line ri-20px"></i></button>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="chat-header-actions">
+                  <a class="dropdown-item" href="javascript:void(0);">New chat</a>
+                  <a class="dropdown-item" href="javascript:void(0);">Delete chat</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-history-body">
+          <ul id='app-chat-history-messages' class="list-unstyled chat-history">
+            <!-- messages go here -->
+          </ul>
+        </div>
+        <!-- Chat message form -->
+        <div class="chat-history-footer">
+          <form class="form-send-message d-flex justify-content-between align-items-center ">
+            <input class="form-control message-input me-4 shadow-none" placeholder="Type your message here...">
+            <div class="message-actions d-flex align-items-center">
+              <button class="btn btn-primary d-flex send-msg-btn">
+                <span class="align-middle">Send</span>
+                <i class="ri-send-plane-line ri-16px ms-md-1_5 ms-0"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- /Chat History -->
+
+    <!-- Sidebar Right -->
+    <div class="col app-chat-sidebar-right app-sidebar overflow-hidden" id="app-chat-sidebar-right">
+      <div class="sidebar-header d-flex flex-column justify-content-center align-items-center flex-wrap px-5 pt-12">
+        <div class="avatar avatar-xl avatar-online chat-sidebar-avatar">
+          <img src="{{ user.profile.avatar_url }}" class="rounded-circle">
+        </div>
+        <h5 class="mt-4 mb-0">{{ user.get_full_name }}</h5>
+        <span>{{ user.profile.description }}</span>
+        <i class="ri-close-line ri-24px cursor-pointer close-sidebar d-block" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right"></i>
+      </div>
+      <div class="sidebar-body px-6">
+        <div class="my-6">
+          <p class="text-uppercase mb-1 text-muted">About</p>
+          <p class="mb-0">A Next. js developer is a software developer who uses the Next. js framework alongside ReactJS to build web applications.</p>
+        </div>
+        <div class="my-6">
+          <p class="text-uppercase mb-1 text-muted">Personal Information</p>
+          <ul class="list-unstyled d-grid gap-3 mb-0 ms-2 py-2 text-heading">
+            <li class="d-flex align-items-center">
+              <i class='ri-mail-line ri-22px'></i>
+              <span class="align-middle ms-2">josephGreen@email.com</span>
+            </li>
+            <li class="d-flex align-items-center">
+              <i class='ri-phone-line ri-22px'></i>
+              <span class="align-middle ms-2">+1(123) 456 - 7890</span>
+            </li>
+            <li class="d-flex align-items-center">
+              <i class='ri-time-line ri-22px'></i>
+              <span class="align-middle ms-2">Mon - Fri 10AM - 8PM</span>
+            </li>
+          </ul>
+        </div>
+        <div class="my-6">
+          <p class="text-uppercase text-muted mb-1">Options</p>
+          <ul class="list-unstyled d-grid gap-3 ms-2 py-2 text-heading">
+            <li class="cursor-pointer d-flex align-items-center">
+              <i class='ri-bookmark-line ri-22px'></i>
+              <span class="align-middle ms-2">Add Tag</span>
+            </li>
+            <li class="cursor-pointer d-flex align-items-center">
+              <i class='ri-user-star-line ri-22px'></i>
+              <span class="align-middle ms-2">Important Contact</span>
+            </li>
+            <li class="cursor-pointer d-flex align-items-center">
+              <i class='ri-image-2-line ri-22px'></i>
+              <span class="align-middle ms-2">Shared Media</span>
+            </li>
+            <li class="cursor-pointer d-flex align-items-center">
+              <i class='ri-delete-bin-7-line ri-22px'></i>
+              <span class="align-middle ms-2">Delete Contact</span>
+            </li>
+            <li class="cursor-pointer d-flex align-items-center">
+              <i class='ri-forbid-2-line ri-22px'></i>
+              <span class="align-middle ms-2">Block Contact</span>
+            </li>
+          </ul>
+        </div>
+        <div class="d-flex mt-6">
+          <button class="btn btn-danger w-100" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right">Delete Contact<i class='ri-delete-bin-7-line ri-16px ms-1_5'></i></button>
+        </div>
+      </div>
+    </div>
+    <!-- /Sidebar Right -->
+
+    <div class="app-overlay"></div>
+  </div>
+</div>
+
+{% endblock content %}

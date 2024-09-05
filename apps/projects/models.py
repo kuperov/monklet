@@ -150,6 +150,7 @@ class Question(models.Model):
     def __str__(self) -> str:
         return self.question
 
+
 BOT_STATUS = [
     ('test', 'Testing'),
     ('live', 'Available'),
@@ -203,6 +204,10 @@ class Bot(models.Model):
     def __str__(self):
         return f"{self.name} ({self.version})"
 
+    def test_interviews(self):
+        return self.interviews.filter(status='test')
+
+
 INTERVIEW_STATUS = [
     ('invited', 'Participant invited'),
     ('started', 'Started'),
@@ -215,11 +220,12 @@ class Interview(models.Model):
     bot = models.ForeignKey(Bot, on_delete=models.CASCADE, related_name="interviews")
     subject_email = models.EmailField("Recipient email", blank=False, null=False)
     subject_name = models.CharField("Recipient name", max_length=50, blank=False, null=False)
-    created_at = models.DateTimeField(default=now, blank=False, null=False)
-    started_at = models.DateTimeField("Time conversation started", blank=True, null=True)
     consent_letter = models.ForeignKey(ConsentLetter, on_delete=models.CASCADE)
     has_consented = models.BooleanField("Has given informed consent", default=False, blank=False, null=False)
     status = models.CharField(max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False)
+    created_at = models.DateTimeField(default=now, blank=False, null=False)
+    started_at = models.DateTimeField("Time conversation started", blank=True, null=True)
+    updated_at = models.DateTimeField("Last message at", blank=True, null=True)
 
     class Meta:
         ordering = ['subject_name']
@@ -235,10 +241,13 @@ SENDER_CHOICES = [
 ]
 
 class Message(models.Model):
-    interview = models.ForeignKey(Interview, on_delete=models.CASCADE, null=False, blank=False)
+    interview = models.ForeignKey(Interview, on_delete=models.CASCADE, null=False, blank=False, related_name='messages')
     sender = models.CharField(max_length=10, choices=SENDER_CHOICES, blank=False, null=False)
     sent_at = models.DateTimeField("Sent at (server time)", default=now)
     message = models.TextField("Message text")
+
+    class Meta:
+        ordering = ['sent_at']
 
     def display(self) -> Dict[str, str]:
         """Convert to dict for rendering as JSON"""

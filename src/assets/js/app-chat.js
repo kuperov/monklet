@@ -4,6 +4,56 @@
 
 'use strict';
 
+function add_my_message(msgs, time, avatar) {
+  var li_text = `<li class="chat-message chat-message-right">
+    <div class="d-flex overflow-hidden">
+      <div class="chat-message-wrapper flex-grow-1">
+        <div class="chat-message-text">`;
+  msgs.forEach(msg => {
+    li_text += `<p class="mb-0">${msg}</p>`;
+    console.log(msg);
+  })
+  li_text += `</div>
+        <div class="text-end text-muted mt-1">
+          <i class='ri-check-double-line ri-14px text-success me-1'></i>
+          <small>${time}</small>
+        </div>
+      </div>
+      <div class="user-avatar flex-shrink-0 ms-4">
+        <div class="avatar avatar-sm">
+          <img src="${avatar}" alt="Avatar" class="rounded-circle">
+        </div>
+      </div>
+    </div>
+  </li>`;
+  const list = document.getElementById('app-chat-history-messages');
+  list.innerHTML += li_text;
+};
+
+function add_remote_message(msgs, time, avatar) {
+  var li_text = `<li class="chat-message">
+    <div class="d-flex overflow-hidden">
+      <div class="user-avatar flex-shrink-0 me-4">
+        <div class="avatar avatar-sm">
+          <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
+        </div>
+      </div>
+      <div class="chat-message-wrapper flex-grow-1">
+        <div class="chat-message-text">`;
+  msgs.forEach(msg => {
+    li_text += `<p class="mb-0">${msg}</p>`;
+  })
+  li_text += `</div>
+        <div class="text-muted mt-1">
+          <small>${time}</small>
+        </div>
+      </div>
+    </div>
+  </li>`;
+  const ul = document.getElementById('app-chat-history-messages');
+  ul.innerHTML += li_text;
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   (function () {
     const chatContactsBody = document.querySelector('.app-chat-contacts .sidebar-body'),
@@ -17,8 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
       chatSidebarLeftUserAbout = $('.chat-sidebar-left-user-about'),
       formSendMessage = document.querySelector('.form-send-message'),
       messageInput = document.querySelector('.message-input'),
-      searchInput = document.querySelector('.chat-search-input'),
-      speechToText = $('.speech-to-text'), // ! jQuery dependency for speech to text
       userStatusObj = {
         active: 'avatar-online',
         offline: 'avatar-offline',
@@ -111,101 +159,97 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Filter Chats
-    if (searchInput) {
-      searchInput.addEventListener('keyup', e => {
-        let searchValue = e.currentTarget.value.toLowerCase(),
-          searchChatListItemsCount = 0,
-          searchContactListItemsCount = 0,
-          chatListItem0 = document.querySelector('.chat-list-item-0'),
-          contactListItem0 = document.querySelector('.contact-list-item-0'),
-          searchChatListItems = [].slice.call(
-            document.querySelectorAll('#chat-list li:not(.chat-contact-list-item-title)')
-          ),
-          searchContactListItems = [].slice.call(
-            document.querySelectorAll('#contact-list li:not(.chat-contact-list-item-title)')
-          );
+    // if (searchInput) {
+    //   searchInput.addEventListener('keyup', e => {
+    //     let searchValue = e.currentTarget.value.toLowerCase(),
+    //       searchChatListItemsCount = 0,
+    //       searchContactListItemsCount = 0,
+    //       chatListItem0 = document.querySelector('.chat-list-item-0'),
+    //       contactListItem0 = document.querySelector('.contact-list-item-0'),
+    //       searchChatListItems = [].slice.call(
+    //         document.querySelectorAll('#chat-list li:not(.chat-contact-list-item-title)')
+    //       ),
+    //       searchContactListItems = [].slice.call(
+    //         document.querySelectorAll('#contact-list li:not(.chat-contact-list-item-title)')
+    //       );
 
-        // Search in chats
-        searchChatContacts(searchChatListItems, searchChatListItemsCount, searchValue, chatListItem0);
-        // Search in contacts
-        searchChatContacts(searchContactListItems, searchContactListItemsCount, searchValue, contactListItem0);
-      });
-    }
+    //     // Search in chats
+    //     searchChatContacts(searchChatListItems, searchChatListItemsCount, searchValue, chatListItem0);
+    //     // Search in contacts
+    //     searchChatContacts(searchContactListItems, searchContactListItemsCount, searchValue, contactListItem0);
+    //   });
+    // }
 
     // Search chat and contacts function
-    function searchChatContacts(searchListItems, searchListItemsCount, searchValue, listItem0) {
-      searchListItems.forEach(searchListItem => {
-        let searchListItemText = searchListItem.textContent.toLowerCase();
-        if (searchValue) {
-          if (-1 < searchListItemText.indexOf(searchValue)) {
-            searchListItem.classList.add('d-flex');
-            searchListItem.classList.remove('d-none');
-            searchListItemsCount++;
-          } else {
-            searchListItem.classList.add('d-none');
-          }
-        } else {
-          searchListItem.classList.add('d-flex');
-          searchListItem.classList.remove('d-none');
-          searchListItemsCount++;
-        }
-      });
-      // Display no search fount if searchListItemsCount == 0
-      if (searchListItemsCount == 0) {
-        listItem0.classList.remove('d-none');
-      } else {
-        listItem0.classList.add('d-none');
-      }
-    }
+    // function searchChatContacts(searchListItems, searchListItemsCount, searchValue, listItem0) {
+    //   searchListItems.forEach(searchListItem => {
+    //     let searchListItemText = searchListItem.textContent.toLowerCase();
+    //     if (searchValue) {
+    //       if (-1 < searchListItemText.indexOf(searchValue)) {
+    //         searchListItem.classList.add('d-flex');
+    //         searchListItem.classList.remove('d-none');
+    //         searchListItemsCount++;
+    //       } else {
+    //         searchListItem.classList.add('d-none');
+    //       }
+    //     } else {
+    //       searchListItem.classList.add('d-flex');
+    //       searchListItem.classList.remove('d-none');
+    //       searchListItemsCount++;
+    //     }
+    //   });
+    //   // Display no search fount if searchListItemsCount == 0
+    //   if (searchListItemsCount == 0) {
+    //     listItem0.classList.remove('d-none');
+    //   } else {
+    //     listItem0.classList.add('d-none');
+    //   }
+    // }
 
     // Send Message
     formSendMessage.addEventListener('submit', e => {
       e.preventDefault();
       if (messageInput.value) {
-        // Create a div and add a class
-        let renderMsg = document.createElement('div');
-        renderMsg.className = 'chat-message-text mt-2';
-        renderMsg.innerHTML = '<p class="mb-0 text-break">' + messageInput.value + '</p>';
-        document.querySelector('li:last-child .chat-message-wrapper').appendChild(renderMsg);
+        add_my_message([messageInput.value], '10:00 AM', "{{ user.profile.avatar_url }}");
         messageInput.value = '';
         scrollToBottom();
       }
     });
 
-    // on click of chatHistoryHeaderMenu, Remove data-overlay attribute from chatSidebarLeftClose to resolve overlay overlapping issue for two sidebar
-    let chatHistoryHeaderMenu = document.querySelector(".chat-history-header [data-target='#app-chat-contacts']"),
-      chatSidebarLeftClose = document.querySelector('.app-chat-sidebar-left .close-sidebar');
-    chatHistoryHeaderMenu.addEventListener('click', e => {
-      chatSidebarLeftClose.removeAttribute('data-overlay');
-    });
-    // }
+    // // on click of chatHistoryHeaderMenu, Remove data-overlay attribute from chatSidebarLeftClose to resolve overlay overlapping issue for two sidebar
+    // let chatHistoryHeaderMenu = document.querySelector(".chat-history-header [data-target='#app-chat-contacts']"),
+    //   chatSidebarLeftClose = document.querySelector('.app-chat-sidebar-left .close-sidebar');
+    // chatHistoryHeaderMenu.addEventListener('click', e => {
+    //   chatSidebarLeftClose.removeAttribute('data-overlay');
+    // });
+    // // }
 
-    // Speech To Text
-    if (speechToText.length) {
-      var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
-      if (SpeechRecognition !== undefined && SpeechRecognition !== null) {
-        var recognition = new SpeechRecognition(),
-          listening = false;
-        speechToText.on('click', function () {
-          const $this = $(this);
-          recognition.onspeechstart = function () {
-            listening = true;
-          };
-          if (listening === false) {
-            recognition.start();
-          }
-          recognition.onerror = function (event) {
-            listening = false;
-          };
-          recognition.onresult = function (event) {
-            $this.closest('.form-send-message').find('.message-input').val(event.results[0][0].transcript);
-          };
-          recognition.onspeechend = function (event) {
-            listening = false;
-            recognition.stop();
-          };
-        });
-      }
-    }
+    // // Speech To Text
+    // if (speechToText.length) {
+    //   var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+    //   if (SpeechRecognition !== undefined && SpeechRecognition !== null) {
+    //     var recognition = new SpeechRecognition(),
+    //       listening = false;
+    //     speechToText.on('click', function () {
+    //       const $this = $(this);
+    //       recognition.onspeechstart = function () {
+    //         listening = true;
+    //       };
+    //       if (listening === false) {
+    //         recognition.start();
+    //       }
+    //       recognition.onerror = function (event) {
+    //         listening = false;
+    //       };
+    //       recognition.onresult = function (event) {
+    //         $this.closest('.form-send-message').find('.message-input').val(event.results[0][0].transcript);
+    //       };
+    //       recognition.onspeechend = function (event) {
+    //         listening = false;
+    //         recognition.stop();
+    //       };
+    //     });
+    //   }
+    // }
   })();
 });

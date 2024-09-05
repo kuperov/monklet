@@ -11,63 +11,9 @@
 
 {% block content %}
 <h5>Harmonized analysis</h5>
-<p>...</p>
-<div class="card">
-  <div class="card-header px-0 pt-0">
-    <div class="nav-align-top">
-      <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-transcripts" aria-controls="navs-transcripts" aria-selected="true">Transcripts</button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-attributes" aria-controls="navs-attributes" aria-selected="false">Attributes table</button>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="tab-content p-0">
-      <div class="tab-pane fade show active table-responsive text-nowrap" id="navs-transcripts" role="tabpanel">
-        <table class="table">
-          <thead class="table-light">
-            <tr class="text-nowrap">
-                <th>Description</th>
-                <th>Updated</th>
-                <th>Type</th>
-                <th>Inclusion</th>
-                <th />
-            </tr>
-          </thead>
-          <tbody>
-            {% for ts in transcripts %}
-            <tr>
-            <td>{{ ts.description }}</td>
-            <td>{{ ts.updated_at | naturaltime }}</td>
-            <td>{{ ts.transcript_type }}</td>
-            <td>{% if ts.is_excluded %}
-              <span class="badge rounded-pill bg-label-success me-1">Included</span>
-              {% else %}
-              <span class="badge rounded-pill bg-label-danger me-1">Excluded</span>
-              {% endif %}
-            <div class="dropdown">
-              {#% if project %#}
-              <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="{% url 'interview-delete' pk=bot.pk %}">
-                  <i class="ri-delete-line me-1"></i> Delete</a>
-                </div>
-              {#% endif %#}
-            </div>
-            </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="tab-pane fade" id="navs-attributes" role="tabpanel">
-        Respondent attributes table
-      </div>
-    </div>
-</div>
-</div>
+{% for qn in questions %}
+<h6>{{ qn.order }}. {{ qn }}</h6>
+
+<p>[Summary pending]</p>
+{% endfor %}
 {% endblock content %}
