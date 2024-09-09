@@ -47,6 +47,7 @@ class QuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["question"].widget.attrs["rows"] = 2
         self.helper = FormHelper()
         self.helper.add_input(save())
         self.helper.add_input(cancel())

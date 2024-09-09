@@ -23,21 +23,21 @@
 {% block page_js %}
 {{ block.super }}
 <script src="{% static 'js/app-chat.js' %}"></script>
+{{ initial_messages|json_script:"initial-messages"}}
 <script>
-  {% comment %} {% for chat in current_chat.messages %}
-  {% endblock %} {% endcomment %}
-
-  add_my_message(["oi hello", "sup bruh"], "8:23 AM", "{{ user.profile.avatar_url }}");
-  add_remote_message(["what do you want, you goose"], "8:29 AM", "{{ user.profile.avatar_url }}");
-  add_my_message(["got any food"], "8:31 AM", "{{ user.profile.avatar_url }}");
+  const initial_messages = JSON.parse(document.getElementById('initial-messages').textContent);
+  initial_messages.forEach(m => {
+    console.log(m);
+    if (m.sender == "subject") {
+      add_my_message([m.message], m.sent_at, "{{ user.profile.avatar_url }}");
+    } else {
+      add_remote_message([m.message], m.sent_at, "{% static "img/avatars/bot.svg" %}");
+    }
+  });
 </script>
 {% endblock page_js %}
 
 {% block content %}
-{% comment %} <h5>Simulator: {{bot.name}}</h5>
-<p>Use this page to develop the bot's prompt. These conversations will not be used as source data.</p>
-<p><a href="javascript:history.back()">Go back</a></p> {% endcomment %}
-
 <div class="app-chat card overflow-hidden">
   <div class="row g-0">
     <!-- Test interview list -->
@@ -85,8 +85,8 @@
             </a>
           </li>
           {% endfor %}
-          <li class="chat-contact-list-item chat-list-item-0">
-            <h6 class="text-muted mb-0">Create new</h6>
+          <li class="chat-list-item-0 p-5">
+            <a href="{% url 'bot-simulate-new' pk=bot.pk %}" class="btn btn-primary">New chat</a>
           </li>
         </ul>
       </div>

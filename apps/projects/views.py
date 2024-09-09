@@ -25,8 +25,8 @@ def menu(project: Project):
             {'url': project.consent_letters_url, 'icon': 'menu-icon tf-icons ri-heart-3-line', 'name': 'Consent letters'},
             {'menu_header': 'Interview design'},
             {'url': project.questions_url, 'icon': 'menu-icon tf-icons ri-question-line', 'name': 'Questions'},
-            {'url': project.bots_url, 'icon': 'menu-icon tf-icons ri-robot-2-line', 'name': 'Bots'},
-            {'url': project.invitations_url, 'icon': 'menu-icon tf-icons ri-mail-send-line', 'name': 'Invitations'},
+            {'url': project.bots_url, 'icon': 'menu-icon tf-icons ri-robot-2-line', 'name': 'Interview bots'},
+            {'url': project.invitations_url, 'icon': 'menu-icon tf-icons ri-mail-send-line', 'name': 'Interview invitations'},
             {'menu_header': 'Analysis'},
             {'url': project.data_url, 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'Data'},
             {'url': project.analysis_url, 'icon': 'menu-icon tf-icons ri-bar-chart-box-line', 'name': 'Harmonized analysis'},
@@ -304,18 +304,30 @@ def bot_delete(_request: HttpRequest, pk: str) -> HttpResponse:
     return redirect('project-bots', pk=project_id)
 
 @login_required
-def bot_simulate(request: HttpRequest, pk: str) -> HttpResponse:
-    bot = get_object_or_404(Bot, pk=pk)
-    project = bot.project
+def project_simulate(request: HttpRequest, code: str) -> HttpResponse:
+    interview = get_object_or_404(Interview, pk=code)
+    bot = interview.bot
+    project = interview.project
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
     ctx = {
         "bot": bot,
         "project": project,
-        "menu_data": menu(bot.project)
+        "initial_messages": [m.display() for m in interview.messages.all()],
+        "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, 'bots/simulate.html', ctx)
+
+@login_required
+def bot_simulate_new(request: HttpRequest, pk: str) -> HttpResponse:
+    bot = get_object_or_404(Bot, pk=pk)
+    project = bot.project
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    iv = Interview.objects.create(project=project, bot=bot, status='test')
+    # TODO: construct URL with GET parameters for the new chat
+    return redirect('interviews-simulate', code=iv.pk)
 
 # note: unauthenticated view - interview_code provides security
 def interview(request, interview_code):

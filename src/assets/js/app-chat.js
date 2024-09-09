@@ -4,19 +4,30 @@
 
 'use strict';
 
+function formatLocalTime(isoString) {
+  const utcDate = new Date(isoString);
+  let hours = utcDate.getHours();
+  let minutes = utcDate.getMinutes();
+  let ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  return `${hours}:${minutes} ${ampm}`;
+};
+
 function add_my_message(msgs, time, avatar) {
+  const local_time = formatLocalTime(time);
   var li_text = `<li class="chat-message chat-message-right">
     <div class="d-flex overflow-hidden">
       <div class="chat-message-wrapper flex-grow-1">
         <div class="chat-message-text">`;
   msgs.forEach(msg => {
     li_text += `<p class="mb-0">${msg}</p>`;
-    console.log(msg);
   })
   li_text += `</div>
         <div class="text-end text-muted mt-1">
           <i class='ri-check-double-line ri-14px text-success me-1'></i>
-          <small>${time}</small>
+          <small>${local_time}</small>
         </div>
       </div>
       <div class="user-avatar flex-shrink-0 ms-4">
@@ -31,11 +42,12 @@ function add_my_message(msgs, time, avatar) {
 };
 
 function add_remote_message(msgs, time, avatar) {
+  const local_time = formatLocalTime(time);
   var li_text = `<li class="chat-message">
     <div class="d-flex overflow-hidden">
       <div class="user-avatar flex-shrink-0 me-4">
         <div class="avatar avatar-sm">
-          <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
+          <img src="${avatar}" alt="Avatar" class="rounded-circle">
         </div>
       </div>
       <div class="chat-message-wrapper flex-grow-1">
@@ -45,7 +57,7 @@ function add_remote_message(msgs, time, avatar) {
   })
   li_text += `</div>
         <div class="text-muted mt-1">
-          <small>${time}</small>
+          <small>${local_time}</small>
         </div>
       </div>
     </div>

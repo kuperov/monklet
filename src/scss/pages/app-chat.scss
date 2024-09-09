@@ -234,7 +234,9 @@ $chat-bg-dark: #373452;
 
             .chat-message-text {
               border-top-right-radius: 0;
-              color: light.$white;
+              p {
+                color: light.$white;
+              }
             }
 
             .user-avatar {

@@ -1,21 +1,26 @@
 ## things to fix
 
-  [x] show member projects, not owned project
-  [x] sort projects by last updated
-  [ ] project dashboard
-  [x] intelligently switch between leave and delete project
+  [ ] project dashboard showing basic stats
   [ ] modal to check delete/leave project
   [ ] edit project settings
   [ ] add/edit/remove questions
   [ ] add/edit/remove chatbot
   [ ] move invitations back to project app
   [ ] simplify the mess of templates
+  [ ] remove the need for the layout call cruft
+  [ ] separate templates for front, blank, and admin
   [ ] async views
   [ ] style login templates
   [ ] custom user object
   [ ] tests for profile list/edit/creation
   [ ] tests for member management
   [ ] leave, delete, expire features
+  [ ] chat for single individual (ie proper chat screen)
+  [ ] chat simulator for whole project not just one bot
+  [ ] consolidate apps
+  [ ] deferred job queue
+  [ ] remove Message model and just use json in Interview model
+
 
 ## context variables for layout
 
