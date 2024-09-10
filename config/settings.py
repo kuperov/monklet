@@ -38,7 +38,7 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ["true", "yes", "1"]
 if DEBUG:
     ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "192.168.168.110", "monklet.com"]
 else:
-    ALLOWED_HOSTS = ["monklet.com", "www.monklet.com"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "monklet.com", "www.monklet.com"]
 
 # Current DJANGO_ENVIRONMENT
 ENVIRONMENT = os.environ.get("DJANGO_ENVIRONMENT", default="local")
@@ -56,8 +56,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "apps.pages",
     "apps.projects",
-    "apps.profile",
-    "apps.invitations",
+    "apps.users",
     "crispy_forms",
     "crispy_bootstrap5",
     "channels"
@@ -132,10 +131,10 @@ else:
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": os.environ.get("DB_NAME"),
-            "USER": os.environ.get("DB_USER"),
-            "PASSWORD": os.environ.get("DB_PASSWORD"),
-            "HOST": os.environ.get("DB_HOST"),
-            "PORT": os.environ.get("DB_PORT"),
+            #"USER": os.environ.get("DB_USER"),
+            #"PASSWORD": os.environ.get("DB_PASSWORD"),
+            #"HOST": os.environ.get("DB_HOST"),
+            #"PORT": os.environ.get("DB_PORT"),
         }
     }
 
@@ -186,7 +185,7 @@ LOCALE_PATHS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = os.environ.get("STATIC_URL", default="/static/")
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
@@ -216,6 +215,7 @@ TEMPLATE_CONFIG = TEMPLATE_CONFIG
 # SESSION_COOKIE_SAMESITE = "Lax"
 # SESSION_COOKIE_AGE = 3600
 
+AUTH_USER_MODEL = "users.User"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_REDIRECT_URL = '/profile/'
@@ -279,5 +279,6 @@ else:
             "CONFIG": {
                 "hosts": [("127.0.0.1", 6379)],
             },
+            "ROUTING": "realtime.routing.channel_routing",
         },
     }

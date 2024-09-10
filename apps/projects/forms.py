@@ -2,8 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
 
-from .models import Project, Question, Bot, ConsentLetter, Interview, Transcript
-from apps.invitations.models import MemberInvitation
+from .models import Project, Question, Bot, ConsentLetter, Interview, Transcript, MemberInvitation
 
 # another possibility: https://stackoverflow.com/a/56719980
 
@@ -105,3 +104,11 @@ class ManualTranscriptForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.add_input(save())
         self.helper.add_input(cancel())
+
+
+class InvitationResponseForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('yes', 'Yes, accept'))

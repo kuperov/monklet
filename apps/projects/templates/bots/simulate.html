@@ -26,14 +26,14 @@
 {{ initial_messages|json_script:"initial-messages"}}
 <script>
   const initial_messages = JSON.parse(document.getElementById('initial-messages').textContent);
-  initial_messages.forEach(m => {
+  {% comment %} initial_messages.forEach(m => {
     console.log(m);
     if (m.sender == "subject") {
       add_my_message([m.message], m.sent_at, "{{ user.profile.avatar_url }}");
     } else {
       add_remote_message([m.message], m.sent_at, "{% static "img/avatars/bot.svg" %}");
     }
-  });
+  }); {% endcomment %}
 </script>
 {% endblock page_js %}
 
@@ -64,9 +64,11 @@
           <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
             <h5 class="text-primary mb-0">Test interviews</h5>
           </li>
-          <li class="chat-contact-list-item chat-list-item-0 d-none">
-            <h6 class="text-muted mb-0">No interviews found</h6>
+          {% if not bot.test_interviews %}
+          <li class="chat-contact-list-item chat-list-item-0"> <!-- d-none -->
+            <h6 class="text-muted mb-0">No test interviews found</h6>
           </li>
+          {% endif %}
           {% for iv in bot.test_interviews %}
           <li class="chat-contact-list-item mb-1">
             <a class="d-flex align-items-center">
@@ -85,9 +87,25 @@
             </a>
           </li>
           {% endfor %}
-          <li class="chat-list-item-0 p-5">
-            <a href="{% url 'bot-simulate-new' pk=bot.pk %}" class="btn btn-primary">New chat</a>
+          <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
+            <h5 class="text-primary mb-0">Bots</h5>
           </li>
+          {% for bot in project.bots.all %}
+          <li class="chat-contact-list-item mb-1" data-botid="{{bot.pk}}">
+            <a class="d-flex align-items-center">
+              <div class="flex-shrink-0 avatar avatar-online">
+                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
+              </div>
+              <div class="chat-contact-info flex-grow-1 ms-4">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="chat-contact-name text-truncate fw-normal m-0">{{ bot.name }}</h6>
+                  <small class="text-muted">version {{bot.version}}</small>
+                </div>
+                <small class="chat-contact-status text-truncate">{{ bot.description }}</small>
+              </div>
+            </a>
+          </li>
+          {% endfor %}
         </ul>
       </div>
     </div>

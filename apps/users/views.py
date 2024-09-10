@@ -6,14 +6,23 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpRequest, HttpResponse
 
-from .models import Profile
-from .forms import ProfileForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import QuerySet
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import DetailView
+from django.views.generic import RedirectView
+from django.views.generic import UpdateView
+
+from apps.users.models import Profile, User
+from apps.users.forms import ProfileForm
 
 
 def menu():
     return {
         'menu': [
-            {'url': '/profile/', 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'My projects'},
+            {'url': reverse_lazy('users:profile'), 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'My projects'},
             {'url': reverse_lazy('project-new'), 'icon': 'menu-icon tf-icons ri-message-line', 'name': 'New project'},
         ]
     }
@@ -43,7 +52,7 @@ def profile_edit(request: HttpRequest, pk: str) -> HttpResponse:
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully")
-            return redirect('profile')
+            return redirect('users:profile')
     else:
         form = ProfileForm(instance=profile)
     ctx = {
@@ -52,3 +61,39 @@ def profile_edit(request: HttpRequest, pk: str) -> HttpResponse:
     }
     ctx['layout_path'] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "profile/profile-edit.html", ctx)
+
+
+class UserDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    slug_field = "id"
+    slug_url_kwarg = "id"
+
+
+user_detail_view = UserDetailView.as_view()
+
+
+class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = User
+    fields = ["name"]
+    success_message = _("Information successfully updated")
+
+    def get_success_url(self) -> str:
+        assert self.request.user.is_authenticated  # type guard
+        return self.request.user.get_absolute_url()
+
+    def get_object(self, queryset: QuerySet | None = None) -> User:
+        assert self.request.user.is_authenticated  # type guard
+        return self.request.user
+
+
+user_update_view = UserUpdateView.as_view()
+
+
+class UserRedirectView(LoginRequiredMixin, RedirectView):
+    permanent = False
+
+    def get_redirect_url(self) -> str:
+        return reverse("users:detail", kwargs={"pk": self.request.user.pk})
+
+
+user_redirect_view = UserRedirectView.as_view()

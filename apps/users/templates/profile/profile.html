@@ -35,7 +35,7 @@
             </li>
           </ul>
         </div>
-        <a href="{{ profile.edit_url }}" class="btn">
+        <a href="{% url 'users:profile-edit' pk=profile.pk %}" class="btn">
           <i class='ri-edit-line ri-16px me-1_5'></i>Edit
         </a>
       </div>

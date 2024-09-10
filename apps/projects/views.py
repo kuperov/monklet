@@ -8,10 +8,10 @@ from django.utils.timezone import now
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 
-from .models import Project, Interview, Question, Bot, ConsentLetter
+from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvitation
 from .forms import (
     ProjectForm, MemberInvitationForm, QuestionForm, BotForm, ConsentLetterForm,
-    InterviewForm, ManualTranscriptForm)
+    InterviewForm, ManualTranscriptForm, InvitationResponseForm)
 
 
 def menu(project: Project):
@@ -54,9 +54,9 @@ def project_settings(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == "POST":
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
-            form.save()
+            project = form.save()
             messages.success(request, "Project updated successfully")
-            return redirect(project.url())
+            return redirect(project.url)
     else:
         form = ProjectForm(instance=project)
     ctx = {
@@ -304,30 +304,17 @@ def bot_delete(_request: HttpRequest, pk: str) -> HttpResponse:
     return redirect('project-bots', pk=project_id)
 
 @login_required
-def project_simulate(request: HttpRequest, code: str) -> HttpResponse:
-    interview = get_object_or_404(Interview, pk=code)
-    bot = interview.bot
-    project = interview.project
+def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
     ctx = {
-        "bot": bot,
         "project": project,
-        "initial_messages": [m.display() for m in interview.messages.all()],
         "menu_data": menu(project)
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, 'bots/simulate.html', ctx)
 
-@login_required
-def bot_simulate_new(request: HttpRequest, pk: str) -> HttpResponse:
-    bot = get_object_or_404(Bot, pk=pk)
-    project = bot.project
-    if not project.can_edit(request.user):
-        raise PermissionDenied("User action not permitted.")
-    iv = Interview.objects.create(project=project, bot=bot, status='test')
-    # TODO: construct URL with GET parameters for the new chat
-    return redirect('interviews-simulate', code=iv.pk)
 
 # note: unauthenticated view - interview_code provides security
 def interview(request, interview_code):
@@ -470,3 +457,38 @@ def project_transcripts_upload(request: HttpRequest, pk: str) -> HttpResponse:
     }
     ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "transcripts/upload.html", ctx)
+
+
+
+
+# at this point users are possibly unauthenticated
+def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
+    inv = get_object_or_404(MemberInvitation, pk=code)
+    if not inv.is_valid:
+        return render(request, 'invitations/not_available.html')
+    if request.user == inv.project.owner:  # owner clicked own link
+        raise PermissionDenied("User action not permitted.")
+    if not request.user.is_authenticated:
+        return render(request, 'invitations/landing_not_logged_in.html', {
+            'project': inv.project, 'return_url': inv.landing_url})
+    else:
+        # logged in, so just ask if accept
+        form = InvitationResponseForm()
+        form.helper.form_action = reverse_lazy('invitation-respond', kwargs={'code': code})
+        ctx = {'form': form}
+        return render(request, 'invitations/landing_logged_in.html', ctx)
+
+def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
+    inv = get_object_or_404(MemberInvitation, pk=code)
+    if not inv.is_valid:
+        return render(request, 'invitations/not_available.html')
+    if request.user == inv.project.owner:  # owner clicked own link
+        raise PermissionDenied("User action not permitted.")
+    if not request.user.is_authenticated:
+        return redirect(inv.landing_url)
+    if request.method == 'POST' and request.POST.get('yes'):
+        inv.accept(request.user)
+        inv.save()
+        return redirect(inv.project.url)
+    else:
+        raise PermissionDenied("User action not permitted.")

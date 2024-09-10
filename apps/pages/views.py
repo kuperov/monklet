@@ -27,13 +27,13 @@ class LandingPageView(PagesView):
         context = super().get_context_data(**kwargs)
 
         if self.request.user.is_authenticated:
-            return redirect(reverse_lazy('profile'))
+            return redirect(reverse_lazy('users:profile'))
         return context
 
 
 def comingsoon(request):
     if request.user.is_authenticated:
-        return redirect(reverse_lazy('profile'))
+        return redirect(reverse_lazy('users:profile'))
     if request.method == "POST":
         form = EnquiryForm(request.POST)
         if form.is_valid():

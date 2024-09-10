@@ -11,16 +11,16 @@
   [ ] separate templates for front, blank, and admin
   [ ] async views
   [ ] style login templates
-  [ ] custom user object
+  [x] custom user model
   [ ] tests for profile list/edit/creation
   [ ] tests for member management
   [ ] leave, delete, expire features
   [ ] chat for single individual (ie proper chat screen)
   [ ] chat simulator for whole project not just one bot
-  [ ] consolidate apps
+  [x] consolidate apps
   [ ] deferred job queue
   [ ] remove Message model and just use json in Interview model
-
+  [ ] 301 redirect for semi-structured.com
 
 ## context variables for layout
 

@@ -23,9 +23,8 @@ from django.conf import settings
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("apps.pages.urls")),
-    path("profile/", include("apps.profile.urls")),
+    path("users/", include("apps.users.urls")),
     path("", include("apps.projects.urls")),
-    path("invitations/", include("apps.invitations.urls")),
     path("accounts/", include("allauth.urls")),
 ]
 
