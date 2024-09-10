@@ -9,7 +9,9 @@ admin.site.register(models.Question)
 admin.site.register(models.Dimension)
 admin.site.register(models.ConsentLetter)
 
+
 class MemberInvitationAdmin(admin.ModelAdmin):
-    readonly_fields=('pk','landing_url')
+    readonly_fields = ("pk", "landing_url")
+
 
 admin.site.register(models.MemberInvitation, MemberInvitationAdmin)

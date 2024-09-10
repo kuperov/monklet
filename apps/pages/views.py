@@ -1,4 +1,3 @@
-
 from django.views.generic import TemplateView
 from web_project import TemplateLayout
 from web_project.template_helpers.theme import TemplateHelper
@@ -9,6 +8,7 @@ from django.urls import reverse_lazy
 
 from .forms import EnquiryForm
 from apps.context_helpers import blank_context
+
 
 class PagesView(TemplateView):
     def get_context_data(self, **kwargs):
@@ -28,13 +28,13 @@ class LandingPageView(PagesView):
         context = super().get_context_data(**kwargs)
 
         if self.request.user.is_authenticated:
-            return redirect(reverse_lazy('users:profile'))
+            return redirect(reverse_lazy("users:profile"))
         return context
 
 
 def comingsoon(request):
     if request.user.is_authenticated:
-        return redirect(reverse_lazy('users:profile'))
+        return redirect(reverse_lazy("users:profile"))
     if request.method == "POST":
         form = EnquiryForm(request.POST)
         if form.is_valid():

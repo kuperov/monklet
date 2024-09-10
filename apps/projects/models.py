@@ -4,6 +4,7 @@ from typing import Dict
 from django.db import models
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
+
 User = get_user_model()
 from django.utils.timezone import now
 from django.conf import settings
@@ -11,11 +12,14 @@ from django.core.exceptions import ObjectDoesNotExist
 
 import markdown
 
+
 class Project(models.Model):
     class Meta:
         permissions = (("can_delete_own", "Can delete own project"),)
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     research_aims = models.TextField(null=True, blank=True)
@@ -23,7 +27,9 @@ class Project(models.Model):
     created_at = models.DateTimeField(default=now, null=False, editable=False)
     last_modified_at = models.DateTimeField(default=now, null=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_projects')
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="owned_projects"
+    )
 
     def can_view(self, user: User):
         if user == self.owner:
@@ -33,7 +39,7 @@ class Project(models.Model):
     def can_edit(self, user: User):
         if user == self.owner:
             return True
-        return Member.objects.filter(project=self, user=user, role='editor').exists()
+        return Member.objects.filter(project=self, user=user, role="editor").exists()
 
     @property
     def member_count(self):
@@ -53,71 +59,86 @@ class Project(models.Model):
 
     @property
     def url(self):
-        return reverse_lazy('project', kwargs={'pk': self.id})
+        return reverse_lazy("project", kwargs={"pk": self.id})
 
     @property
     def settings_url(self):
-        return reverse_lazy('project-settings', kwargs={'pk': self.id})
+        return reverse_lazy("project-settings", kwargs={"pk": self.id})
 
     @property
     def delete_url(self):
-        return reverse_lazy('project-delete', kwargs={'pk': self.id})
+        return reverse_lazy("project-delete", kwargs={"pk": self.id})
 
     @property
     def leave_url(self):
-        return reverse_lazy('project-leave', kwargs={'pk': self.id})
+        return reverse_lazy("project-leave", kwargs={"pk": self.id})
 
     @property
     def members_url(self):
-        return reverse_lazy('project-members', kwargs={'pk': self.id})
+        return reverse_lazy("project-members", kwargs={"pk": self.id})
 
     @property
     def analysis_url(self):
-        return reverse_lazy('project-analysis', kwargs={"pk": self.id})
+        return reverse_lazy("project-analysis", kwargs={"pk": self.id})
 
     @property
     def questions_url(self):
-        return reverse_lazy('project-questions', kwargs={"pk": self.id})
+        return reverse_lazy("project-questions", kwargs={"pk": self.id})
 
     @property
     def bots_url(self):
-        return reverse_lazy('project-bots', kwargs={"pk": self.id})
+        return reverse_lazy("project-bots", kwargs={"pk": self.id})
 
     @property
     def invitations_url(self):
-        return reverse_lazy('project-invitations', kwargs={"pk": self.id})
+        return reverse_lazy("project-invitations", kwargs={"pk": self.id})
 
     @property
     def data_url(self):
-        return reverse_lazy('project-responses', kwargs={"pk": self.id})
+        return reverse_lazy("project-responses", kwargs={"pk": self.id})
 
     @property
     def files_url(self):
-        return reverse_lazy('project-files', kwargs={"pk": self.id})
+        return reverse_lazy("project-files", kwargs={"pk": self.id})
 
     @property
     def consent_letters_url(self):
-        return reverse_lazy('project-consent-letters', kwargs={"pk": self.id})
+        return reverse_lazy("project-consent-letters", kwargs={"pk": self.id})
 
 
-MEMBER_ROLES = [
-    ('viewer', 'Viewer'),
-    ('editor', 'Editor')
-]
+MEMBER_ROLES = [("viewer", "Viewer"), ("editor", "Editor")]
+
 
 class Member(models.Model):
     """A member of a project.
 
     Created when an invitation is accepted, deleted when member is removed or leaves.
     """
+
     class Meta:
         indexes = [
-            models.Index(fields=['project',]),
-            models.Index(fields=['user',]),
+            models.Index(
+                fields=[
+                    "project",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "user",
+                ]
+            ),
         ]
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
-    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, related_name='project_memberships')
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="members"
+    )
+    user = models.ForeignKey(
+        User,
+        null=False,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name="project_memberships",
+    )
     role = models.CharField(max_length=6, choices=MEMBER_ROLES)
     last_modified_at = models.DateTimeField(null=False, blank=False, default=now)
 
@@ -133,34 +154,44 @@ class Member(models.Model):
         try:
             return self.user.profile.avatar_url
         except ObjectDoesNotExist:
-            settings.STATIC_URL + 'img/avatars/generic.svg'
+            settings.STATIC_URL + "img/avatars/generic.svg"
 
     @property
     def email(self):
         return self.user.email
 
+
 class Question(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="questions")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="questions"
+    )
     question = models.TextField("Question")
     order = models.IntegerField("Order")
     is_enabled = models.BooleanField("Enabled", default=True, null=False)
+
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]
 
     def __str__(self) -> str:
         return self.question
 
 
-BOT_STATUS = [
-    ('test', 'Testing'),
-    ('live', 'Available'),
-    ('disabled', 'Disabled')
-]
+BOT_STATUS = [("test", "Testing"), ("live", "Available"), ("disabled", "Disabled")]
+
 
 class ConsentLetter(models.Model):
-    id = models.UUIDField("Identifier", unique=True, primary_key=True, default=uuid.uuid4, null=False, editable=False)
+    id = models.UUIDField(
+        "Identifier",
+        unique=True,
+        primary_key=True,
+        default=uuid.uuid4,
+        null=False,
+        editable=False,
+    )
     name = models.CharField("Short name", max_length=100, null=False, blank=False)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='consent_letters')
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="consent_letters"
+    )
     short_md = models.TextField("Short version")
     letter_md = models.TextField("Letter")
 
@@ -168,26 +199,29 @@ class ConsentLetter(models.Model):
         return self.name
 
 
-AI_MODELS = [
-    ('gemini-flash-1.5', 'Gemini Flash 1.5')
-]
+AI_MODELS = [("gemini-flash-1.5", "Gemini Flash 1.5")]
 
-BOT_STATUSES = [
-    ('test', 'Testing'),
-    ('live', 'Live'),
-    ('disabled', 'Disabled')
-]
+BOT_STATUSES = [("test", "Testing"), ("live", "Live"), ("disabled", "Disabled")]
 
-def default_bot_config() -> Dict[str,str]:
+
+def default_bot_config() -> Dict[str, str]:
     return {
-        'temperature': 0.5,
-        'top_p': 0.9,
-        'top_k': 64,
-        'max_output_tokens': 8192,
+        "temperature": 0.5,
+        "top_p": 0.9,
+        "top_k": 64,
+        "max_output_tokens": 8192,
     }
 
+
 class Bot(models.Model):
-    id = models.UUIDField("Identifier", unique=True, primary_key=True, default=uuid.uuid4, null=False, editable=False)
+    id = models.UUIDField(
+        "Identifier",
+        unique=True,
+        primary_key=True,
+        default=uuid.uuid4,
+        null=False,
+        editable=False,
+    )
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="bots")
     name = models.CharField("Bot name", max_length=100)
     description = models.TextField("Description")
@@ -195,46 +229,67 @@ class Bot(models.Model):
     prompt = models.TextField("Model prompt")
     aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
     config = models.JSONField("LLM options", default=default_bot_config)
-    opening_user_statement = models.CharField("Opening user statement", default="Hello", max_length=100, blank=True, null=True)
-    end_string = models.CharField("Termination string", max_length=100, default='ENDOFINTERVIEW')
-    consent_letter = models.ForeignKey(ConsentLetter, on_delete=models.SET_NULL, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=BOT_STATUSES, default='test')
+    opening_user_statement = models.CharField(
+        "Opening user statement", default="Hello", max_length=100, blank=True, null=True
+    )
+    end_string = models.CharField(
+        "Termination string", max_length=100, default="ENDOFINTERVIEW"
+    )
+    consent_letter = models.ForeignKey(
+        ConsentLetter, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    status = models.CharField(max_length=20, choices=BOT_STATUSES, default="test")
     allow_public = models.BooleanField("Allow public use", default=False, null=False)
 
     def __str__(self):
         return f"{self.name} ({self.version})"
 
     def test_interviews(self):
-        return self.interviews.filter(status='test')
+        return self.interviews.filter(status="test")
 
 
 INTERVIEW_STATUS = [
-    ('invited', 'Participant invited'),
-    ('started', 'Started'),
-    ('complete', 'Complete'),
-    ('test', 'Test interview')
+    ("invited", "Participant invited"),
+    ("started", "Started"),
+    ("complete", "Complete"),
+    ("test", "Test interview"),
 ]
 
+
 class Interview(models.Model):
-    id = models.UUIDField("Identifier", primary_key=True, default=uuid.uuid4, blank=False, null=False)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="interviews")
+    id = models.UUIDField(
+        "Identifier", primary_key=True, default=uuid.uuid4, blank=False, null=False
+    )
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="interviews"
+    )
     bot = models.ForeignKey(Bot, on_delete=models.CASCADE, related_name="interviews")
     subject_email = models.EmailField("Recipient email", blank=False, null=False)
-    subject_name = models.CharField("Recipient name", max_length=50, blank=False, null=False)
-    has_consented = models.BooleanField("Has given informed consent", default=False, blank=False, null=False)
-    content = models.JSONField("Interview content", default=list, blank=False, null=False)
-    status = models.CharField(max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False)
+    subject_name = models.CharField(
+        "Recipient name", max_length=50, blank=False, null=False
+    )
+    has_consented = models.BooleanField(
+        "Has given informed consent", default=False, blank=False, null=False
+    )
+    content = models.JSONField(
+        "Interview content", default=list, blank=False, null=False
+    )
+    status = models.CharField(
+        max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
+    )
     created_at = models.DateTimeField(default=now, blank=False, null=False)
-    started_at = models.DateTimeField("Time conversation started", blank=True, null=True)
+    started_at = models.DateTimeField(
+        "Time conversation started", blank=True, null=True
+    )
     updated_at = models.DateTimeField("Last message at", blank=True, null=True)
 
     class Meta:
-        ordering = ['subject_name']
+        ordering = ["subject_name"]
 
     def __str__(self):
         return self.subject_name
 
-    def add_message(self, sender: str, message: str) -> Dict[str,str]:
+    def add_message(self, sender: str, message: str) -> Dict[str, str]:
         """Add a record of a new message.
 
         Args:
@@ -243,13 +298,10 @@ class Interview(models.Model):
         """
         if self.content is None:
             self.content = []  # shouldn't happen?
-        msg = {
-            'sender': sender,
-            'message': message,
-            'sent_at': now()
-        }
+        msg = {"sender": sender, "message": message, "sent_at": now()}
         self.content.append(msg)
         return msg
+
 
 class Dimension(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -259,10 +311,13 @@ class Dimension(models.Model):
     def __str__(self):
         return f"Dimension {self.name} on {self.project}"
 
+
 class InvitationEmail(models.Model):
     # redundant ref to project to make lookup simple
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    interview = models.ForeignKey(Interview, on_delete=models.CASCADE, related_name='emails')
+    interview = models.ForeignKey(
+        Interview, on_delete=models.CASCADE, related_name="emails"
+    )
     sent_at = models.DateTimeField(default=now)
     email = models.EmailField()
     message = models.TextField()
@@ -273,12 +328,18 @@ class InvitationEmail(models.Model):
 
 
 class Transcript(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='transcripts')
-    interview = models.ForeignKey(Interview, on_delete=models.SET_NULL, null=True, default=None)
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="transcripts"
+    )
+    interview = models.ForeignKey(
+        Interview, on_delete=models.SET_NULL, null=True, default=None
+    )
     subject_name = models.CharField(max_length=100, blank=None)
     full_text = models.TextField()
     description = models.TextField()
-    is_excluded = models.BooleanField("Exclude from analysis", default=False, null=False)
+    is_excluded = models.BooleanField(
+        "Exclude from analysis", default=False, null=False
+    )
     created_at = models.DateTimeField(null=False, default=now)
     updated_at = models.DateTimeField(null=False, default=now)
 
@@ -295,14 +356,23 @@ class MemberInvitation(models.Model):
 
     Links expire after `expires_at`, which is updated to `now()` if revoked.
     """
+
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def default_expiry():
         return now() + datetime.timedelta(days=settings.INVITATION_EXPIRY_DAYS)
 
-    code = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, unique=True)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=False, null=False, related_name='member_invitations')
+    code = models.UUIDField(
+        default=uuid.uuid4, primary_key=True, editable=False, unique=True
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+        related_name="member_invitations",
+    )
     role = models.CharField(max_length=6, blank=False, null=False, choices=MEMBER_ROLES)
     email = models.CharField(max_length=100, blank=False, null=False)
     name = models.CharField(max_length=100, blank=False, null=False)
@@ -316,7 +386,7 @@ class MemberInvitation(models.Model):
 
     @property
     def landing_url(self):
-        return reverse_lazy('invitation-landing', kwargs = {'code': self.pk})
+        return reverse_lazy("invitation-landing", kwargs={"code": self.pk})
 
     def accept(self, user) -> Member:
         """Accept the invitation and marks it expired so it can't be used again."""
@@ -344,15 +414,15 @@ class MemberInvitation(models.Model):
     @property
     def status(self) -> str:
         if self.accepted_email:
-            return 'Accepted'
+            return "Accepted"
         elif self.is_expired:
-            return 'Expired'
+            return "Expired"
         elif self.is_valid:
-            return 'Valid'
+            return "Valid"
         elif self.sent_at is None:
-            return 'Not sent'
+            return "Not sent"
         else:
-            return 'Invalid'
+            return "Invalid"
 
     def send_email(self, request) -> int:
         """Render and send invitation email.
@@ -362,12 +432,12 @@ class MemberInvitation(models.Model):
         URL, which is different per environment.
         """
         ctx = {
-            'name': self.name,
-            'project_name': self.project.name,
-            'expiry_days': settings.INVITATION_EXPIRY_DAYS,
-            'landing_url': request.build_absolute_uri(self.landing_url)
+            "name": self.name,
+            "project_name": self.project.name,
+            "expiry_days": settings.INVITATION_EXPIRY_DAYS,
+            "landing_url": request.build_absolute_uri(self.landing_url),
         }
-        self.message = render_to_string('invitations/member_email.html', ctx)
+        self.message = render_to_string("invitations/member_email.html", ctx)
         plain = strip_tags(self.message)
         self.subject = f"Collaborate on {self.project.name}"
         result = mail.send_mail(
@@ -376,7 +446,7 @@ class MemberInvitation(models.Model):
             from_email=settings.EMAIL_SENDER,
             recipient_list=[f"{self.name} <{self.email}>"],
             html_message=self.message,
-            fail_silently=True
+            fail_silently=True,
         )
         if result:
             self.sent_at = now()
@@ -389,7 +459,7 @@ class MemberInvitation(models.Model):
             project=self.project,
             email=self.email,
             name=self.name,
-            message_markdown=self.message_markdown
+            message_markdown=self.message_markdown,
         )
         inv.send_email()
         self.expire()
