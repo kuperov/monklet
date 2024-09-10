@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 
 from .forms import EnquiryForm
-from apps.context_helpers import blank_context
+from apps.context_helpers import blank_context, front_context
 
 
 class PagesView(TemplateView):
@@ -21,15 +21,12 @@ class PagesView(TemplateView):
         return context
 
 
-class LandingPageView(PagesView):
-    template_name = "landing_page.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        if self.request.user.is_authenticated:
-            return redirect(reverse_lazy("users:profile"))
-        return context
+def landing_page(request):
+    if request.user.is_authenticated:
+        return redirect(reverse_lazy("users:profile"))
+    else:
+        ctx = front_context()
+        return render(request, "landing_page.html", ctx)
 
 
 def comingsoon(request):
@@ -43,8 +40,7 @@ def comingsoon(request):
     else:
         form = EnquiryForm()
 
-    ctx = blank_context()
-    ctx.update({"form": form})
+    ctx = blank_context({"form": form})
     return render(request, "comingsoon.html", ctx)
 
 

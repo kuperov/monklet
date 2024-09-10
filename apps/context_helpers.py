@@ -51,8 +51,8 @@ def backend_context(ctx: Dict[str, Any]) -> Dict[str, str]:
     return ret
 
 
-def blank_context() -> Dict[str, str]:
-    return {
+def blank_context(ctx=None) -> Dict[str, str]:
+    ret = {
         "layout": "blank",
         "theme": "theme-semi-dark",
         "style": "system",
@@ -97,10 +97,13 @@ def blank_context() -> Dict[str, str]:
         "navbar_detached_class": "navbar-detached",
         "layout_path": "layout/layout_blank.html",
     }
+    if ctx:
+        ret.update(ctx)
+    return ret
 
 
-def front_context() -> Dict[str, str]:
-    return {
+def front_context(ctx=None) -> Dict[str, str]:
+    ret = {
         "layout": "front",
         "theme": "theme-semi-dark",
         "style": "light",
@@ -146,3 +149,6 @@ def front_context() -> Dict[str, str]:
         "layout_path": "layout/layout_front.html",
         "is_front": True,
     }
+    if ctx:
+        ret.update(ctx)
+    return ret

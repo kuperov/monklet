@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PagesView, LandingPageView, comingsoon, enquiry_success
+from .views import PagesView, landing_page, comingsoon, enquiry_success
 
 
 urlpatterns = [
@@ -22,7 +22,7 @@ urlpatterns = [
         PagesView.as_view(template_name="pages_misc_not_authorized.html"),
         name="pages-misc-not-authorized",
     ),
-    path("landing/", LandingPageView.as_view(), name="landing"),
+    path("landing/", landing_page, name="landing"),
     path(
         "pricing/",
         PagesView.as_view(template_name="pricing_page.html"),
