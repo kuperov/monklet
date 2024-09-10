@@ -43,9 +43,9 @@
         <h4 class="mt-3">{{ project.name }}</h4>
         {% endif %}
 
-        <!-- Style Switcher -->
-        <div class="navbar-nav align-items-center">
-          <li class="nav-item dropdown-style-switcher dropdown me-2 me-xl-0">
+        <ul class="navbar-nav flex-row align-items-center ms-auto">
+          <!-- color scheme -->
+          <li class="nav-item dropdown-style-switcher dropdown me-2">
             <a class="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
               <i class='ri-22px'></i>
             </a>
@@ -66,11 +66,6 @@
                 </a>
               </li>
             </ul>
-        </div>
-        <!-- / Style Switcher-->
-
-        <ul class="navbar-nav flex-row align-items-center ms-auto">
-          <!-- User -->
           <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
               <div class="avatar">
@@ -123,7 +118,6 @@
               </li>
             </ul>
           </li>
-          <!--/ User -->
         </ul>
 
       </div>

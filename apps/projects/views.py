@@ -1,7 +1,6 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from web_project.template_helpers.theme import TemplateHelper
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.timezone import now
@@ -12,7 +11,7 @@ from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvi
 from .forms import (
     ProjectForm, MemberInvitationForm, QuestionForm, BotForm, ConsentLetterForm,
     InterviewForm, ManualTranscriptForm, InvitationResponseForm)
-
+from apps.context_helpers import backend_context
 
 def menu(project: Project):
     menu = [{'url': '/profile/', 'icon': 'menu-icon tf-icons ri-home-line', 'name': 'Home'}]
@@ -39,11 +38,10 @@ def project(request: HttpRequest, pk: str) -> HttpResponse:
     proj = get_object_or_404(Project, pk=pk)
     if not proj.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": proj,
         "menu_data": menu(proj)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "projects/project.html", ctx)
 
 @login_required
@@ -59,12 +57,11 @@ def project_settings(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect(project.url)
     else:
         form = ProjectForm(instance=project)
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "project": project,
         "menu_data": menu(project=project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "projects/detail.html", ctx)
 
 @login_required
@@ -78,11 +75,10 @@ def project_new(request: HttpRequest) -> HttpResponse:
     else:
         form = ProjectForm()
         form.helper.form_acount = reverse_lazy('project-new')
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "menu_data": menu(project=None)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "projects/detail.html", ctx)
 
 @login_required
@@ -95,11 +91,10 @@ def project_delete(request: HttpRequest, pk: str) -> HttpResponse:
         project.save()
         messages.success(request, "Project {project.name} deleted.")
         return redirect("profile")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "projects/delete.html", ctx)
 
 @login_required
@@ -112,11 +107,10 @@ def project_leave(request: HttpRequest, pk: str) -> HttpResponse:
         project.save()
         messages.success(request, f"You have been removed from {project.name}.")
         return redirect("profile")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "projects/leave.html", ctx)
 
 
@@ -125,11 +119,10 @@ def project_members(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "members/list.html", ctx)
 
 @login_required
@@ -137,11 +130,10 @@ def project_analysis(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "analysis/summary.html", ctx)
 
 
@@ -150,11 +142,10 @@ def project_questions(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "questions/list.html", ctx)
 
 @login_required
@@ -173,12 +164,11 @@ def project_questions_new(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-questions', pk=project.pk)
     else:
         form = QuestionForm()
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "questions/detail.html", ctx)
 
 @login_required
@@ -193,11 +183,10 @@ def question_edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-questions', pk=question.project.pk)
     else:
         form = QuestionForm(instance=question)
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "menu_data": menu(question.project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, 'questions/detail.html', ctx)
 
 @login_required
@@ -212,11 +201,10 @@ def project_files(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "projects/files.html", ctx)
 
 @login_required
@@ -234,12 +222,11 @@ def project_invite(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect(project.members_url)
     else:
         form = MemberInvitationForm()
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "members/invite.html", ctx)
 
 @login_required
@@ -247,11 +234,10 @@ def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "bots/list.html", ctx)
 
 @login_required
@@ -269,12 +255,11 @@ def project_bots_new(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-bots', pk=project.pk)
     else:
         form = BotForm()
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "bots/detail.html", ctx)
 
 @login_required
@@ -289,11 +274,10 @@ def bot_edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-bots', pk=bot.project.pk)
     else:
         form = BotForm(instance=bot)
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "menu_data": menu(bot.project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, 'bots/detail.html', ctx)
 
 @login_required
@@ -308,11 +292,10 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, 'bots/simulate.html', ctx)
 
 
@@ -331,11 +314,10 @@ def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "consent_letters/list.html", ctx)
 
 @login_required
@@ -353,12 +335,11 @@ def project_consent_letters_new(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-consent-letters', pk=project.pk)
     else:
         form = ConsentLetterForm()
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "consent_letters/detail.html", ctx)
 
 @login_required
@@ -373,11 +354,10 @@ def consent_letter_edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-consent-letters', pk=consent_letter.project.pk)
     else:
         form = ConsentLetterForm(instance=consent_letter)
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "menu_data": menu(consent_letter.project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, 'consent_letters/detail.html', ctx)
 
 @login_required
@@ -393,12 +373,11 @@ def project_interviews_invited(request: HttpRequest, pk: str) -> HttpResponse:
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
     interviews = project.interviews.exclude(status='test')
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "interviews": interviews,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "interviews/invited.html", ctx)
 
 @login_required
@@ -416,12 +395,11 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-invitations', pk=project.pk)
     else:
         form = InterviewForm()
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "interviews/new.html", ctx)
 
 @login_required
@@ -429,11 +407,10 @@ def project_transcripts(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = {
+    ctx = backend_context({
         "project": project,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "transcripts/list.html", ctx)
 
 @login_required
@@ -451,15 +428,11 @@ def project_transcripts_upload(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect('project-transcripts', pk=project.pk)
     else:
         form = ManualTranscriptForm()
-    ctx = {
+    ctx = backend_context({
         "form": form,
         "menu_data": menu(project)
-    }
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
+    })
     return render(request, "transcripts/upload.html", ctx)
-
-
-
 
 # at this point users are possibly unauthenticated
 def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:

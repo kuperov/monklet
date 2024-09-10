@@ -1,3 +1,4 @@
+
 from django.views.generic import TemplateView
 from web_project import TemplateLayout
 from web_project.template_helpers.theme import TemplateHelper
@@ -7,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 
 from .forms import EnquiryForm
-
+from apps.context_helpers import blank_context
 
 class PagesView(TemplateView):
     def get_context_data(self, **kwargs):
@@ -42,12 +43,11 @@ def comingsoon(request):
     else:
         form = EnquiryForm()
 
-    ctx = {"form": form}
-    ctx['layout_path'] = TemplateHelper.set_layout("layout_blank.html")
+    ctx = blank_context()
+    ctx.update({"form": form})
     return render(request, "comingsoon.html", ctx)
 
 
 def enquiry_success(request):
-    ctx = {}
-    ctx['layout_path'] = TemplateHelper.set_layout("layout_blank.html")
+    ctx = blank_context()
     return render(request, "enquiry_success.html", ctx)
