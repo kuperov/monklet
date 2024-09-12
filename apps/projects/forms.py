@@ -1,6 +1,9 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
+from django.conf import settings
 
 from .models import (
     Project,
@@ -144,6 +147,9 @@ class PublicConsentForm(forms.ModelForm):
     subject_email = forms.CharField(label="Your email address", required=False)
     has_consented = forms.BooleanField(label="I consent to participate in this study", required=True)
     followup_consented = forms.BooleanField(label="The investigators may contact me for follow-up", required=False)
+    if not settings.DEBUG:
+        # https://pypi.org/project/django-recaptcha/
+        captcha = ReCaptchaField(widget=ReCaptchaV3)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

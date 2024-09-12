@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.users",
     "crispy_forms",
     "crispy_bootstrap5",
+    'django_recaptcha',
     "channels"
 ]
 
@@ -115,6 +116,9 @@ ASGI_APPLICATION = "config.asgi.application"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 CRISPY_FAIL_SILENTLY = not DEBUG
+
+RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

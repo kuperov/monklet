@@ -294,6 +294,9 @@ class Interview(models.Model):
     status = models.CharField(
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
     )
+    ip_address = models.CharField(
+        max_length=20, blank=True, null=True
+    )
     created_at = models.DateTimeField(default=now, blank=False, null=False)
     started_at = models.DateTimeField(
         "Time conversation started", blank=True, null=True

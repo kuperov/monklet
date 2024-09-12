@@ -53,6 +53,9 @@
         </p>
         {% endif %}
         {% crispy form %}
+        {% if ip_address %}
+        <p class="text-muted"><small>IP address: {{ ip_address }}</small></p>
+        {% endif %}
       </div>
     </div>
   </div>

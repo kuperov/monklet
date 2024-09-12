@@ -323,12 +323,13 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
             interview = form.save(commit=False)
             interview.project = project
             interview.bot = bot
+            interview.ip_address = request.get("X-Real-IP")
             interview.save()
             interview_url = reverse_lazy('interview', kwargs={'interview_code': interview.pk})
             return redirect(interview_url)
     else:
         form = PublicConsentForm()
-    ctx = blank_context({'bot': bot, 'project': project, 'form': form})
+    ctx = blank_context({'bot': bot, 'project': project, 'form': form, 'ip_address': request.GET.get("X-Real-IP")})
     return render(request, "interviews/public.html", ctx)
 
 
