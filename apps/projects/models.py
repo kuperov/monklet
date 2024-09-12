@@ -315,19 +315,6 @@ class Interview(models.Model):
     def __str__(self):
         return self.subject_name
 
-    # def add_message(self, sender: str, message: str) -> Dict[str, str]:
-    #     """Add a record of a new message.
-
-    #     Args:
-    #         sender: one of 'ai', 'researcher', 'subject'
-    #         message: text of message
-    #     """
-    #     if self.content is None:
-    #         self.content = []  # shouldn't happen?
-    #     msg = {"sender": sender, "message": message, "sent_at": now()}
-    #     self.content.append(msg)
-    #     return msg
-
     def start(self):
         message = self.bot.opening_user_statement or 'Hello'
         return self.add_user_message(message)
