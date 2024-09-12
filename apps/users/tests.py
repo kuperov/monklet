@@ -13,8 +13,7 @@ class CreateProfileTestCase(TestCase):
             username=email,
             email=email,
             password=pw,
-            first_name="Cornelius",
-            last_name="Klonk",
+            name="Cornelius Klonk"
         )
         self.user.save()
         self.client.login(email=email, password=pw)
@@ -33,8 +32,7 @@ class UnauthenticatedProfileTestCase(TestCase):
             username=email,
             email=email,
             password=pw,
-            first_name="Cornelius",
-            last_name="Klonk",
+            name="Cornelius Klonk"
         )
         self.user.save()
         self.profile = Profile.objects.create(user=self.user)
@@ -50,8 +48,7 @@ class UnauthenticatedProfileTestCase(TestCase):
             username=em2,
             email=em2,
             password=pw2,
-            first_name="Reginald",
-            last_name="Goose",
+            name="Reginald Goose",
         )
         self.client.login(email=em2, password=pw2)
         edit_url = reverse_lazy(
@@ -72,8 +69,7 @@ class UnauthenticatedProfileTestCase(TestCase):
             username=em2,
             email=em2,
             password=pw2,
-            first_name="Reginald",
-            last_name="Goose",
+            name="Reginald Goose",
             is_superuser=True,
         )
         edit_url = reverse_lazy(
@@ -95,8 +91,7 @@ class UpdateProfileTestCase(TestCase):
             username=email,
             email=email,
             password=pw,
-            first_name="Cornelius",
-            last_name="Klonk",
+            name="Cornelius Klonk",
         )
         self.user.save()
         self.profile = Profile.objects.create(user=self.user)

@@ -243,6 +243,7 @@ class Bot(models.Model):
     description = models.TextField("Description")
     version = models.CharField(default="1.0", max_length=10)
     prompt = models.TextField("Model prompt")
+    caution = models.CharField(max_length=200, default="Please do not disclose sensitive information")
     aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
     config = models.JSONField("LLM options", default=default_bot_config)
     opening_user_statement = models.CharField(
