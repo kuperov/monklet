@@ -270,7 +270,7 @@ def project_bots_new(request: HttpRequest, pk: str) -> HttpResponse:
         raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
         form = BotForm(request.POST)
-        if form.is_valid:
+        if form.is_valid():
             b = form.save(commit=False)
             b.project = project
             b.save()
@@ -323,13 +323,13 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
             interview = form.save(commit=False)
             interview.project = project
             interview.bot = bot
-            interview.ip_address = request.get("X-Real-IP")
+            interview.ip_address = request.headers.get("X-Real-IP")
             interview.save()
             interview_url = reverse_lazy('interview', kwargs={'interview_code': interview.pk})
             return redirect(interview_url)
     else:
         form = PublicConsentForm()
-    ctx = blank_context({'bot': bot, 'project': project, 'form': form, 'ip_address': request.GET.get("X-Real-IP")})
+    ctx = blank_context({'bot': bot, 'project': project, 'form': form, 'ip_address': request.headers.get("X-Real-IP")})
     return render(request, "interviews/public.html", ctx)
 
 
@@ -345,7 +345,7 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
 # note: unauthenticated view - interview_code provides security
 def interview(request, interview_code):
     iv = get_object_or_404(Interview, pk=interview_code)
-    ctx = blank_context({"project": iv.project, "interview": iv,})
+    ctx = blank_context({"project": iv.project, "interview": iv})
     return render(request, "interviews/interview.html", ctx,)
 
 @login_required

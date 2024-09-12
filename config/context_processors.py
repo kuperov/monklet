@@ -1,14 +1,13 @@
-from django.conf import settings
 
 
-def language_code(request):
-    return {"LANGUAGE_CODE": request.LANGUAGE_CODE}
+# def language_code(request):
+#     return {"LANGUAGE_CODE": request.LANGUAGE_CODE}
 
 
-def get_cookie(request):
-    return {"COOKIES": request.COOKIES}
+# def get_cookie(request):
+#     return {"COOKIES": request.COOKIES}
 
 
-# Add the 'ENVIRONMENT' setting to the template context
-def environment(request):
-    return {"ENVIRONMENT": settings.ENVIRONMENT}
+# # Add the 'ENVIRONMENT' setting to the template context
+# def environment(request):
+#     return {"ENVIRONMENT": settings.ENVIRONMENT}

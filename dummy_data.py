@@ -1,6 +1,5 @@
 import os
 import django
-from django.contrib.auth import get_user_model
 
 
 user_data = [
@@ -61,9 +60,9 @@ def main():
     os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
     try:
         django.setup()
-        from apps.projects.models import Project, Member
-        from apps.invitations.models import MemberInvitation
-        User = get_user_model()
+        from apps.projects.models import Project, Member, MemberInvitation
+        from apps.users.models import User
+
         if User.objects.count() <= max_index + 1:
             for i in range(1 + max_index - User.objects.count()):
                 u = User(**user_data[i])

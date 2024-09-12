@@ -1,6 +1,7 @@
 import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+from apps.projects.models import Interview
 
 
 class InterviewConsumer(AsyncWebsocketConsumer):
@@ -19,6 +20,11 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.channel_ident, {"type": "chat_message", "message": message}
         )
+        print(message)
+        interview = await Interview.objects.aget(pk=self.interview_code)
+        resp = await interview.add_user_message_async(message)
+        print(resp)
+        await self.send(text_data=json.dumps(resp))
 
     async def chat_message(self, event):
         message = event["message"]

@@ -8,10 +8,8 @@ from datetime import timedelta
 from django.conf import settings
 
 from .models import MemberInvitation
+from apps.users.models import User
 
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 
 # https://channels.readthedocs.io/en/stable/tutorial/part_4.html
 

@@ -1,9 +1,6 @@
 from django.test import TestCase
-from django.contrib.auth import get_user_model
-from apps.users.models import Profile
+from apps.users.models import Profile, User
 from django.urls import reverse_lazy
-
-User = get_user_model()
 
 
 email, pw = "a@b.com", "super secret"

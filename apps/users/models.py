@@ -19,7 +19,6 @@ class User(AbstractUser):
     If adding fields that need to be filled at user signup,
     check forms.SignupForm and forms.SocialSignupForms accordingly.
     """
-
     # First and last name do not cover name patterns around the globe
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     first_name = None  # type: ignore[assignment]
@@ -53,7 +52,7 @@ class Profile(models.Model):
     )
 
     def __str__(self):
-        return self.user.get_full_name()
+        return f"{self.user.name} <{self.user.email}>"
 
     @property
     def avatar_url(self):
@@ -71,13 +70,13 @@ class Profile(models.Model):
                 owner_avatar = proj.owner.profile.avatar_url
             except ObjectDoesNotExist:
                 owner_avatar = settings.STATIC_URL + "img/avatars/generic.svg"
-            members = [{"name": proj.owner.get_full_name(), "avatar_url": owner_avatar}]
+            members = [{"name": proj.owner.name, "avatar_url": owner_avatar}]
             for m in proj.members.all():
                 members.append({"name": m.name, "avatar_url": m.avatar_url})
             return {
                 "url": proj.url,
                 "name": proj.name,
-                "owner_name": proj.owner.get_full_name() or str(proj.owner),
+                "owner_name": proj.owner.name or str(proj.owner),
                 "last_modified_at": proj.last_modified_at,
                 "members": members,
             }

@@ -18,16 +18,14 @@
   <input id="chat-message-input" type="text" size="100"><br>
   <input id="chat-message-submit" type="button" value="Send">
   {% endif %}
-  {{ interview_code|json_script:"interview-code" }}
-  {{ initial_messages|json_script:"initial-messages"}}
+  {{ interview.pk|json_script:"interview-code" }}
+  {{ interview.content|json_script:"initial-messages"}}
   <script>
       const interview_code = JSON.parse(document.getElementById('interview-code').textContent);
-      const initial_messages = JSON.parse.parse(document.getElementById('initial-messages').textContent);
-      if (initial_messages) {
-        for (data in initial_messages) {
-          document.querySelector('#chat-log').value += (data.message + '\n');
-        }
-      };
+      const initial_messages = JSON.parse(document.getElementById('initial-messages').textContent);
+      initial_messages.forEach(msg => {
+        document.querySelector('#chat-log').value += (msg.sender + ': ' + msg.message + '\n');
+      });
 
       const protocol = (window.location.protocol == 'https:') ? 'wss:' : 'ws:';
       const chatSocket = new WebSocket(
@@ -40,7 +38,7 @@
 
       chatSocket.onmessage = function(e) {
           const data = JSON.parse(e.data);
-          document.querySelector('#chat-log').value += (data.message + '\n');
+          document.querySelector('#chat-log').value += (data.sender + ': ' + data.message + '\n');
       };
 
       chatSocket.onclose = function(e) {
@@ -61,6 +59,7 @@
               'message': message
           }));
           messageInputDom.value = '';
+          document.querySelector('#chat-log').value += ('User: ' + message + '\n');
       };
   </script>
 </div>

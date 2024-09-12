@@ -4,14 +4,19 @@ import datetime
 
 from django.db import models
 from django.urls import reverse_lazy
-from django.contrib.auth import get_user_model
 
 from django.utils.timezone import now
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.core import mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+import google.generativeai as genai
 
 import markdown
-User = get_user_model()
+
+from apps.users.models import User
 
 
 class Project(models.Model):
@@ -151,7 +156,7 @@ class Member(models.Model):
 
     @property
     def name(self):
-        return self.user.get_full_name()
+        return self.user.name
 
     @property
     def avatar_url(self):
@@ -210,7 +215,7 @@ class ConsentLetter(models.Model):
         md = markdown.Markdown(extensions=["fenced_code"])
         return md.convert(self.letter_md)
 
-AI_MODELS = [("gemini-flash-1.5", "Gemini Flash 1.5")]
+AI_MODELS = [("gemini-1.5-flash", "Gemini Flash 1.5")]
 
 BOT_STATUSES = [("test", "Testing"), ("live", "Live"), ("disabled", "Disabled")]
 
@@ -278,7 +283,7 @@ class Interview(models.Model):
         Project, on_delete=models.CASCADE, related_name="interviews"
     )
     bot = models.ForeignKey(Bot, on_delete=models.CASCADE, related_name="interviews")
-    subject_email = models.EmailField("Recipient email", blank=False, null=False)
+    subject_email = models.EmailField("Recipient email", blank=True, null=False)
     subject_name = models.CharField(
         "Recipient name", max_length=50, blank=False, null=False
     )
@@ -310,18 +315,60 @@ class Interview(models.Model):
     def __str__(self):
         return self.subject_name
 
-    def add_message(self, sender: str, message: str) -> Dict[str, str]:
-        """Add a record of a new message.
+    # def add_message(self, sender: str, message: str) -> Dict[str, str]:
+    #     """Add a record of a new message.
 
-        Args:
-            sender: one of 'ai', 'researcher', 'subject'
-            message: text of message
-        """
+    #     Args:
+    #         sender: one of 'ai', 'researcher', 'subject'
+    #         message: text of message
+    #     """
+    #     if self.content is None:
+    #         self.content = []  # shouldn't happen?
+    #     msg = {"sender": sender, "message": message, "sent_at": now()}
+    #     self.content.append(msg)
+    #     return msg
+
+    def start(self):
+        message = self.bot.opening_user_statement or 'Hello'
+        return self.add_user_message(message)
+
+    async def add_user_message_async(self, message: str):
         if self.content is None:
             self.content = []  # shouldn't happen?
-        msg = {"sender": sender, "message": message, "sent_at": now()}
-        self.content.append(msg)
-        return msg
+        self.content.append({'sender': 'user', 'message': message, 'sent_at': str(now())})
+        try:
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            generation_config = default_bot_config()
+            generation_config.update({
+                k: self.bot.config[k] for k in generation_config.keys() if k in self.bot.config
+            })
+            model = genai.GenerativeModel(
+                model_name=self.bot.aimodel,
+                generation_config=generation_config,
+                # safety_settings = Adjust safety settings
+                # See https://ai.google.dev/gemini-api/docs/safety-settings
+                system_instruction=self.bot.prompt
+            )
+            chat_session = model.start_chat(history=[
+                {'role': h['sender'], 'parts': [h['message']]} for h in self.content
+            ])
+            response = await chat_session.send_message_async(message)
+            response_dict = {
+                'sender': 'model',
+                'message': response.text.strip(),
+                'sent_at': str(now()),
+                'prompt_token_count': response.usage_metadata.prompt_token_count,
+                'total_token_count': response.usage_metadata.total_token_count,
+                'candidates_token_count': response.usage_metadata.candidates_token_count,
+            }
+            self.content.append(response_dict)
+        except Exception as ex:  # noqa: E722
+            response_dict = {'sender': 'System', 'message': 'An error occurred.', 'sent_at': str(now())}
+            self.content.append(response_dict)
+            import traceback
+            traceback.print_exception(ex)
+        await self.asave()
+        return response_dict
 
 
 class Dimension(models.Model):
