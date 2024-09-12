@@ -3,26 +3,26 @@ import django
 
 
 user_data = [
-    {'email': 'alice.johnson@email.com', 'password': 'welcome123', 'first_name': 'Alice', 'last_name': 'Johnson'},
-    {'email': 'ben.miller@example.com', 'password': 'testingapp', 'first_name': 'Ben', 'last_name': 'Miller'},
-    {'email': 'clara.lee@workmail.com', 'password': 'password1!', 'first_name': 'Clara', 'last_name': 'Lee'},
-    {'email': 'david.hernandez@yahoo.com', 'password': 'ilovemypet', 'first_name': 'David', 'last_name': 'Hernandez'},
-    {'email': 'emily.chen@gmail.com', 'password': 'strongpass', 'first_name': 'Emily', 'last_name': 'Chen'},
-    {'email': 'frank.nguyen@hotmail.com', 'password': 'testing1234', 'first_name': 'Frank', 'last_name': 'Nguyen'},
-    {'email': 'grace.walker@outlook.com', 'password': 'apptest123', 'first_name': 'Grace', 'last_name': 'Walker'},
-    {'email': 'henry.davis@email.com', 'password': 'securepass', 'first_name': 'Henry', 'last_name': 'Davis'},
-    {'email': 'isla.garcia@workmail.com', 'password': 'mysecureapp', 'first_name': 'Isla', 'last_name': 'Garcia'},
-    {'email': 'kimberly.young@gmail.com', 'password': 'supersecure', 'first_name': 'Kimberly', 'last_name': 'Young'},
-    {'email': 'liam.lewis@hotmail.com', 'password': 'verystrong', 'first_name': 'Liam', 'last_name': 'Lewis'},
-    {'email': 'mia.williams@outlook.com', 'password': 'ilovedogs', 'first_name': 'Mia', 'last_name': 'Williams'},
-    {'email': 'noah.brown@email.com', 'password': 'secureapp123', 'first_name': 'Noah', 'last_name': 'Brown'},
+    {'email': 'alice.johnson@email.com', 'password': 'welcome123', 'name': 'Alice Johnson'},
+    {'email': 'ben.miller@example.com', 'password': 'testingapp', 'name': 'Ben Miller'},
+    {'email': 'clara.lee@workmail.com', 'password': 'password1!', 'name': 'Clara Lee'},
+    {'email': 'david.hernandez@yahoo.com', 'password': 'ilovemypet', 'name': 'David Hernandez'},
+    {'email': 'emily.chen@gmail.com', 'password': 'strongpass', 'name': 'Emily Chen'},
+    {'email': 'frank.nguyen@hotmail.com', 'password': 'testing1234', 'name': 'Frank Nguyen'},
+    {'email': 'grace.walker@outlook.com', 'password': 'apptest123', 'name': 'Grace Walker'},
+    {'email': 'henry.davis@email.com', 'password': 'securepass', 'name': 'Henry Davis'},
+    {'email': 'isla.garcia@workmail.com', 'password': 'mysecureapp', 'name': 'Isla Garcia'},
+    {'email': 'kimberly.young@gmail.com', 'password': 'supersecure', 'name': 'Kimberly Young'},
+    {'email': 'liam.lewis@hotmail.com', 'password': 'verystrong', 'name': 'Liam Lewis'},
+    {'email': 'mia.williams@outlook.com', 'password': 'ilovedogs', 'name': 'Mia Williams'},
+    {'email': 'noah.brown@email.com', 'password': 'secureapp123', 'name': 'Noah Brown'},
 ]
 non_user_data = [
-    {'email': 'olivia.jones@workmail.com', 'first_name': 'Olivia', 'last_name': 'Jones'},
-    {'email': 'william.miller@yahoo.com', 'first_name': 'William', 'last_name': 'Miller'},
-    {'email': 'sophia.davis@gmail.com', 'first_name': 'Sophia', 'last_name': 'Davis'},
-    {'email': 'ethan.garcia@hotmail.com', 'first_name': 'Ethan', 'last_name': 'Garcia'},
-    {'email': 'isabella.martin@outlook.com', 'first_name': 'Isabella', 'last_name': 'Martin'},
+    {'email': 'olivia.jones@workmail.com', 'name': 'Olivia Jones'},
+    {'email': 'william.miller@yahoo.com', 'name': 'William Miller'},
+    {'email': 'sophia.davis@gmail.com', 'name': 'Sophia Davis'},
+    {'email': 'ethan.garcia@hotmail.com', 'name': 'Ethan Garcia'},
+    {'email': 'isabella.martin@outlook.com', 'name': 'Isabella Martin'},
 ]
 for i in range(len(user_data)):
     user_data[i]['username'] = user_data[i]['email']
@@ -75,7 +75,7 @@ def main():
             proj = Project(owner=owner, name=spec['name'], description='Lorem ipsum dolor sit amet')
             proj.save()
             for i, m in enumerate(spec['members']):
-                name = f"{user_data[m]['first_name']} {user_data[m]['last_name']}"
+                name = user_data[m]['name']
                 mship = Member(
                     project=proj,
                     user=users[m],
@@ -83,7 +83,7 @@ def main():
                 )
                 mship.save()
             for i, m in enumerate(spec['invited']):
-                name = f"{user_data[m]['first_name']} {user_data[m]['last_name']}"
+                name = user_data[m]['name']
                 mship = MemberInvitation(
                     project=proj,
                     email=non_user_data[m]['email'],
