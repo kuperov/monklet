@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
@@ -26,6 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
+MANAGE = any(['manage.py' in s for s in sys.argv])
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", default="")
@@ -289,7 +291,7 @@ else:
         },
     }
 
-if not DEBUG:
+if not DEBUG and not MANAGE:
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": True,
