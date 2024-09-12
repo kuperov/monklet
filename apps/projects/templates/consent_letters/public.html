@@ -1,0 +1,28 @@
+{% extends 'layout/layout_blank.html' %}
+
+{% load static i18n crispy_forms_tags  %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/public-interview.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<div class="public-consent-letter-wrapper">
+  <a href="{% url 'index' %}" class="auth-cover-brand d-flex align-items-center gap-3">
+    <span class="app-brand-logo demo">{% include 'partials/logo.html' %}</span>
+    <span class="app-brand-text demo text-heading fw-semibold">Monklet</span>
+  </a>
+  <div class="public-consent-letter-inner row m-0">
+    <div class="d-flex col-12 public-consent-letter-bg position-relative py-sm-5 px-12 py-4">
+      <div class="w-px-600 mx-auto pt-5">
+        <h4>{{ project.name }}</h4>
+        {{ letter.letter_html | safe }}
+        <p><a href="javascript:history.back()">Go back</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

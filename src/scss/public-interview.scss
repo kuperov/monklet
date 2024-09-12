@@ -1,0 +1,56 @@
+// Public interview styles
+
+@use '_bootstrap-extended/include' as light;
+@use '_bootstrap-extended/include-dark' as dark;
+@import '_custom-variables/pages';
+
+$public-interview-inner-max-width: 460px !default;
+
+.public-interview-wrapper {
+  display: flex;
+  flex-basis: 100%;
+  min-height: 100vh;
+  width: 100%;
+
+  .public-interview-inner {
+    width: 100%;
+  }
+}
+
+.public-consent-letter-wrapper {
+  display: flex;
+  flex-basis: 100%;
+  min-height: 100vh;
+  width: 100%;
+  align-items: flex-start;
+
+  .public-consent-letter-inner {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+  }
+}
+
+// Light Layout
+@if $enable-light-style {
+  .light-style {
+    .public-interview-wrapper .public-interview-bg {
+      background-color: light.$white;
+    }
+    .public-consent-letter-wrapper {
+      background-color: light.$white;
+    }
+  }
+}
+
+// Dark Layout
+@if $enable-dark-style {
+  .dark-style {
+    .public-interview-wrapper .public-interview-bg {
+      background-color: dark.$card-bg;
+    }
+    .public-consent-letter-wrapper {
+      background-color: dark.$card-bg;
+    }
+  }
+}

@@ -137,14 +137,3 @@ $authentication-1-inner-max-width: 460px !default;
     }
   }
 }
-
-//RTL
-
-@if $enable-rtl-support {
-  [dir='rtl'] {
-    .authentication-image-tree {
-      right: 3rem;
-      left: auto;
-    }
-  }
-}

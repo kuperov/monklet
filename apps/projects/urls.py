@@ -10,6 +10,7 @@ from .views import (
     project_analysis,
     project_invite,
     interview,
+    interview_delete,
     project_questions,
     project_questions_new,
     question_edit,
@@ -18,10 +19,12 @@ from .views import (
     project_bots_new,
     bot_edit,
     bot_delete,
+    bot_public,
     project_consent_letters,
     project_consent_letters_new,
     consent_letter_edit,
     consent_letter_delete,
+    consent_letter_public,
     project_interviews_invited,
     project_interviews_invite,
     project_simulate,
@@ -43,6 +46,7 @@ urlpatterns = [
     path("projects/<str:pk>/files", project_files, name="project-files"),
     path("projects/<str:pk>/invite", project_invite, name="project-invite"),
     path("interviews/<str:interview_code>", interview, name="interview"),
+    path("interviews/<str:pk>/delete", interview_delete, name="interview-delete"),
     path("projects/<str:pk>/questions", project_questions, name="project-questions"),
     path(
         "projects/<str:pk>/questions/new",
@@ -56,6 +60,7 @@ urlpatterns = [
     path("projects/<str:pk>/bots/new", project_bots_new, name="project-bots-new"),
     path("bots/<str:pk>/edit", bot_edit, name="bot-edit"),
     path("bots/<str:pk>/delete", bot_delete, name="bot-delete"),
+    path("bots/<str:pk>/public", bot_public, name="bot-public"),
     path(
         "projects/<str:pk>/consent-letters",
         project_consent_letters,
@@ -68,6 +73,9 @@ urlpatterns = [
     ),
     path(
         "consent-letters/<str:pk>/edit", consent_letter_edit, name="consent-letter-edit"
+    ),
+    path(
+        "consent-letter/<str:pk>", consent_letter_public, name="consent-letter-public"
     ),
     path(
         "consent-letters/<str:pk>/delete",
@@ -84,7 +92,7 @@ urlpatterns = [
         project_interviews_invite,
         name="project-interviews-invite",
     ),
-    path("projects/<str:pk>/responses", project_transcripts, name="project-responses"),
+    path("projects/<str:pk>/transcripts", project_transcripts, name="project-responses"),
     path(
         "projects/<str:pk>/transcripts/upload",
         project_transcripts_upload,

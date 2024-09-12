@@ -10,6 +10,7 @@ from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvi
 from .forms import (
     ProjectForm,
     MemberInvitationForm,
+    PublicConsentForm,
     QuestionForm,
     BotForm,
     ConsentLetterForm,
@@ -17,12 +18,12 @@ from .forms import (
     ManualTranscriptForm,
     InvitationResponseForm,
 )
-from apps.context_helpers import backend_context
+from apps.context_helpers import backend_context, blank_context
 
 
 def menu(project: Project):
     menu = [
-        {"url": "/profile/", "icon": "menu-icon tf-icons ri-home-line", "name": "Home"}
+        {"url": reverse_lazy('users:profile'), "icon": "menu-icon tf-icons ri-home-line", "name": "Home"}
     ]
     if project:
         menu += [
@@ -65,7 +66,7 @@ def menu(project: Project):
             },
             {"menu_header": "Analysis"},
             {
-                "url": project.data_url,
+                "url": reverse_lazy('project-responses', kwargs={"pk": project.pk}),
                 "icon": "menu-icon tf-icons ri-message-line",
                 "name": "Data",
             },
@@ -307,6 +308,30 @@ def bot_delete(_request: HttpRequest, pk: str) -> HttpResponse:
     return redirect("project-bots", pk=project_id)
 
 
+# note no login required
+def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
+    bot = get_object_or_404(Bot, pk=pk)
+    if not bot.allow_public:
+        raise PermissionDenied("Use of this bot is by invitation only.")
+    project = bot.project
+    if request.method == 'POST':
+        form = PublicConsentForm(request.POST)
+        form.is_valid()
+        if not form.cleaned_data["subject_email"] and form.cleaned_data["followup_consented"]:
+            form.add_error("subject_email", "Please provide your email address for follow-up.")
+        if form.is_valid():
+            interview = form.save(commit=False)
+            interview.project = project
+            interview.bot = bot
+            interview.save()
+            interview_url = reverse_lazy('interview', kwargs={'interview_code': interview.pk})
+            return redirect(interview_url)
+    else:
+        form = PublicConsentForm()
+    ctx = blank_context({'bot': bot, 'project': project, 'form': form})
+    return render(request, "interviews/public.html", ctx)
+
+
 @login_required
 def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
@@ -318,17 +343,19 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
 
 # note: unauthenticated view - interview_code provides security
 def interview(request, interview_code):
-    iv = get_object_or_404(Interview, code=interview_code)
-    return render(
-        request,
-        "interviews/interview.html",
-        {
-            "interview_code": interview_code,
-            "interview": iv,
-            "messages": [m.display() for m in iv.messages],
-        },
-    )
+    iv = get_object_or_404(Interview, pk=interview_code)
+    ctx = blank_context({"project": iv.project, "interview": iv,})
+    return render(request, "interviews/interview.html", ctx,)
 
+@login_required
+def interview_delete(request, pk):
+    iv = get_object_or_404(Interview, pk=pk)
+    if not iv.project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    iv.deleted_at = now()
+    iv.save()
+    next = request.GET.get("next", reverse_lazy('project-responses', kwargs={'pk': iv.project.id}))
+    return redirect(next)
 
 @login_required
 def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
@@ -376,6 +403,12 @@ def consent_letter_edit(request: HttpRequest, pk: str) -> HttpResponse:
     return render(request, "consent_letters/detail.html", ctx)
 
 
+def consent_letter_public(request: HttpRequest, pk: str) -> HttpRequest:
+    consent_letter = get_object_or_404(ConsentLetter, pk=pk)
+    ctx = blank_context({
+        'project': consent_letter.project, 'letter': consent_letter})
+    return render(request, "consent_letters/public.html", ctx)
+
 @login_required
 def consent_letter_delete(_request: HttpRequest, pk: str) -> HttpResponse:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
@@ -389,7 +422,7 @@ def project_interviews_invited(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    interviews = project.interviews.exclude(status="test")
+    interviews = project.interviews.filter(deleted_at=None, status="invited")
     ctx = backend_context(
         {"project": project, "interviews": interviews, "menu_data": menu(project)}
     )
@@ -404,13 +437,16 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == "POST":
         form = InterviewForm(request.POST)
         if form.is_valid:
-            b = form.save(commit=False)
-            b.project = project
-            b.save()
+            inv = form.save(commit=False)
+            inv.project = project
+            inv.status = 'invited'
+            inv.save()
             messages.add_message(request, messages.SUCCESS, "Interview added")
             return redirect("project-invitations", pk=project.pk)
     else:
         form = InterviewForm()
+        if 'bot' in request.GET:
+            form.initial['bot'] = request.GET['bot']
     ctx = backend_context(
         {"form": form, "project": project, "menu_data": menu(project)}
     )

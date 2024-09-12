@@ -90,10 +90,10 @@
           <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
             <h5 class="text-primary mb-0">Bots</h5>
           </li>
-          {% for bot in project.bots.all %}
+          {% for bot in project.enabled_bots %}
           <li class="chat-contact-list-item mb-1" data-botid="{{bot.pk}}">
             <a class="d-flex align-items-center">
-              <div class="flex-shrink-0 avatar avatar-online">
+              <div class="flex-shrink-0 avatar {% if bot.status == 'live' %}avatar-online{% else %}avatar-away{% endif %}">
                 <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
               </div>
               <div class="chat-contact-info flex-grow-1 ms-4">

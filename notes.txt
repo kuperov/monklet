@@ -21,6 +21,7 @@
   [ ] deferred job queue for analytical tasks
   [x] remove Message model and just use json in Interview model
   [ ] 301 redirect for semi-structured.com
+  [ ] short link for public urls
 
 ## context variables for layout
 

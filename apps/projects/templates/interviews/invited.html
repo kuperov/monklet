@@ -41,13 +41,11 @@
           {% endif %}
         <td>
         <div class="dropdown">
-          {#% if project %#}
           <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'interview-delete' pk=bot.pk %}">
+            <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
               <i class="ri-delete-line me-1"></i> Delete</a>
             </div>
-          {#% endif %#}
         </div>
         </td>
         </tr>

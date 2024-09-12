@@ -1,16 +1,17 @@
 import uuid
 from typing import Dict
+import datetime
 
 from django.db import models
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
 
-User = get_user_model()
 from django.utils.timezone import now
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 import markdown
+User = get_user_model()
 
 
 class Project(models.Model):
@@ -56,6 +57,9 @@ class Project(models.Model):
     def description_html(self):
         md = markdown.Markdown(extensions=["fenced_code"])
         return md.convert(self.description)
+
+    def enabled_bots(self):
+        return self.bots.exclude(status='disabled')
 
     @property
     def url(self):
@@ -198,6 +202,13 @@ class ConsentLetter(models.Model):
     def __str__(self):
         return self.name
 
+    def short_html(self):
+        md = markdown.Markdown(extensions=["fenced_code"])
+        return md.convert(self.short_md)
+
+    def letter_html(self):
+        md = markdown.Markdown(extensions=["fenced_code"])
+        return md.convert(self.letter_md)
 
 AI_MODELS = [("gemini-flash-1.5", "Gemini Flash 1.5")]
 
@@ -245,7 +256,10 @@ class Bot(models.Model):
         return f"{self.name} ({self.version})"
 
     def test_interviews(self):
-        return self.interviews.filter(status="test")
+        return self.interviews.filter(status="test", deleted_at=None)
+
+    def actual_interviews(self):
+        return self.interviews.exclude(status="test").filter(deleted_at=None)
 
 
 INTERVIEW_STATUS = [
@@ -269,10 +283,13 @@ class Interview(models.Model):
         "Recipient name", max_length=50, blank=False, null=False
     )
     has_consented = models.BooleanField(
-        "Has given informed consent", default=False, blank=False, null=False
+        "Has given informed consent", default=None, blank=True, null=True
+    )
+    followup_consented = models.BooleanField(
+        "Has given consent for followup interview", default=None, blank=True, null=True
     )
     content = models.JSONField(
-        "Interview content", default=list, blank=False, null=False
+        "Interview content", default=list, blank=True, null=False
     )
     status = models.CharField(
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
@@ -282,6 +299,7 @@ class Interview(models.Model):
         "Time conversation started", blank=True, null=True
     )
     updated_at = models.DateTimeField("Last message at", blank=True, null=True)
+    deleted_at = models.DateTimeField("Deleted at", blank=True, null=True)
 
     class Meta:
         ordering = ["subject_name"]

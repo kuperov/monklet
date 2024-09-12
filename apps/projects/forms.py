@@ -133,3 +133,19 @@ class InvitationResponseForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("yes", "Yes, accept"))
+
+
+class PublicConsentForm(forms.ModelForm):
+    class Meta:
+        model = Interview
+        fields = ["subject_name", "subject_email", "has_consented", "followup_consented"]
+
+    subject_name = forms.CharField(label="Your name", required=True)
+    subject_email = forms.CharField(label="Your email address", required=False)
+    has_consented = forms.BooleanField(label="I consent to participate in this study", required=True)
+    followup_consented = forms.BooleanField(label="The investigators may contact me for follow-up", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100"))
