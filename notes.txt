@@ -2331,3 +2331,17 @@ ideally, we want very few of these and no metaprogramming in the page load cycle
     "navbar_detached_class": "navbar-detached",
     "layout_path": "layout/layout_vertical.html",
 }
+
+
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  this.settings.style = 'dark'
+} else {
+  this.settings.style = 'light'
+}
+
+const classesToRemove = style === 'light' ? ['dark-style'] : ['light-style']
+classesToRemove.forEach(cls => {
+  document.documentElement.classList.remove(cls)
+})
+
+document.documentElement.classList.add(`${style}-style`)

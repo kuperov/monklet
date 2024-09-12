@@ -1,6 +1,28 @@
-{% extends 'layout/master_front.html' %}
+{% load static %}
 
-{% block layout %}
-{% block content %}
-{% endblock content %}
-{% endblock layout %}
+<!DOCTYPE html>
+
+<html lang="en" class="light-style layout-navbar-fixed  layout-menu-fixed    layout-wide" dir="ltr" data-theme="theme-semi-dark" data-assets-path="/static/" data-base-url="" data-framework="django" data-template="horizontal-menu-front-theme-semi-dark-light">
+{#<html lang="en" class="{{style}}-style {{navbar_type_class}} {{header_type_class}} {{menu_fixed_class}} {{menu_collapsed_class}} {{footer_fixed_class}} {{display_customizer_class}} {{content_layout_class}}" dir="{{text_direction_value}}" data-theme="{{theme}}" data-assets-path="{% static '/' %}" data-base-url="{{url}}" data-framework="django" data-template="{{ menu_horizontal|yesno:'horizontal,vertical' }}-menu-{{ is_front|yesno:'front,' }}-{{ theme }}-{{style}}">#}
+  <head>
+    <title>{% block title %}{% endblock title %} | monklet</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="description" content="AI-driven qualitative data analysis platform" />
+    <meta name="keywords" content="qualitative analysis, chatbot, AI" />
+    <link rel="shortcut icon" type="image/svg+xml" href="{% static 'img/favicon/bird-circle.svg' %}" />
+    {% include "./partials/styles_front.html" %}
+    {% block vendor_css %}{% endblock vendor_css %}
+    {% block page_css %}{% endblock page_css %}
+    {% include "./partials/scripts_includes.html" %}
+  </head>
+  <body>
+    {% block layout %}
+    {% block content %}
+    {% endblock content %}
+    {% endblock layout %}
+    {% include "./partials/scripts.html" %}
+    {% block vendor_js %}{% endblock vendor_js %}
+    {% block page_js %}{% endblock page_js %}
+  </body>
+</html>

@@ -341,6 +341,13 @@ else:
             "handlers": ["console"],
             "level": "DEBUG",
         },
+        "loggers": {
+            "django": {
+                "handlers": ["console"],
+                "level": "INFO",
+                "propagate": True,
+            },
+        }
     }
 
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
