@@ -288,3 +288,41 @@ else:
             "ROUTING": "realtime.routing.channel_routing",
         },
     }
+
+if not DEBUG:
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "verbose": {
+                "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s",
+            },
+        },
+        "handlers": {
+            "file": {
+                "level": "WARNING",
+                "class": "logging.FileHandler",
+                "filename": "/var/log/monklet/monklet.log",
+            },
+        },
+        "root": {
+            "level": "WARNING",
+            "handlers": ["file"]},
+        "loggers": {
+            "django": {
+                "handlers": ["file"],
+                "level": "WARNING",
+                "propagate": True,
+            },
+            "django.db.backends": {
+                "level": "ERROR",
+                "handlers": ["file"],
+                "propagate": False,
+            },
+            "django.security.DisallowedHost": {
+                "level": "WARNING",
+                "handlers": ["file"],
+                "propagate": False,
+            },
+        },
+    }
