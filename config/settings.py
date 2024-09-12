@@ -222,7 +222,7 @@ TEMPLATE_CONFIG = TEMPLATE_CONFIG
 AUTH_USER_MODEL = "users.User"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/"
-LOGIN_REDIRECT_URL = '/profile/'
+LOGIN_REDIRECT_URL = '/users/profile/'
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -239,6 +239,8 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = ["https://monklet.com"]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-timeout
 EMAIL_TIMEOUT = 5
