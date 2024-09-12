@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 
-<html lang="en" class="{{style}}-style {{navbar_type_class}} {{header_type_class}} {{menu_fixed_class}} {{menu_collapsed_class}} {{footer_fixed_class}} {{display_customizer_class}} {{content_layout_class}}" dir="{{text_direction_value}}" data-theme="{{theme}}" data-assets-path="{% static '/' %}" data-base-url="{{url}}" data-framework="django" data-template="{{ menu_horizontal|yesno:'horizontal,vertical' }}-menu-{{ is_front|yesno:'front,' }}-{{ theme }}-{{style}}">
+<html lang="en" class="{{style}}-style {{navbar_type_class}} {{header_type_class}} {{menu_fixed_class}} {{menu_collapsed_class}} {{footer_fixed_class}} {{display_customizer_class}} {{content_layout_class}}" dir="{{text_direction_value}}" data-theme="{{theme}}" data-assets-path="{% static '/' %}" data-base-url="{{url}}" data-framework="django" data-template="horizontal-menu-front-{{ theme }}-{{style}}">
 
   <head>
     <title>{% block title %}{% endblock title %} | monklet</title>
@@ -13,32 +13,15 @@
     <link rel="shortcut icon" type="image/svg+xml" href="{% static 'img/favicon/bird-circle.svg' %}" />
     {% include "./partials/styles_front.html" %}
     {% block vendor_css %}{% endblock vendor_css %}
-
-    <!--Page CSS-->
     {% block page_css %}{% endblock page_css %}
-
-
-    <!-- Include the scripts partial (required ) -->
-    {% include is_front|yesno:"./partials/scripts_includes_front.html,./partials/scripts_includes.html" %}
-
+    {% include "./partials/scripts_includes_front.html" %}
   </head>
-
   <body>
-
-
-    <!-- beautify ignore:end -->
-
     {% block layout %}
     {% endblock layout %}
-
-    {% include is_front|yesno:"./partials/scripts_front.html,./partials/scripts.html" %}
-
-    <!--Vendors Javascript-->
+    {% include "./partials/scripts_front.html" %}
     {% block vendor_js %} {% endblock vendor_js %}
-
-    <!--Page Javascript-->
     {% block page_js %} {% endblock page_js %}
-
   </body>
 
 </html>

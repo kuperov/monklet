@@ -2,7 +2,6 @@
 <script src="{% static 'vendor/js/helpers.js' %}"></script>
 <script src="{% static 'vendor/js/template-customizer.js' %}"></script>
 <script src="{% static 'js/config.js' %}"></script>
-{% comment %}
 <script>
 if (typeof TemplateCustomizer !== 'undefined') {
   window.templateCustomizer = new TemplateCustomizer({
@@ -26,11 +25,11 @@ if (typeof TemplateCustomizer !== 'undefined') {
       }
       return resolvedPaths[path] || path;
     },
-    controls: ['rtl', 'style'],
+    controls: ['style'],
   });
 }
 </script>
-{% endcomment %}
+{% comment %}
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     console.log("Color scheme init");
@@ -42,3 +41,4 @@ if (typeof TemplateCustomizer !== 'undefined') {
     document.documentElement.classList.add(`${style}-style`)
 });
 </script>
+{% endcomment %}

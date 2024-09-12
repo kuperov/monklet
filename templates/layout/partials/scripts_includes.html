@@ -16,8 +16,8 @@ if (typeof TemplateCustomizer !== 'undefined') {
   window.templateCustomizer = new TemplateCustomizer({
     cssPath: '',
     themesPath: '',
-    defaultStyle: "{{style}}", // Required as system style can't decided without JS
-    defaultTextDir: '{% if rtl_mode %}rtl{% else %}ltr{% endif %}',
+    defaultStyle: "light", // Required as system style can't decided without JS
+    defaultTextDir: 'ltr',
     defaultShowDropdownOnHover : {{show_dropdown_onhover_value}},
     lang: 'en',
     pathResolver: function(path) {
