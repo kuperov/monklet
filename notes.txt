@@ -1,18 +1,18 @@
 ## things to fix
 
-  [ ] project dashboard showing basic stats
+  [x] project dashboard showing very basic stats
   [ ] modal to check delete/leave project
-  [ ] edit project settings
-  [ ] add/edit/remove questions
-  [ ] add/edit/remove chatbot
-  [ ] move invitations back to project app
+  [x] edit project settings
+  [x] add/edit/remove questions
+  [x] add/edit/remove chatbot
+  [x] move invitations back to project app
   [ ] simplify the mess of templates
-  [ ] separate templates for front, blank, and admin
-  [ ] style login templates
+  [x] separate templates for front, blank, and admin
+  [x] basic styling of login templates
   [x] custom user model
   [ ] tests for profile list/edit/creation
   [ ] tests for member management
-  [ ] leave, delete, expire features
+  [x] leave, delete, expire features
   [x] consolidate apps
   [ ] deferred job queue for analytical tasks
   [x] remove Message model and just use json in Interview model
@@ -30,8 +30,8 @@
   [x] landing page for invited chat
   [ ] copy interviews to transcripts
   [x] show messages on page via template
-  [ ] project dashboard
-  [x] chat for single individual (ie proper chat screen)
+  [ ] simple project dashboard
+  [ ] decent chat for single individual (ie proper chat screen)
   [ ] chat simulator for whole project not just one bot
 
 

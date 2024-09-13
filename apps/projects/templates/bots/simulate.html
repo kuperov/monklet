@@ -38,6 +38,9 @@
 {% endblock page_js %}
 
 {% block content %}
+<div class="alert alert-info" role="alert">
+  The bot simulator will be ready soon.
+</div>
 <div class="app-chat card overflow-hidden">
   <div class="row g-0">
     <!-- Test interview list -->
@@ -62,34 +65,13 @@
         <!-- Chats -->
         <ul class="list-unstyled chat-contact-list py-2 mb-0" id="chat-list">
           <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
-            <h5 class="text-primary mb-0">Test interviews</h5>
+            <h5 class="text-primary mb-0">Available bots</h5>
           </li>
-          {% if not bot.test_interviews %}
+          {% if not bots %}
           <li class="chat-contact-list-item chat-list-item-0"> <!-- d-none -->
-            <h6 class="text-muted mb-0">No test interviews found</h6>
+            <h6 class="text-muted mb-0">No bots available</h6>
           </li>
           {% endif %}
-          {% for iv in bot.test_interviews %}
-          <li class="chat-contact-list-item mb-1">
-            <a class="d-flex align-items-center">
-              <div class="flex-shrink-0 avatar avatar-online">
-                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
-              </div>
-              <div class="chat-contact-info flex-grow-1 ms-4">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h6 class="chat-contact-name text-truncate fw-normal m-0">{{ iv.bot.name }}</h6>
-                  {% if iv.updated_at %}
-                  <small class="text-muted">{{ iv.updated_at | naturaltime }}</small>
-                  {% endif %}
-                </div>
-                <small class="chat-contact-status text-truncate">last message preview</small>
-              </div>
-            </a>
-          </li>
-          {% endfor %}
-          <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
-            <h5 class="text-primary mb-0">Bots</h5>
-          </li>
           {% for bot in project.enabled_bots %}
           <li class="chat-contact-list-item mb-1" data-botid="{{bot.pk}}">
             <a class="d-flex align-items-center">
@@ -102,6 +84,27 @@
                   <small class="text-muted">version {{bot.version}}</small>
                 </div>
                 <small class="chat-contact-status text-truncate">{{ bot.description }}</small>
+              </div>
+            </a>
+          </li>
+          {% endfor %}
+          <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
+            <h5 class="text-primary mb-0">Test interviews</h5>
+          </li>
+          {% for iv in test_interviews %}
+          <li class="chat-contact-list-item mb-1">
+            <a class="d-flex align-items-center">
+              <div class="flex-shrink-0 avatar avatar-online">
+                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
+              </div>
+              <div class="chat-contact-info flex-grow-1 ms-4">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="chat-contact-name text-truncate fw-normal m-0">{{ iv.bot.name }} &amp; {{ iv.subject_name }}</h6>
+                  {% if iv.updated_at %}
+                  <small class="text-muted">{{ iv.updated_at | naturaltime }}</small>
+                  {% endif %}
+                </div>
+                <small class="chat-contact-status text-truncate">{{ iv.last_message_text }}</small>
               </div>
             </a>
           </li>
@@ -122,8 +125,8 @@
                 <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right">
               </div>
               <div class="chat-contact-info flex-grow-1 ms-4">
-                <h6 class="m-0 fw-normal">{{ bot.name }}</h6>
-                <small class="user-status text-body">Version {{ bot.version }}</small>
+                <h6 id="bot-name" class="m-0 fw-normal">Bot name</h6>
+                <small id="bot-version" class="user-status text-body">Version 1.0</small>
               </div>
             </div>
             <div class="d-flex align-items-center">
@@ -157,70 +160,6 @@
       </div>
     </div>
     <!-- /Chat History -->
-
-    <!-- Sidebar Right -->
-    <div class="col app-chat-sidebar-right app-sidebar overflow-hidden" id="app-chat-sidebar-right">
-      <div class="sidebar-header d-flex flex-column justify-content-center align-items-center flex-wrap px-5 pt-12">
-        <div class="avatar avatar-xl avatar-online chat-sidebar-avatar">
-          <img src="{{ user.profile.avatar_url }}" class="rounded-circle">
-        </div>
-        <h5 class="mt-4 mb-0">{{ user.name }}</h5>
-        <span>{{ user.profile.description }}</span>
-        <i class="ri-close-line ri-24px cursor-pointer close-sidebar d-block" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right"></i>
-      </div>
-      <div class="sidebar-body px-6">
-        <div class="my-6">
-          <p class="text-uppercase mb-1 text-muted">About</p>
-          <p class="mb-0">A Next. js developer is a software developer who uses the Next. js framework alongside ReactJS to build web applications.</p>
-        </div>
-        <div class="my-6">
-          <p class="text-uppercase mb-1 text-muted">Personal Information</p>
-          <ul class="list-unstyled d-grid gap-3 mb-0 ms-2 py-2 text-heading">
-            <li class="d-flex align-items-center">
-              <i class='ri-mail-line ri-22px'></i>
-              <span class="align-middle ms-2">josephGreen@email.com</span>
-            </li>
-            <li class="d-flex align-items-center">
-              <i class='ri-phone-line ri-22px'></i>
-              <span class="align-middle ms-2">+1(123) 456 - 7890</span>
-            </li>
-            <li class="d-flex align-items-center">
-              <i class='ri-time-line ri-22px'></i>
-              <span class="align-middle ms-2">Mon - Fri 10AM - 8PM</span>
-            </li>
-          </ul>
-        </div>
-        <div class="my-6">
-          <p class="text-uppercase text-muted mb-1">Options</p>
-          <ul class="list-unstyled d-grid gap-3 ms-2 py-2 text-heading">
-            <li class="cursor-pointer d-flex align-items-center">
-              <i class='ri-bookmark-line ri-22px'></i>
-              <span class="align-middle ms-2">Add Tag</span>
-            </li>
-            <li class="cursor-pointer d-flex align-items-center">
-              <i class='ri-user-star-line ri-22px'></i>
-              <span class="align-middle ms-2">Important Contact</span>
-            </li>
-            <li class="cursor-pointer d-flex align-items-center">
-              <i class='ri-image-2-line ri-22px'></i>
-              <span class="align-middle ms-2">Shared Media</span>
-            </li>
-            <li class="cursor-pointer d-flex align-items-center">
-              <i class='ri-delete-bin-7-line ri-22px'></i>
-              <span class="align-middle ms-2">Delete Contact</span>
-            </li>
-            <li class="cursor-pointer d-flex align-items-center">
-              <i class='ri-forbid-2-line ri-22px'></i>
-              <span class="align-middle ms-2">Block Contact</span>
-            </li>
-          </ul>
-        </div>
-        <div class="d-flex mt-6">
-          <button class="btn btn-danger w-100" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right">Delete Contact<i class='ri-delete-bin-7-line ri-16px ms-1_5'></i></button>
-        </div>
-      </div>
-    </div>
-    <!-- /Sidebar Right -->
 
     <div class="app-overlay"></div>
   </div>

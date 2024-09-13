@@ -367,7 +367,12 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({
+        "project": project,
+        "bots": project.enabled_bots(),
+        "test_interviews": project.test_interviews(),
+        "menu_data": menu(project)
+    })
     return render(request, "bots/simulate.html", ctx)
 
 

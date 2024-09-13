@@ -70,6 +70,9 @@ class Project(models.Model):
     def enabled_bots(self):
         return self.bots.exclude(status='disabled')
 
+    def test_interviews(self):
+        return self.interviews.filter(is_test=True, deleted_at=None)
+
     @property
     def url(self):
         return reverse_lazy("project", kwargs={"pk": self.id})
@@ -325,6 +328,12 @@ class Interview(models.Model):
 
     def __str__(self):
         return self.subject_name
+
+    def last_message_text(self) -> str:
+        if not self.content:
+            return ""
+        else:
+            return self.content[-1].get('message')
 
     async def start_async(self):
         """Generate prompt and config, create initial message, post greeting from model"""
