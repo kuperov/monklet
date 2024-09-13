@@ -40,7 +40,7 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ["true", "yes", "1"]
 if DEBUG:
     ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "192.168.168.110", "monklet.com"]
 else:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "monklet.com", "www.monklet.com"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "monklet.com", "www.monklet.com", "51.20.117.226"]
 
 # Current DJANGO_ENVIRONMENT
 ENVIRONMENT = os.environ.get("DJANGO_ENVIRONMENT", default="local")
@@ -268,7 +268,7 @@ else:
         "MAILGUN_API_KEY": os.environ.get("MAILGUN_API_KEY"),
         "MAILGUN_SENDER_DOMAIN": os.environ.get("MAILGUN_DOMAIN"),
         "MAILGUN_API_URL": os.environ.get(
-            "MAILGUN_API_URL", default="https://api.mailgun.net/v3"
+            "MAILGUN_API_URL", default="https://api.eu.mailgun.net/v3"
         ),
     }
     EMAIL_SENDER = 'support@monklet.com'
