@@ -1,9 +1,16 @@
-{% extends 'layout/layout_front.html' %}
+{% extends 'layout/layout_blank.html' %}
 
 {% load i18n %}
 
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/page-misc.css' %}" />
+{% endblock page_css %}
+
 {% block content %}
+<div class="misc-wrapper">
 <h1>Invitation expired</h1>
 <p>Sorry, that invitation link has expired.</p>
 <p>Please ask the project owner for another one.</p>
+</div>
 {% endblock content %}

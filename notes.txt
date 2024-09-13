@@ -28,10 +28,10 @@
   [x] inject name into template
   [x] store prompt in interview record
   [x] edit bot settings
-  [ ] chat invitation emails (#3)
-  [x] watch for end of interview string (#1)
-  [ ] style front pages, sign up, arrival flow
-  [ ] landing page for invited chat (#2)
+  [x] chat invitation emails
+  [x] watch for end of interview string
+  [ ] style front pages, sign up, arrival flow (#4)
+  [x] landing page for invited chat
   [ ] copy interviews to transcripts
 
 
