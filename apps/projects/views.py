@@ -86,7 +86,14 @@ def project(request: HttpRequest, pk: str) -> HttpResponse:
     proj = get_object_or_404(Project, pk=pk)
     if not proj.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": proj, "menu_data": menu(proj)})
+    inv_only = proj.interviews.filter(is_test=False, status='invited').count()
+    started = proj.interviews.filter(is_test=False, has_consented=True, status='started').count()
+    complete = proj.interviews.filter(is_test=False, has_consented=True, status='complete').count()
+    followup_ok = proj.interviews.filter(is_test=False, followup_consented=True).exclude(status='invited').count()
+    test = proj.interviews.filter(is_test=True).count()
+    ctx = backend_context({"project": proj, "menu_data": menu(proj),
+                           'inv_only': inv_only, 'started': started, 'complete': complete,
+                           'followup_ok': followup_ok, 'test': test})
     return render(request, "projects/project.html", ctx)
 
 

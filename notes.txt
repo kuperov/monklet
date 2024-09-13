@@ -7,16 +7,12 @@
   [ ] add/edit/remove chatbot
   [ ] move invitations back to project app
   [ ] simplify the mess of templates
-  [ ] remove the need for the layout call cruft
   [ ] separate templates for front, blank, and admin
-  [ ] async views?
   [ ] style login templates
   [x] custom user model
   [ ] tests for profile list/edit/creation
   [ ] tests for member management
   [ ] leave, delete, expire features
-  [x] chat for single individual (ie proper chat screen)
-  [ ] chat simulator for whole project not just one bot
   [x] consolidate apps
   [ ] deferred job queue for analytical tasks
   [x] remove Message model and just use json in Interview model
@@ -30,9 +26,13 @@
   [x] edit bot settings
   [x] chat invitation emails
   [x] watch for end of interview string
-  [ ] style front pages, sign up, arrival flow (#4)
+  [x] style front pages, sign up, arrival flow
   [x] landing page for invited chat
   [ ] copy interviews to transcripts
+  [x] show messages on page via template
+  [ ] project dashboard
+  [x] chat for single individual (ie proper chat screen)
+  [ ] chat simulator for whole project not just one bot
 
 
 ## context variables for layout
