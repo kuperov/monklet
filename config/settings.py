@@ -287,9 +287,9 @@ else:
             "CONFIG": {
                 "hosts": [("127.0.0.1", 6379)],
             },
-            "ROUTING": "realtime.routing.channel_routing",
         },
     }
+
 
 if not DEBUG and not MANAGE:
     LOGGING = {
