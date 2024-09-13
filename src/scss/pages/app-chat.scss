@@ -7,7 +7,7 @@
 @import '../_custom-variables/pages';
 
 // Variables
-$chat-app-height: calc(100vh - 11rem);
+$chat-app-height: calc(100vh - 2rem);
 $chat-app-height-with-no-navbar: calc(100vh - 7rem);
 $chat-app-horizontal-height-diff: 4.2rem;
 
@@ -21,8 +21,8 @@ $chat-contact-list-margin-y: 0.25rem;
 
 $chat-history-padding-x: 1.25rem;
 $chat-history-padding-y: 1.25rem;
-$chat-history-height: calc(100vh - 22.35rem);
-$chat-history-height-with-no-nabvar: calc(100vh - 18.4rem);
+$chat-history-height: calc(100vh - 14.35rem);
+$chat-history-height-with-no-nabvar: calc(100vh - 10.4rem);
 
 $chat-history-header-padding-x: $chat-history-padding-x;
 $chat-history-header-padding-y: 1rem;
@@ -259,7 +259,7 @@ $chat-bg-dark: #373452;
     .chat-history-footer {
       padding: calc($chat-history-footer-padding-y - 0.3125rem) $chat-history-footer-padding-y
         calc($chat-history-footer-padding-y - 0.3125rem) $chat-history-header-padding-y;
-      margin: $chat-history-footer-margin-x;
+      margin: $chat-history-footer-margin-x $chat-history-footer-margin-x 0.1rem $chat-history-footer-margin-x;
       border-radius: $chat-message-text-border-radius;
 
       // To make input border transparent on focus

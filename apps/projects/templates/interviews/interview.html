@@ -2,7 +2,7 @@
 
 {% load static i18n crispy_forms_tags %}
 
-{% block title %}Coming Soon{% endblock %}
+{% block title %}Interview: {{project.name}}{% endblock %}
 
 {% block vendor_css %}
 {{ block.super }}
@@ -57,8 +57,10 @@
                     <i class="ri-send-plane-line ri-16px ms-md-1_5 ms-0"></i>
                   </button>
                 </form>
-                <span class="text-muted center-block">{{ interview.caution }}</span>
               </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-center">
+              <span class="text-muted mt-1"><small>{{ interview.bot.caution }}</small></span>
             </div>
           </div>
         </div>
@@ -90,7 +92,7 @@
     return `${hours}:${minutes} ${ampm}`;
   };
 
-  function add_user_message(msg, time, avatar, uuid, received) {
+  function add_user_message(msg, time, uuid, received) {
     const local_time = formatLocalTime(time);
     if (uuid) {
       var li = document.getElementById(uuid);
@@ -115,7 +117,7 @@
       </div>
       <div class="user-avatar flex-shrink-0 ms-4">
         <div class="avatar avatar-sm">
-          <img src="${avatar}" alt="Avatar" class="rounded-circle">
+          <img src="{% static 'img/avatars/generic.svg' %}" alt="Avatar" class="rounded-circle">
         </div>
       </div>
     </div>`;
@@ -125,7 +127,7 @@
     }
   };
 
-  function add_remote_message(msg, time, avatar, uuid) {
+  function add_remote_message(msg, time, uuid) {
     const local_time = formatLocalTime(time);
     let li = document.createElement('li');
     li.className = 'chat-message';
@@ -133,7 +135,7 @@
     li.innerHTML = `<div class="d-flex overflow-hidden">
         <div class="user-avatar flex-shrink-0 me-4">
           <div class="avatar avatar-sm">
-            <img src="${avatar}" alt="Avatar" class="rounded-circle">
+            <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
           </div>
         </div>
         <div class="chat-message-wrapper flex-grow-1">
@@ -151,9 +153,9 @@
 
   function add_message(msg) {
     if (msg.sender == 'user') {
-      add_user_message([msg.message], msg.sent_at, "{{ user.profile.avatar_url }}", msg.uuid, true);
+      add_user_message([msg.message], msg.sent_at, msg.uuid, true);
     } else {
-      add_remote_message([msg.message], msg.sent_at, "{% static "img/avatars/bot.svg" %}", msg.uuid);
+      add_remote_message([msg.message], msg.sent_at, msg.uuid);
     }
   };
 
@@ -207,7 +209,7 @@
     if (messageInput.value) {
       const message = messageInput.value;
       const uuid = crypto.randomUUID();
-      add_user_message([message], new Date(), "{{ user.profile.avatar_url }}", uuid, false);
+      add_user_message([message], new Date(), uuid, false);
       chatSocket.send(JSON.stringify({'message': message, 'sender': 'user', 'uuid': uuid}));
       messageInput.value = '';
       scrollToBottom();
