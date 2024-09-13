@@ -111,7 +111,9 @@ class ConsentLetterForm(forms.ModelForm):
 class InterviewForm(forms.ModelForm):
     class Meta:
         model = Interview
-        fields = ["bot", "subject_email", "subject_name"]
+        fields = ["bot", "subject_name", "subject_email"]
+
+    subject_email = forms.EmailField(label="Recipient email", required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

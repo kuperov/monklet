@@ -571,6 +571,9 @@ class MemberInvitation(models.Model):
         else:
             return "Invalid"
 
+    def __str__(self):
+        return f"{self.name} <{self.email}> {self.status}"
+
     def send_email(self, request) -> int:
         """Render and send invitation email.
 
