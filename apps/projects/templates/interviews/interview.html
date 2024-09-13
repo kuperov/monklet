@@ -28,13 +28,8 @@
       });
 
       const protocol = (window.location.protocol == 'https:') ? 'wss:' : 'ws:';
-      const chatSocket = new WebSocket(
-          protocol + '//'
-          + window.location.host
-          + '/ws/interviews/'
-          + interview_code
-          + '/'
-      );
+      const socket_addr = protocol + '//' + window.location.host + '/ws/interviews/' + interview_code + '/';
+      const chatSocket = new WebSocket(socket_addr);
 
       chatSocket.onmessage = function(e) {
           const data = JSON.parse(e.data);

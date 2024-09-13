@@ -338,7 +338,8 @@ class Interview(models.Model):
                 system_instruction=self.bot.prompt
             )
             chat_session = model.start_chat(history=[
-                {'role': h['sender'], 'parts': [h['message']]} for h in self.content
+                {'role': h['sender'], 'parts': [h['message']]}
+                for h in self.content if h['sender'] in ['user', 'model']
             ])
             response = await chat_session.send_message_async(message)
             response_dict = {

@@ -145,7 +145,7 @@ class PublicConsentForm(forms.ModelForm):
 
     subject_name = forms.CharField(label="Your name", required=True)
     subject_email = forms.CharField(label="Your email address", required=False)
-    has_consented = forms.BooleanField(label="I consent to participate in this study", required=True)
+    has_consented = forms.BooleanField(label="I consent to participating in this study", required=True)
     followup_consented = forms.BooleanField(label="The investigators may contact me for follow-up", required=False)
     if not settings.DEBUG:
         # https://pypi.org/project/django-recaptcha/
