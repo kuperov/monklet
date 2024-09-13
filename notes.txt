@@ -26,6 +26,7 @@
   [ ] captcha before interview starts
   [ ] log ip address
   [ ] inject name into template
+  [ ] store prompt in interview record
 
 ## context variables for layout
 

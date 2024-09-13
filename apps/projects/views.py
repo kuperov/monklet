@@ -314,6 +314,7 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
     if not bot.allow_public:
         raise PermissionDenied("Use of this bot is by invitation only.")
     project = bot.project
+    is_collaborator = project.can_view(request.user)
     if request.method == 'POST':
         form = PublicConsentForm(request.POST)
         form.is_valid()
@@ -324,12 +325,14 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
             interview.project = project
             interview.bot = bot
             interview.ip_address = request.headers.get("X-Real-IP")
+            interview.status = 'invited'
+            interview.is_test = is_collaborator  # user is logged in as a collaborator
             interview.save()
             interview_url = reverse_lazy('interview', kwargs={'interview_code': interview.pk})
             return redirect(interview_url)
     else:
         form = PublicConsentForm()
-    ctx = blank_context({'bot': bot, 'project': project, 'form': form, 'ip_address': request.headers.get("X-Real-IP")})
+    ctx = blank_context({'bot': bot, 'project': project, 'form': form, 'ip_address': request.headers.get("X-Real-IP"), 'is_collaborator': is_collaborator})
     return render(request, "interviews/public.html", ctx)
 
 

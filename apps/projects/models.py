@@ -38,12 +38,16 @@ class Project(models.Model):
     )
 
     def can_view(self, user: User):
-        if user == self.owner:
+        if not user.is_authenticated:
+            return False
+        if user.pk == self.owner.pk:
             return True
         return Member.objects.filter(project=self, user=user).exists()
 
     def can_edit(self, user: User):
-        if user == self.owner:
+        if not user.is_authenticated:
+            return False
+        if user.pk == self.owner.pk:
             return True
         return Member.objects.filter(project=self, user=user, role="editor").exists()
 
@@ -222,7 +226,7 @@ BOT_STATUSES = [("test", "Testing"), ("live", "Live"), ("disabled", "Disabled")]
 
 def default_bot_config() -> Dict[str, str]:
     return {
-        "temperature": 0.5,
+        "temperature": 0.9,
         "top_p": 0.9,
         "top_k": 64,
         "max_output_tokens": 8192,
@@ -262,17 +266,16 @@ class Bot(models.Model):
         return f"{self.name} ({self.version})"
 
     def test_interviews(self):
-        return self.interviews.filter(status="test", deleted_at=None)
+        return self.interviews.filter(is_test=True, deleted_at=None)
 
     def actual_interviews(self):
-        return self.interviews.exclude(status="test").filter(deleted_at=None)
+        return self.interviews.filter(is_test=False, deleted_at=None)
 
 
 INTERVIEW_STATUS = [
     ("invited", "Participant invited"),
     ("started", "Started"),
     ("complete", "Complete"),
-    ("test", "Test interview"),
 ]
 
 
@@ -297,6 +300,9 @@ class Interview(models.Model):
     content = models.JSONField(
         "Interview content", default=list, blank=True, null=False
     )
+    aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
+    prompt = models.TextField("Model prompt", default=None, blank=True, null=True)
+    config = models.JSONField("Model config", default=dict, blank=False, null=False)
     status = models.CharField(
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
     )
@@ -309,6 +315,7 @@ class Interview(models.Model):
     )
     updated_at = models.DateTimeField("Last message at", blank=True, null=True)
     deleted_at = models.DateTimeField("Deleted at", blank=True, null=True)
+    is_test = models.BooleanField("This is a test interview", default=False, null=False, blank=False)
 
     class Meta:
         ordering = ["subject_name"]
@@ -317,27 +324,59 @@ class Interview(models.Model):
         return self.subject_name
 
     async def start_async(self):
-        bot = await Bot.objects.aget(pk=self.bot_id)
-        message = bot.opening_user_statement or 'Hello'
-        return await self.add_user_message_async(message)
+        """Generate prompt and config, create initial message, post greeting from model"""
+        # this should be the only time we look up the bot in the course of the chat
+        # (apart from rendering the chat page)
+        try:
+            bot = await Bot.objects.aget(pk=self.bot_id)
+            # generate and store prompt, config
+            self.prompt = bot.prompt.format(SUBJECT_NAME=self.subject_name)
+            self.aimodel = bot.aimodel
+            generation_config = default_bot_config()
+            generation_config.update({
+                k: bot.config[k] for k in generation_config.keys() if k in bot.config
+            })
+            self.config = generation_config
+            # set up ai model
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            model = genai.GenerativeModel(
+                model_name=self.aimodel,
+                generation_config=self.config,
+                # safety_settings = Adjust safety settings
+                # See https://ai.google.dev/gemini-api/docs/safety-settings
+                system_instruction=self.prompt
+            )
+            chat_session = model.start_chat(history=[])
+            response = await chat_session.send_message_async(bot.opening_user_statement or 'Hello')
+            response_dict = {
+                    'sender': 'model',
+                    'message': response.text.strip(),
+                    'sent_at': str(now()),
+                    'prompt_token_count': response.usage_metadata.prompt_token_count,
+                    'total_token_count': response.usage_metadata.total_token_count,
+                    'candidates_token_count': response.usage_metadata.candidates_token_count,
+                }
+            self.content.append(response_dict)
+        except Exception as ex:  # noqa: E722
+            response_dict = {'sender': 'System', 'message': 'An error occurred.', 'sent_at': str(now())}
+            self.content.append(response_dict)
+            import traceback
+            traceback.print_exception(ex)
+        await self.asave()
+        return response_dict
 
     async def add_user_message_async(self, message: str):
         if self.content is None:
             self.content = []  # shouldn't happen?
-        self.content.append({'sender': 'user', 'message': message, 'sent_at': str(now())})
+        self.content.append(dict(sender='user', message=message, sent_at=str(now())))
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            generation_config = default_bot_config()
-            bot = await Bot.objects.aget(pk=self.bot_id)
-            generation_config.update({
-                k: bot.config[k] for k in generation_config.keys() if k in bot.config
-            })
             model = genai.GenerativeModel(
-                model_name=bot.aimodel,
-                generation_config=generation_config,
+                model_name=self.aimodel,
+                generation_config=self.config,
                 # safety_settings = Adjust safety settings
                 # See https://ai.google.dev/gemini-api/docs/safety-settings
-                system_instruction=bot.prompt
+                system_instruction=self.prompt
             )
             chat_session = model.start_chat(history=[
                 {'role': h['sender'], 'parts': [h['message']]}

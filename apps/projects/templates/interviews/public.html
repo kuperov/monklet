@@ -45,6 +45,11 @@
         </div>
         {% endfor %}
         {% endif %}
+        {% if is_collaborator %}
+        <div class="alert alert-info" role="alert">
+          Note: this interview will be marked as a test.
+        </div>
+        {% endif %}
         {% if bot.consent_letter %}
         {{ bot.consent_letter.short_html | safe }}
         <p>
