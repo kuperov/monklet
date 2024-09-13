@@ -316,9 +316,10 @@ class Interview(models.Model):
     def __str__(self):
         return self.subject_name
 
-    def start(self):
-        message = self.bot.opening_user_statement or 'Hello'
-        return self.add_user_message(message)
+    async def start_async(self):
+        bot = await Bot.objects.aget(pk=self.bot_id)
+        message = bot.opening_user_statement or 'Hello'
+        return await self.add_user_message_async(message)
 
     async def add_user_message_async(self, message: str):
         if self.content is None:
@@ -327,15 +328,16 @@ class Interview(models.Model):
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
             generation_config = default_bot_config()
+            bot = await Bot.objects.aget(pk=self.bot_id)
             generation_config.update({
-                k: self.bot.config[k] for k in generation_config.keys() if k in self.bot.config
+                k: bot.config[k] for k in generation_config.keys() if k in bot.config
             })
             model = genai.GenerativeModel(
-                model_name=self.bot.aimodel,
+                model_name=bot.aimodel,
                 generation_config=generation_config,
                 # safety_settings = Adjust safety settings
                 # See https://ai.google.dev/gemini-api/docs/safety-settings
-                system_instruction=self.bot.prompt
+                system_instruction=bot.prompt
             )
             chat_session = model.start_chat(history=[
                 {'role': h['sender'], 'parts': [h['message']]}
