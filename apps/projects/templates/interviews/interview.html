@@ -11,9 +11,11 @@
 
 {% block content %}
 <div class="misc-wrapper">
-  {% if interview.status == 'complete' %}
-  <div>This interview has concluded</div>
-  {% else %}
+  <div class="alert alert-info" role="alert">
+    This is a temporary, unstyled chat interface. It will be replaced shortly.
+  </div>
+  <div id='interview-complete' class="{% if interview.status != 'complete' %}d-none{% endif %}">This interview has concluded</div>
+  {% if interview.status != 'complete' %}
   <textarea id="chat-log" cols="100" rows="20"></textarea><br>
   <input id="chat-message-input" type="text" size="100"><br>
   <input id="chat-message-submit" type="button" value="Send">
@@ -36,6 +38,7 @@
           if (data.sender == 'system' && data.message == 'Interview complete') {
             document.querySelector('#chat-message-input').style.visibility = 'hidden';
             document.querySelector('#chat-message-submit').style.visibility = 'hidden';
+            document.querySelector('#interview-complete').style.visibility = 'visible';
           } else {
             document.querySelector('#chat-log').value += (data.sender + ': ' + data.message + '\n');
           }
