@@ -15,55 +15,51 @@ function formatLocalTime(isoString) {
   return `${hours}:${minutes} ${ampm}`;
 };
 
-function add_my_message(msgs, time, avatar) {
+function add_my_message(msg, time, avatar) {
   const local_time = formatLocalTime(time);
-  var li_text = `<li class="chat-message chat-message-right">
-    <div class="d-flex overflow-hidden">
-      <div class="chat-message-wrapper flex-grow-1">
-        <div class="chat-message-text">`;
-  msgs.forEach(msg => {
-    li_text += `<p class="mb-0">${msg}</p>`;
-  })
-  li_text += `</div>
-        <div class="text-end text-muted mt-1">
-          <i class='ri-check-double-line ri-14px text-success me-1'></i>
-          <small>${local_time}</small>
-        </div>
+  let li = document.createElement('li');
+  li.className = "chat-message chat-message-right";
+  li.innerHTML = `<div class="d-flex overflow-hidden">
+    <div class="chat-message-wrapper flex-grow-1">
+      <div class="chat-message-text">
+      <p class="mb-0">${msg}</p>
       </div>
-      <div class="user-avatar flex-shrink-0 ms-4">
-        <div class="avatar avatar-sm">
-          <img src="${avatar}" alt="Avatar" class="rounded-circle">
-        </div>
+      <div class="text-end text-muted mt-1">
+        <i class='ri-check-double-line ri-14px text-success me-1'></i>
+        <small>${local_time}</small>
       </div>
     </div>
-  </li>`;
+    <div class="user-avatar flex-shrink-0 ms-4">
+      <div class="avatar avatar-sm">
+        <img src="${avatar}" alt="Avatar" class="rounded-circle">
+      </div>
+    </div>
+  </div>`;
   const list = document.getElementById('app-chat-history-messages');
-  list.innerHTML += li_text;
+  list.appendChild(li);
 };
 
-function add_remote_message(msgs, time, avatar) {
+function add_remote_message(msg, time, avatar) {
   const local_time = formatLocalTime(time);
-  var li_text = `<li class="chat-message">
-    <div class="d-flex overflow-hidden">
+  let li = document.createElement('li');
+  li.className = 'chat-message';
+  li.innerHTML = `<div class="d-flex overflow-hidden">
       <div class="user-avatar flex-shrink-0 me-4">
         <div class="avatar avatar-sm">
           <img src="${avatar}" alt="Avatar" class="rounded-circle">
         </div>
       </div>
       <div class="chat-message-wrapper flex-grow-1">
-        <div class="chat-message-text">`;
-  msgs.forEach(msg => {
-    li_text += `<p class="mb-0">${msg}</p>`;
-  })
-  li_text += `</div>
+        <div class="chat-message-text">
+          <p class="mb-0">${msg}</p>
+        </div>
         <div class="text-muted mt-1">
           <small>${local_time}</small>
         </div>
       </div>
-    </div>
-  </li>`;
+    </div>`;
   const ul = document.getElementById('app-chat-history-messages');
-  ul.innerHTML += li_text;
+  ul.appendChild(li);
 };
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 
-<html lang="en" class="light-style layout-navbar-fixed  layout-menu-fixed    layout-wide" dir="ltr" data-theme="theme-semi-dark" data-assets-path="/static/" data-base-url="" data-framework="django" data-template="horizontal-menu-front-theme-semi-dark-light">
+<html lang="en" class="light-style layout-navbar-fixed  layout-menu-fixed    layout-compact" dir="ltr" data-theme="theme-semi-dark" data-assets-path="/static/" data-base-url="" data-framework="django" data-template="horizontal-menu-front-theme-semi-dark-light">
   <head>
     <title>{% block title %}{% endblock title %} | monklet</title>
     <meta charset="utf-8" />
@@ -28,6 +28,7 @@
 
     {% block content %}
     {% endblock content %}
+
     {% endblock layout %}
     {% include "./partials/scripts.html" %}
     {% block vendor_js %}{% endblock vendor_js %}

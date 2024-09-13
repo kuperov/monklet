@@ -327,7 +327,7 @@ class Interview(models.Model):
         ordering = ["subject_name"]
 
     def __str__(self):
-        return self.subject_name
+        return f"{self.bot.name} & {self.subject_name}"
 
     def last_message_text(self) -> str:
         if not self.content:
