@@ -25,6 +25,7 @@
   [ ] toast for messages
   [ ] captcha before interview starts
   [ ] log ip address
+  [ ] inject name into template
 
 ## context variables for layout
 
