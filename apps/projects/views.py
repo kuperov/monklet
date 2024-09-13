@@ -17,6 +17,7 @@ from .forms import (
     InterviewForm,
     ManualTranscriptForm,
     InvitationResponseForm,
+    InterviewConsentForm,
 )
 from apps.context_helpers import backend_context, blank_context
 
@@ -255,6 +256,24 @@ def project_invite(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
+def project_resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
+    inv = get_object_or_404(MemberInvitation, pk=pk)
+    project = inv.project
+    if not project.can_edit(request.user) or inv.accepted_email:
+        raise PermissionDenied("User action not permitted.")
+    inv.resend_email(request)
+    return redirect('project-members', pk=project.pk)
+
+@login_required
+def project_cancel_invitation(request: HttpRequest, pk: str) -> HttpResponse:
+    inv = get_object_or_404(MemberInvitation, pk=pk)
+    project = inv.project
+    if not project.can_edit(request.user) or inv.accepted_email:
+        raise PermissionDenied("User action not permitted.")
+    inv.expire()
+    return redirect('project-members', pk=project.pk)
+
+@login_required
 def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
@@ -361,6 +380,30 @@ def interview_delete(request, pk):
     next = request.GET.get("next", reverse_lazy('project-responses', kwargs={'pk': iv.project.id}))
     return redirect(next)
 
+# unauthenticated view
+def interview_landing(request, pk):
+    iv = get_object_or_404(Interview, pk=pk)
+    project = iv.project
+    interview_url = reverse_lazy('interview', kwargs={'interview_code': iv.pk})
+    if iv.has_consented:
+        return redirect(interview_url)
+    if request.method == 'POST':
+        form = InterviewConsentForm(request.POST, instance=iv)
+        if form.is_valid():
+            iv = form.save()
+            return redirect(interview_url)
+    else:
+        form = InterviewConsentForm(instance=iv)
+    ctx = blank_context({
+        'form': form,
+        'project': project,
+        'bot': iv.bot,
+        'interview': iv,
+        'is_collaborator': project.can_view(request.user)
+    })
+    return render(request, "interviews/landing.html", ctx)
+
+
 @login_required
 def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
@@ -445,7 +488,8 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
             inv.project = project
             inv.status = 'invited'
             inv.save()
-            messages.add_message(request, messages.SUCCESS, "Interview added")
+            inv.send_invitation_email(request)
+            messages.add_message(request, messages.SUCCESS, "Interview invitation sent")
             return redirect("project-invitations", pk=project.pk)
     else:
         form = InterviewForm()
@@ -496,7 +540,7 @@ def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
         return render(
             request,
             "invitations/landing_not_logged_in.html",
-            {"project": inv.project, "return_url": inv.landing_url},
+            blank_context({"project": inv.project, "return_url": inv.landing_url}),
         )
     else:
         # logged in, so just ask if accept
@@ -504,7 +548,7 @@ def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
         form.helper.form_action = reverse_lazy(
             "invitation-respond", kwargs={"code": code}
         )
-        ctx = {"form": form}
+        ctx = blank_context({"form": form})
         return render(request, "invitations/landing_logged_in.html", ctx)
 
 

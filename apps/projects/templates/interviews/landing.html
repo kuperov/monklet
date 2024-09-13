@@ -1,0 +1,68 @@
+{% extends 'layout/layout_blank.html' %}
+
+{% load static i18n crispy_forms_tags  %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/@form-validation/form-validation.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/@form-validation/popular.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/auto-focus.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/page-auth.css' %}" />
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/pages-auth.js' %}"></script>
+<script src="{% static 'js/ui-popover.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+<div class="authentication-wrapper authentication-cover">
+  <a href="{% url 'index' %}" class="auth-cover-brand d-flex align-items-center gap-3">
+    <span class="app-brand-logo demo">{% include 'partials/logo.html' %}</span>
+    <span class="app-brand-text demo text-heading fw-semibold">Monklet</span>
+  </a>
+  <div class="authentication-inner row m-0">
+    <!-- Login -->
+    <div class="d-flex col-12 align-items-center authentication-bg position-relative py-sm-5 px-12 py-4">
+      <div class="w-px-600 mx-auto pt-5 pt-lg-0">
+        <h4 class="mb-1">{{ project.name }}</h4>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-warning{% endif %}" role="alert">
+          {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% if is_collaborator %}
+        <div class="alert alert-info" role="alert">
+          Note: this interview will be marked as a test.
+        </div>
+        {% endif %}
+        {% if bot.consent_letter %}
+        {{ bot.consent_letter.short_html | safe }}
+        <p>
+          For more details, see the
+          <a href="{% url 'consent-letter-public' pk=bot.consent_letter.pk %}">full consent letter</a>.
+        </p>
+        {% endif %}
+        {% crispy form %}
+        {% if ip_address %}
+        <p class="text-muted"><small>Your IP address: {{ ip_address }}</small></p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

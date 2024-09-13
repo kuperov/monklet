@@ -158,3 +158,18 @@ class PublicConsentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100"))
+
+
+class InterviewConsentForm(forms.ModelForm):
+    class Meta:
+        model = Interview
+        fields = ["has_consented", "followup_consented"]
+
+    has_consented = forms.BooleanField(label="I consent to participating in this study", required=True)
+    followup_consented = forms.BooleanField(label="The investigators may contact me for follow-up", required=False)
+    # no captcha because this is not a public url
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100"))

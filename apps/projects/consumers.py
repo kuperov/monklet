@@ -33,6 +33,11 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.channel_ident, {"type": "chat_message", "message": resp['message'], "sender": resp['sender']}
         )
+        if interview.status == 'complete':
+            await self.channel_layer.group_send(
+                self.channel_ident, {"type": "chat_message", "message": "Interview complete", "sender": "system"}
+            )
+            await self.disconnect(1000)
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({"message": event["message"], "sender": event["sender"]}))

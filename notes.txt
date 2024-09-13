@@ -15,7 +15,7 @@
   [ ] tests for profile list/edit/creation
   [ ] tests for member management
   [ ] leave, delete, expire features
-  [ ] chat for single individual (ie proper chat screen)
+  [x] chat for single individual (ie proper chat screen)
   [ ] chat simulator for whole project not just one bot
   [x] consolidate apps
   [ ] deferred job queue for analytical tasks
@@ -23,10 +23,17 @@
   [ ] 301 redirect for semi-structured.com
   [ ] short link for public urls
   [ ] toast for messages
-  [ ] captcha before interview starts
-  [ ] log ip address
-  [ ] inject name into template
-  [ ] store prompt in interview record
+  [x] captcha before interview starts
+  [x] log ip address
+  [x] inject name into template
+  [x] store prompt in interview record
+  [x] edit bot settings
+  [ ] chat invitation emails (#3)
+  [x] watch for end of interview string (#1)
+  [ ] style front pages, sign up, arrival flow
+  [ ] landing page for invited chat (#2)
+  [ ] copy interviews to transcripts
+
 
 ## context variables for layout
 

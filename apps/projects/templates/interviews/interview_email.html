@@ -1,0 +1,16 @@
+{% extends 'layout/email.html' %}
+
+{% block content %}
+<p>Dear {{subject_name}}</p>
+<p>{% if user.name %}{{ user.name }} has invited you{% else %}You have been invited{% endif %}
+   to participate in a research project entitled <i>{{project.name}}</i> on the Monklet platform.
+   Monklet is a tool for AI-assisted qualitative analysis.</p>
+<p>To accept the invitation, please open this link in your browser:<br/>
+<a href="{{landing_url}}">{{landing_url}}</a>
+</p>
+<p>This link will expire in {{expiry_days}} days.</p>
+<p>Please contact support if you have any difficulty.</p>
+<p>Kind regards<br/><br/>
+  The Monklet Team
+</p>
+{% endblock content %}

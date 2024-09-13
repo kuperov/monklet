@@ -303,6 +303,9 @@ class Interview(models.Model):
     aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
     prompt = models.TextField("Model prompt", default=None, blank=True, null=True)
     config = models.JSONField("Model config", default=dict, blank=False, null=False)
+    end_string = models.CharField(
+        "Termination string", max_length=100, default="ENDOFINTERVIEW"
+    )
     status = models.CharField(
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
     )
@@ -327,11 +330,16 @@ class Interview(models.Model):
         """Generate prompt and config, create initial message, post greeting from model"""
         # this should be the only time we look up the bot in the course of the chat
         # (apart from rendering the chat page)
+        if self.status != 'invited':
+            raise Exception(f'Interview is {self.status}')
         try:
+            self.status = 'started'
             bot = await Bot.objects.aget(pk=self.bot_id)
-            # generate and store prompt, config
+            # generate and store prompt, config, end_string
+            # keeping these values avoids issues with bot getting updated
             self.prompt = bot.prompt.format(SUBJECT_NAME=self.subject_name)
             self.aimodel = bot.aimodel
+            self.end_string = bot.end_string
             generation_config = default_bot_config()
             generation_config.update({
                 k: bot.config[k] for k in generation_config.keys() if k in bot.config
@@ -368,6 +376,8 @@ class Interview(models.Model):
     async def add_user_message_async(self, message: str):
         if self.content is None:
             self.content = []  # shouldn't happen?
+        if self.status == 'complete':
+            raise Exception('Interview is complete')
         self.content.append(dict(sender='user', message=message, sent_at=str(now())))
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -383,9 +393,13 @@ class Interview(models.Model):
                 for h in self.content if h['sender'] in ['user', 'model']
             ])
             response = await chat_session.send_message_async(message)
+            message = response.text.strip()
+            if self.end_string in message:
+                message = message.replace(self.end_string, '')
+                self.status = 'complete'
             response_dict = {
                 'sender': 'model',
-                'message': response.text.strip(),
+                'message': message.strip(),
                 'sent_at': str(now()),
                 'prompt_token_count': response.usage_metadata.prompt_token_count,
                 'total_token_count': response.usage_metadata.total_token_count,
@@ -399,6 +413,41 @@ class Interview(models.Model):
             traceback.print_exception(ex)
         await self.asave()
         return response_dict
+
+    def send_invitation_email(self, request):
+        """Render and send invitation email.
+
+        Side effect: updates and saves model object.
+        The request is required to obtain a complete landing
+        URL, which is different per environment.
+        """
+        landing_url = request.build_absolute_uri(
+            reverse_lazy('interview-landing', kwargs={'pk': self.pk}))
+        ctx = {
+            "request": request,
+            "user": request.user,
+            "subject_name": self.subject_name,
+            "subject_email": self.subject_email,
+            "project": self.project,
+            "bot": self.bot,
+            "expiry_days": settings.INVITATION_EXPIRY_DAYS,
+            "landing_url": landing_url,
+        }
+        self.message = render_to_string("interviews/interview_email.html", ctx)
+        plain = strip_tags(self.message)
+        self.subject = f"Invitation: {self.project.name}"
+        result = mail.send_mail(
+            subject=self.subject,
+            message=plain,
+            from_email=settings.EMAIL_SENDER,
+            recipient_list=[f"{self.subject_name} <{self.subject_email}>"],
+            html_message=self.message,
+            fail_silently=True,
+        )
+        if result:
+            self.sent_at = now()
+        self.save()
+        return result
 
 
 class Dimension(models.Model):
@@ -530,6 +579,8 @@ class MemberInvitation(models.Model):
         URL, which is different per environment.
         """
         ctx = {
+            "request": request,
+            "user": request.user,
             "name": self.name,
             "project_name": self.project.name,
             "expiry_days": settings.INVITATION_EXPIRY_DAYS,
@@ -537,7 +588,7 @@ class MemberInvitation(models.Model):
         }
         self.message = render_to_string("invitations/member_email.html", ctx)
         plain = strip_tags(self.message)
-        self.subject = f"Collaborate on {self.project.name}"
+        self.subject = f"Invitation to collaborate: {self.project.name}"
         result = mail.send_mail(
             subject=self.subject,
             message=plain,
@@ -557,7 +608,7 @@ class MemberInvitation(models.Model):
             project=self.project,
             email=self.email,
             name=self.name,
-            message_markdown=self.message_markdown,
+            role=self.role
         )
-        inv.send_email()
+        inv.send_email(request)  # regenerates email content from template
         self.expire()
