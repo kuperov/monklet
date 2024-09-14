@@ -33,6 +33,11 @@
   [ ] simple project dashboard
   [ ] decent chat for single individual (ie proper chat screen)
   [ ] chat simulator for whole project not just one bot
+  [ ] crud for consent letters to bots screen
+  [ ] file upload to s3
+  [ ] avatars as files
+  [ ] basic landing page for "launch"
+  [ ] bot prompt generator
 
 
 ## context variables for layout

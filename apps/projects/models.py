@@ -171,7 +171,7 @@ class Member(models.Model):
         try:
             return self.user.profile.avatar_url
         except ObjectDoesNotExist:
-            settings.STATIC_URL + "img/avatars/generic.svg"
+            return settings.STATIC_URL + "img/avatars/generic.svg"
 
     @property
     def email(self):

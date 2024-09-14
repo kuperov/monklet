@@ -1,4 +1,3 @@
-import hashlib
 
 from typing import ClassVar
 
@@ -57,10 +56,10 @@ class Profile(models.Model):
     @property
     def avatar_url(self):
         # TODO: download and store gravatar as default on creation, otherwise generic.svg
-        email = self.user.email
-        email_hash = hashlib.md5(email.strip().lower().encode("utf-8")).hexdigest()
-        return f"//www.gravatar.com/avatar/{email_hash}"
-        # return settings.STATIC_URL + 'img/avatars/generic.svg'
+        # email = self.user.email
+        # email_hash = hashlib.md5(email.strip().lower().encode("utf-8")).hexdigest()
+        # return f"//www.gravatar.com/avatar/{email_hash}"
+        return settings.STATIC_URL + 'img/avatars/generic.svg'
 
     def all_projects(self):
         projects = []
