@@ -14,6 +14,7 @@ from .views import (
     interview,
     interview_delete,
     interview_landing,
+    interview_conversation,
     project_questions,
     project_questions_new,
     question_edit,
@@ -30,6 +31,7 @@ from .views import (
     consent_letter_public,
     project_interviews_invited,
     project_interviews_invite,
+    project_interviews_list,
     project_simulate,
     project_transcripts,
     project_transcripts_upload,
@@ -53,6 +55,7 @@ urlpatterns = [
     path("interviews/<str:interview_code>", interview, name="interview"),
     path("interviews/<str:pk>/delete", interview_delete, name="interview-delete"),
     path("interviews/<str:pk>/landing", interview_landing, name="interview-landing"),
+    path("interviews/<str:pk>/conversation", interview_conversation, name="interview-conversation"),
     path("projects/<str:pk>/questions", project_questions, name="project-questions"),
     path(
         "projects/<str:pk>/questions/new",
@@ -97,6 +100,10 @@ urlpatterns = [
         "projects/<str:pk>/invitations/invite",
         project_interviews_invite,
         name="project-interviews-invite",
+    ),
+    path("projects/<str:pk>/interviews",
+         project_interviews_list,
+         name="project-interviews-list"
     ),
     path("projects/<str:pk>/transcripts", project_transcripts, name="project-responses"),
     path(

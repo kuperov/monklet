@@ -34,7 +34,7 @@
         <td>{{ iv.created_at }}</td>
         <td>{% if iv.status == 'invited' %}
           <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
-          {% elif bot.status == 'started' %}
+          {% elif iv.status == 'started' %}
           <span class="badge rounded-pill bg-label-warning me-1">Started</span>
           {% else %}
           <span class="badge rounded-pill bg-label-success me-1">Complete</span>

@@ -47,7 +47,7 @@
         {% endif %}
         {% if is_collaborator %}
         <div class="alert alert-info" role="alert">
-          Note: this interview will be marked as a test.
+          Note: this interview will be marked as a test because you are logged in.
         </div>
         {% endif %}
         {% if bot.consent_letter %}
@@ -58,9 +58,7 @@
         </p>
         {% endif %}
         {% crispy form %}
-        {% if ip_address %}
-        <p class="text-muted"><small>Your IP address: {{ ip_address }}</small></p>
-        {% endif %}
+        <p class="text-muted"><small><sup>*</sup> required field. {% if ip_address %}Your IP address: {{ ip_address }}.{% endif %}</small></p>
       </div>
     </div>
   </div>

@@ -1,0 +1,135 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags humanize %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<h5>{{ interview }}</h5>
+<p><a href="{% url "project-interviews-list" pk=project.pk %}">Back to interview list</a></p>
+<div class="card">
+  <div class="card-header px-0 pt-0">
+    <div class="nav-align-top">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#conversation-tab" aria-controls="conversation-tab" aria-selected="true">
+            Conversation
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#metadata-tab" aria-controls="metadata-tab" aria-selected="false">
+            Metadata
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-content p-0">
+    <div class="tab-pane fade show active table-responsive" id="conversation-tab" role="tabpanel">
+      <table class="table">
+        <thead class="table-light">
+          <tr class="text-nowrap">
+              <th>No</th>
+              <th>Sender</th>
+              <th>Text</th>
+              <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for msg in msg_list %}
+          <tr>
+            <td>{{ forloop.counter }}.</td>
+            <td>{{ msg.sender }}</td>
+            <td>{{ msg.message }}</td>
+            <td>{{ msg.time }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not msg_list %}
+      <div>No chat messages found.</div>
+      {% endif %}
+    </div>
+    <div class="tab-pane fade table-responsive text-nowrap" id="metadata-tab" role="tabpanel">
+      <table class="table">
+        <thead class="table-light">
+          <tr class="text-nowrap">
+              <th style="width: 20%;">Field</th>
+              <th style="width: 80%;">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Subject name</th>
+            <td>{{ interview.subject_name }}</td>
+          </tr>
+          <tr>
+            <th>Subject email</th>
+            <td>
+              {% if interview.subject_email %}
+              <a href="mailto:{{ interview.subject_email }}">{{ interview.subject_email }}</a>
+              {% else %}
+              Not provided
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th>Interview status</th>
+            <td>
+              {% if iv.status == 'invited' %}
+              <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+              {% elif iv.status == 'started' %}
+              <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+              {% else %}
+              <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th>Participation consent</th>
+            <td>{{ interview.has_consented|yesno:'Yes,No' }}</td>
+          </tr>
+          <tr>
+            <th>Follow-up consent</th>
+            <td>{{ interview.followup_consented|yesno:'Yes,No' }}</td>
+          </tr>
+          {% if interview.ip_address %}
+          <tr>
+            <th>IP Address</th>
+            <td>{{ interview.ip_address }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>Bot</th>
+            <td>{{ interview.bot.name }}</td>
+          </tr>
+          <tr>
+            <th>Model</th>
+            <td>{{ interview.aimodel }}</td>
+          </tr>
+          <tr>
+            <th>Tokens consumed</th>
+            <td>{{ prompt_tokens }} prompt, {{ gen_tokens }} generation, {{ total_tokens }} total</td>
+          </tr>
+          <tr>
+            <th>Created at</th>
+            <td>{{ interview.created_at }} UTC</td>
+          </tr>
+          <tr>
+            <th>Updated at</th>
+            <td>{{ interview.updated_at }} UTC</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer">
+  </div>
+</div>
+
+{% endblock content %}

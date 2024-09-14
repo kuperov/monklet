@@ -1,0 +1,221 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags humanize %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header px-0 pt-0">
+    <div class="nav-align-top">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#invited-tab" aria-controls="invited-tab" aria-selected="true">
+            Invited
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#started-tab" aria-controls="started-tab" aria-selected="false">
+            Started
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#complete-tab" aria-controls="complete-tab" aria-selected="false">
+            Complete
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#test-tab" aria-controls="test-tab" aria-selected="false">
+            Test interviews
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-content p-0">
+    <div class="tab-pane fade show active table-responsive text-nowrap" id="invited-tab" role="tabpanel">
+      <table class="table">
+        <thead class="table-light">
+          <tr class="text-nowrap">
+              <th>Name</th>
+              <th>Email</th>
+              <th>Bot</th>
+              <th>Created</th>
+              <th>Status</th>
+              <th />
+          </tr>
+        </thead>
+        <tbody>
+          {% for iv in invited_interviews %}
+          <tr>
+          <td>{{ iv.subject_name }}</td>
+          <td>{{ iv.subject_email }}</td>
+          <td>{{ iv.bot.name }}</td>
+          <td>{{ iv.created_at | naturaltime }}</td>
+          <td>{% if iv.status == 'invited' %}
+            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+            {% elif iv.status == 'started' %}
+            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+            {% else %}
+            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+            {% endif %}
+          <td>
+          <div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
+                <i class="ri-delete-line me-1"></i> Delete</a>
+              </div>
+          </div>
+          </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not invited_interviews %}
+      <div>No interview invitations found.</div>
+      {% endif %}
+      <div class="px-0 pt-0 d-flex justify-content-end">
+        <a class="m-4 btn btn-primary" href="{% url 'project-interviews-invite' pk=project.pk %}">Send invitation</a>
+      </div>
+    </div>
+    <div class="tab-pane fade table-responsive text-nowrap" id="started-tab" role="tabpanel">
+      <table class="table">
+        <thead class="table-light">
+          <tr class="text-nowrap">
+              <th>Name</th>
+              <th>Email</th>
+              <th>Bot</th>
+              <th>Updated</th>
+              <th>Status</th>
+              <th />
+          </tr>
+        </thead>
+        <tbody>
+          {% for iv in started_interviews %}
+          <tr>
+          <td>{{ iv.subject_name }}</td>
+          <td>{{ iv.subject_email }}</td>
+          <td>{{ iv.bot.name }}</td>
+          <td>{{ iv.updated_at | naturaltime }}</td>
+          <td>{% if iv.status == 'invited' %}
+            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+            {% elif iv.status == 'started' %}
+            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+            {% else %}
+            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+            {% endif %}
+          <td>
+          <div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
+                <i class="ri-delete-line me-1"></i> Delete</a>
+              </div>
+          </div>
+          </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not started_interviews %}
+      <div>No started (incomplete) interviews found.</div>
+      {% endif %}
+    </div>
+    <div class="tab-pane fade table-responsive text-nowrap" id="complete-tab" role="tabpanel">
+      <table class="table">
+        <thead class="table-light">
+          <tr class="text-nowrap">
+              <th>Name</th>
+              <th>Email</th>
+              <th>Bot</th>
+              <th>Updated</th>
+              <th>Status</th>
+              <th />
+          </tr>
+        </thead>
+        <tbody>
+          {% for iv in complete_interviews %}
+          <tr>
+          <td>{{ iv.subject_name }}</td>
+          <td>{{ iv.subject_email }}</td>
+          <td>{{ iv.bot.name }}</td>
+          <td>{{ iv.updated_at | naturaltime }}</td>
+          <td>{% if iv.status == 'invited' %}
+            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+            {% elif iv.status == 'started' %}
+            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+            {% else %}
+            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+            {% endif %}
+          <td>
+          <div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
+                <i class="ri-delete-line me-1"></i> Delete</a>
+              </div>
+          </div>
+          </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not completed_interviews %}
+      <div>No completed interviews found.</div>
+      {% endif %}
+    </div>
+    <div class="tab-pane fade table-responsive text-nowrap" id="test-tab" role="tabpanel">
+      <table class="table">
+        <thead class="table-light">
+          <tr class="text-nowrap">
+              <th>Name</th>
+              <th>Email</th>
+              <th>Bot</th>
+              <th>Updated</th>
+              <th>Status</th>
+              <th />
+          </tr>
+        </thead>
+        <tbody>
+          {% for iv in test_interviews %}
+          <tr>
+          <td>{{ iv.subject_name }}</td>
+          <td>{{ iv.subject_email }}</td>
+          <td>{{ iv.bot.name }}</td>
+          <td>{{ iv.updated_at | naturaltime }}</td>
+          <td>{% if iv.status == 'invited' %}
+            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+            {% elif iv.status == 'started' %}
+            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+            {% else %}
+            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+            {% endif %}
+          <td>
+          <div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
+                <i class="ri-delete-line me-1"></i> Delete</a>
+                <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}">
+                  <i class="ri-chat-2-fill me-1"></i> Conversation</a>
+                </div>
+          </div>
+          </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if not test_interviews %}
+      <div>No test interviews found.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

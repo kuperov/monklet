@@ -30,8 +30,8 @@ class Project(models.Model):
     description = models.TextField(null=True, blank=True)
     research_aims = models.TextField(null=True, blank=True)
     funding = models.TextField(null=True, blank=True)
-    created_at = models.DateTimeField(default=now, null=False, editable=False)
-    last_modified_at = models.DateTimeField(default=now, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, editable=False)
+    last_modified_at = models.DateTimeField(auto_now=True, null=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="owned_projects"
@@ -156,7 +156,8 @@ class Member(models.Model):
         related_name="project_memberships",
     )
     role = models.CharField(max_length=6, choices=MEMBER_ROLES)
-    last_modified_at = models.DateTimeField(null=False, blank=False, default=now)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} ({self.role} on {self.project.name})"
@@ -184,6 +185,8 @@ class Question(models.Model):
     question = models.TextField("Question")
     order = models.IntegerField("Order")
     is_enabled = models.BooleanField("Enabled", default=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["order"]
@@ -210,6 +213,8 @@ class ConsentLetter(models.Model):
     )
     short_md = models.TextField("Short version")
     letter_md = models.TextField("Letter")
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -264,6 +269,8 @@ class Bot(models.Model):
     )
     status = models.CharField(max_length=20, choices=BOT_STATUSES, default="test")
     allow_public = models.BooleanField("Allow public use", default=False, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} ({self.version})"
@@ -315,12 +322,10 @@ class Interview(models.Model):
     ip_address = models.CharField(
         max_length=20, blank=True, null=True
     )
-    created_at = models.DateTimeField(default=now, blank=False, null=False)
-    started_at = models.DateTimeField(
-        "Time conversation started", blank=True, null=True
-    )
-    updated_at = models.DateTimeField("Last message at", blank=True, null=True)
-    deleted_at = models.DateTimeField("Deleted at", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField("Started at", blank=True, null=True)
+    updated_at = models.DateTimeField("Last modified", auto_now=True)
+    deleted_at = models.DateTimeField("Deleted", blank=True, null=True)
     is_test = models.BooleanField("This is a test interview", default=False, null=False, blank=False)
 
     class Meta:
@@ -474,7 +479,7 @@ class InvitationEmail(models.Model):
     interview = models.ForeignKey(
         Interview, on_delete=models.CASCADE, related_name="emails"
     )
-    sent_at = models.DateTimeField(default=now)
+    sent_at = models.DateTimeField(auto_now_add=True)
     email = models.EmailField()
     message = models.TextField()
     subject = models.CharField(max_length=200)
@@ -496,8 +501,8 @@ class Transcript(models.Model):
     is_excluded = models.BooleanField(
         "Exclude from analysis", default=False, null=False
     )
-    created_at = models.DateTimeField(null=False, default=now)
-    updated_at = models.DateTimeField(null=False, default=now)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified_at = models.DateTimeField(auto_now=True)
 
     @property
     def transcript_type(self):
@@ -534,7 +539,7 @@ class MemberInvitation(models.Model):
     name = models.CharField(max_length=100, blank=False, null=False)
     message = models.TextField(blank=True, null=True)
     subject = models.CharField(max_length=200, blank=True, null=True)
-    created_at = models.DateTimeField(null=False, blank=False, default=now)
+    created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     expires_at = models.DateTimeField(null=False, blank=False, default=default_expiry)
     # email address of user that accepted this invitation, initially null

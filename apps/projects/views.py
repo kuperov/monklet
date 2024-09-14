@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
@@ -58,12 +60,12 @@ def menu(project: Project):
             {
                 "url": project.bots_url,
                 "icon": "menu-icon tf-icons ri-robot-2-line",
-                "name": "Interview bots",
+                "name": "Bots",
             },
             {
-                "url": project.invitations_url,
-                "icon": "menu-icon tf-icons ri-mail-send-line",
-                "name": "Interview invitations",
+                "url": reverse_lazy("project-interviews-list", kwargs={'pk': project.pk}),
+                "icon": "menu-icon tf-icons ri-chat-2-line",
+                "name": "Interviews",
             },
             {"menu_header": "Analysis"},
             {
@@ -415,6 +417,51 @@ def interview_landing(request, pk):
     })
     return render(request, "interviews/landing.html", ctx)
 
+@login_required
+def interview_conversation(request, pk):
+    iv = get_object_or_404(Interview, pk=pk)
+    msg_list = []
+    prompt_tokens = gen_tokens = total_tokens = 0
+    if iv.content:
+        FORMAT = '%Y-%m-%d %H:%M:%S.%f%z'
+        start_at = datetime.strptime(iv.content[0]['sent_at'], FORMAT)  # UTC
+        name_map = {
+            'system': 'System',
+            'user': iv.subject_name,
+            'model': iv.bot.name
+        }
+        def format(msg):
+            sent_at = datetime.strptime(msg['sent_at'], FORMAT)
+            delta = sent_at - start_at
+            days = delta.days
+            hours, remainder = divmod(delta.seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            if days > 0:
+                time_fmt = f"{days} days, {hours:02}:{minutes:02}:{seconds:02}"
+            elif hours:
+                time_fmt = f"{hours:02}:{minutes:02}:{seconds:02}"
+            else:
+                time_fmt = f"{minutes:02}:{seconds:02}"
+            return {
+                'message': msg['message'],
+                'sender': name_map.get(msg['sender']),
+                'time': time_fmt
+            }
+        msg_list = [format(msg) for msg in iv.content]
+        for msg in iv.content:
+            prompt_tokens += msg.get("prompt_token_count", 0)
+            gen_tokens += msg.get("candidates_token_count", 0)
+            total_tokens += msg.get("total_token_count", 0)
+    ctx = backend_context({
+        "interview": iv,
+        "project": iv.project,
+        "msg_list": msg_list,
+        "menu_data": menu(iv.project),
+        "prompt_tokens": prompt_tokens,
+        "gen_tokens": gen_tokens,
+        "total_tokens": total_tokens
+    })
+    return render(request, "interviews/conversation.html", ctx)
 
 @login_required
 def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
@@ -486,6 +533,24 @@ def project_interviews_invited(request: HttpRequest, pk: str) -> HttpResponse:
         {"project": project, "interviews": interviews, "menu_data": menu(project)}
     )
     return render(request, "interviews/invited.html", ctx)
+
+
+@login_required
+def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    ctx = backend_context(
+        {
+            "project": project,
+            "menu_data": menu(project),
+            "invited_interviews": project.interviews.filter(deleted_at=None, status="invited", is_test=False),
+            "started_interviews": project.interviews.filter(deleted_at=None, status="started", is_test=False),
+            "completed_interviews": project.interviews.filter(deleted_at=None, status="completed", is_test=False),
+            "test_interviews": project.interviews.filter(deleted_at=None, is_test=True)
+         }
+    )
+    return render(request, "interviews/list.html", ctx)
 
 
 @login_required

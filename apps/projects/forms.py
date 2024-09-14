@@ -125,7 +125,7 @@ class InterviewForm(forms.ModelForm):
 class ManualTranscriptForm(forms.ModelForm):
     class Meta:
         model = Transcript
-        fields = ["subject_name", "description", "created_at", "full_text"]
+        fields = ["subject_name", "description", "full_text"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
