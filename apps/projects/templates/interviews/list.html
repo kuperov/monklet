@@ -68,9 +68,9 @@
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
-                <i class="ri-delete-line me-1"></i> Delete</a>
-              </div>
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+            </div>
           </div>
           </td>
           </tr>
@@ -78,7 +78,7 @@
         </tbody>
       </table>
       {% if not invited_interviews %}
-      <div>No interview invitations found.</div>
+      <div>No invited invitations found.</div>
       {% endif %}
       <div class="px-0 pt-0 d-flex justify-content-end">
         <a class="m-4 btn btn-primary" href="{% url 'project-interviews-invite' pk=project.pk %}">Send invitation</a>
@@ -114,9 +114,9 @@
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
-                <i class="ri-delete-line me-1"></i> Delete</a>
-              </div>
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+            </div>
           </div>
           </td>
           </tr>
@@ -140,7 +140,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for iv in complete_interviews %}
+          {% for iv in completed_interviews %}
           <tr>
           <td>{{ iv.subject_name }}</td>
           <td>{{ iv.subject_email }}</td>
@@ -157,9 +157,9 @@
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
-                <i class="ri-delete-line me-1"></i> Delete</a>
-              </div>
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+            </div>
           </div>
           </td>
           </tr>
@@ -200,11 +200,9 @@
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
-                <i class="ri-delete-line me-1"></i> Delete</a>
-                <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}">
-                  <i class="ri-chat-2-fill me-1"></i> Conversation</a>
-                </div>
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+            </div>
           </div>
           </td>
           </tr>
@@ -215,6 +213,8 @@
       <div>No test interviews found.</div>
       {% endif %}
     </div>
+  </div>
+  <div class="tab-footer">
   </div>
 </div>
 
