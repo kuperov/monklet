@@ -28,25 +28,27 @@
       <tbody>
         {% for iv in interviews %}
         <tr>
-        <td>{{ iv.subject_name }}</td>
-        <td>{{ iv.subject_email }}</td>
-        <td>{{ iv.bot.name }}</td>
-        <td>{{ iv.created_at }}</td>
-        <td>{% if iv.status == 'invited' %}
-          <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
-          {% elif iv.status == 'started' %}
-          <span class="badge rounded-pill bg-label-warning me-1">Started</span>
-          {% else %}
-          <span class="badge rounded-pill bg-label-success me-1">Complete</span>
-          {% endif %}
+          <td>{{ iv.subject_name }}</td>
+          <td>{{ iv.subject_email }}</td>
+          <td>{{ iv.bot.name }}</td>
+          <td>{{ iv.created_at }}</td>
+          <td>
+            {% if iv.status == 'invited' %}
+            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+            {% elif iv.status == 'started' %}
+            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+            {% else %}
+            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+            {% endif %}
+        </td>
         <td>
-        <div class="dropdown">
-          <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
-              <i class="ri-delete-line me-1"></i> Delete</a>
-            </div>
-        </div>
+          <div class="dropdown">
+            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-invitations' pk=project.pk%}">
+                <i class="ri-delete-line me-1"></i> Delete</a>
+              </div>
+          </div>
         </td>
         </tr>
         {% endfor %}

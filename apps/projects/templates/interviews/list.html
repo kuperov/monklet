@@ -64,12 +64,13 @@
             {% else %}
             <span class="badge rounded-pill bg-label-success me-1">Complete</span>
             {% endif %}
+          </td>
           <td>
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
               <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
-              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
             </div>
           </div>
           </td>
@@ -78,7 +79,9 @@
         </tbody>
       </table>
       {% if not invited_interviews %}
-      <div>No invited invitations found.</div>
+      <div class="d-flex justify-content-center m-5">
+        No invitations found.
+      </div>
       {% endif %}
       <div class="px-0 pt-0 d-flex justify-content-end">
         <a class="m-4 btn btn-primary" href="{% url 'project-interviews-invite' pk=project.pk %}">Send invitation</a>
@@ -110,12 +113,13 @@
             {% else %}
             <span class="badge rounded-pill bg-label-success me-1">Complete</span>
             {% endif %}
+          </td>
           <td>
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
               <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
-              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
             </div>
           </div>
           </td>
@@ -124,7 +128,9 @@
         </tbody>
       </table>
       {% if not started_interviews %}
-      <div>No started (incomplete) interviews found.</div>
+      <div class="d-flex justify-content-center m-5">
+        No started (incomplete) interviews found.
+      </div>
       {% endif %}
     </div>
     <div class="tab-pane fade table-responsive text-nowrap" id="complete-tab" role="tabpanel">
@@ -153,12 +159,13 @@
             {% else %}
             <span class="badge rounded-pill bg-label-success me-1">Complete</span>
             {% endif %}
+          </td>
           <td>
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
               <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
-              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
             </div>
           </div>
           </td>
@@ -167,7 +174,9 @@
         </tbody>
       </table>
       {% if not completed_interviews %}
-      <div>No completed interviews found.</div>
+      <div class="d-flex justify-content-center m-5">
+        No completed interviews found.
+      </div>
       {% endif %}
     </div>
     <div class="tab-pane fade table-responsive text-nowrap" id="test-tab" role="tabpanel">
@@ -196,12 +205,13 @@
             {% else %}
             <span class="badge rounded-pill bg-label-success me-1">Complete</span>
             {% endif %}
+          </td>
           <td>
           <div class="dropdown">
             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
             <div class="dropdown-menu">
               <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
-              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-fill me-1"></i> Conversation</a>
+              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
             </div>
           </div>
           </td>
@@ -210,7 +220,9 @@
         </tbody>
       </table>
       {% if not test_interviews %}
-      <div>No test interviews found.</div>
+      <div class="d-flex justify-content-center m-5">
+        No test interviews found.
+      </div>
       {% endif %}
     </div>
   </div>
