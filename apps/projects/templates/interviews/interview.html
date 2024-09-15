@@ -23,7 +23,7 @@
 {% block content %}
 <div class="content-wrapper">
   <div class="flex-grow-1 container-p-y container-xxl">
-    <div class="app-chat card overflow-hidden">
+    <div id='interview' class="app-chat card overflow-hidden">
       <div class="row g-0">
         <div id='interview-complete' class="alert alert-info {% if interview.status != 'complete' %}d-none{% endif %}" role="alert">This interview is complete</div>
         <div class="col app-chat-history">
@@ -72,149 +72,26 @@
 {% endblock %}
 
 {% block page_js %}
+{{ block.super }}
 {{ interview.pk|json_script:"interview-code" }}
 {{ interview.content|json_script:"initial-messages"}}
+<script src="{% static 'vendor/js/interview.js' %}?v={{ CACHE_BUSTER }}"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-  const chatHistoryBody = document.querySelector('.chat-history-body'),
-    formSendMessage = document.querySelector('.form-send-message'),
-    messageInput = document.querySelector('.message-input'),
-    messageList = document.querySelector('#app-chat-history-messages');
-
-  function formatLocalTime(isoString) {
-    const utcDate = new Date(isoString);
-    let hours = utcDate.getHours();
-    let minutes = utcDate.getMinutes();
-    let ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    return `${hours}:${minutes} ${ampm}`;
-  };
-
-  function add_user_message(msg, time, uuid, received) {
-    const local_time = formatLocalTime(time);
-    if (uuid) {
-      var li = document.getElementById(uuid);
-    }
-    let mode = li ? 'update' : 'create';
-    if (!li) {
-      li = document.createElement('li');
-      li.setAttribute("id", uuid);
-    }
-    let checkmark = received ? 'ri-check-double-line' : 'ri-check-line';
-    let checkmark_class = received ? 'text-success' : 'text-secondary';
-    li.className = "chat-message chat-message-right";
-    li.innerHTML = `<div class="d-flex overflow-hidden">
-      <div class="chat-message-wrapper flex-grow-1">
-        <div class="chat-message-text">
-        <p class="mb-0">${msg}</p>
-        </div>
-        <div class="text-end text-muted mt-1">
-          <i class='${checkmark} ri-14px ${checkmark_class} me-1'></i>
-          <small>${local_time}</small>
-        </div>
-      </div>
-      <div class="user-avatar flex-shrink-0 ms-4">
-        <div class="avatar avatar-sm">
-          <img src="{% static 'img/avatars/generic.svg' %}" alt="Avatar" class="rounded-circle">
-        </div>
-      </div>
-    </div>`;
-    if (mode == 'create') {
-      const list = document.getElementById('app-chat-history-messages');
-      list.appendChild(li);
-    }
-  };
-
-  function add_remote_message(msg, time, uuid) {
-    const local_time = formatLocalTime(time);
-    let li = document.createElement('li');
-    li.className = 'chat-message';
-    li.setAttribute("id", uuid);
-    li.innerHTML = `<div class="d-flex overflow-hidden">
-        <div class="user-avatar flex-shrink-0 me-4">
-          <div class="avatar avatar-sm">
-            <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
-          </div>
-        </div>
-        <div class="chat-message-wrapper flex-grow-1">
-          <div class="chat-message-text">
-            <p class="mb-0">${msg}</p>
-          </div>
-          <div class="text-muted mt-1">
-            <small>${local_time}</small>
-          </div>
-        </div>
-      </div>`;
-    const ul = document.getElementById('app-chat-history-messages');
-    ul.appendChild(li);
-  };
-
-  function add_message(msg) {
-    if (msg.sender == 'user') {
-      add_user_message([msg.message], msg.sent_at, msg.uuid, true);
-    } else {
-      add_remote_message([msg.message], msg.sent_at, msg.uuid);
-    }
-  };
-
   const interview_code = JSON.parse(document.getElementById('interview-code').textContent);
   const initial_messages = JSON.parse(document.getElementById('initial-messages').textContent);
-  initial_messages.forEach(msg => { add_message(msg) });
-
-  let ps = new PerfectScrollbar(chatHistoryBody, {
-      wheelPropagation: false,
-      suppressScrollX: true
-    });
-
-  function scrollToBottom() {
-    ps.update();
-    //if (messageList.scrollHeight > chatHistoryBody.clientHeight) {
-    chatHistoryBody.scrollTo(100, messageList.scrollHeight - 0.9 * chatHistoryBody.clientHeight);
-    //} else {
-    //  chatHistoryBody.scrollTo(0, chatHistoryBody.scrollHeight);
-    //}
+  const interview_element = document.getElementById('interview')
+  function interviewComplete() {
+    document.querySelector('#interview-complete').style.visibility = 'visible';
   }
-  scrollToBottom();
-
-  const protocol = (window.location.protocol == 'https:') ? 'wss:' : 'ws:';
-  const socket_addr = protocol + '//' + window.location.host + '/ws/interviews/' + interview_code + '/';
-  const chatSocket = new WebSocket(socket_addr);
-
-  chatSocket.onmessage = function(e) {
-      const data = JSON.parse(e.data);
-      if (data.sender == 'system' && data.message == 'Interview complete') {
-        document.querySelector('.chat-history-footer').style.visibility = 'hidden';
-        document.querySelector('#interview-complete').style.visibility = 'visible';
-      } else {
-        add_message(data);
-        scrollToBottom();
-      }
-  };
-
-  chatSocket.onclose = function(e) {
-      console.error('Chat socket closed unexpectedly');
-  };
-
-  document.querySelector('#chat-message-input').focus();
-  document.querySelector('#chat-message-input').onkeyup = function(e) {
-      if (e.keyCode === 13) {  // enter, return
-          document.querySelector('#chat-message-submit').click();
-      }
-  };
-
-  formSendMessage.addEventListener('submit', e => {
-    e.preventDefault();
-    if (messageInput.value) {
-      const message = messageInput.value;
-      const uuid = crypto.randomUUID();
-      add_user_message([message], new Date(), uuid, false);
-      chatSocket.send(JSON.stringify({'message': message, 'sender': 'user', 'uuid': uuid}));
-      messageInput.value = '';
-      scrollToBottom();
-    }
-  });
-});
+  function interviewStart() {
+    document.querySelector('#interview-complete').style.visibility = 'hidden';
+  }
+  const iv_app = new Interview(
+    interview_element,
+    interview_code,
+    initial_messages,
+    interviewComplete,
+    interviewStart,
+    "{% static '' %}");
 </script>
 {% endblock page_js %}

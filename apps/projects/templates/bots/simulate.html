@@ -22,19 +22,8 @@
 
 {% block page_js %}
 {{ block.super }}
-<script src="{% static 'js/app-chat.js' %}"></script>
+<script src="{% static 'js/app-chat.js' %}?v={{ CACHE_BUSTER }}"></script>
 {{ initial_messages|json_script:"initial-messages"}}
-<script>
-  const initial_messages = JSON.parse(document.getElementById('initial-messages').textContent);
-  {% comment %} initial_messages.forEach(m => {
-    console.log(m);
-    if (m.sender == "subject") {
-      add_my_message([m.message], m.sent_at, "{{ user.profile.avatar_url }}");
-    } else {
-      add_remote_message([m.message], m.sent_at, "{% static "img/avatars/bot.svg" %}");
-    }
-  }); {% endcomment %}
-</script>
 {% endblock page_js %}
 
 {% block content %}
