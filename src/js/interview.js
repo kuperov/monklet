@@ -112,8 +112,7 @@ class Interview {
           </div>
         </div>
       </div>`;
-    const ul = document.getElementById('app-chat-history-messages');
-    ul.appendChild(li);
+    this.messageList.appendChild(li);
   }
 
   add_message(msg) {

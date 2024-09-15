@@ -16,105 +16,86 @@
 
 {% block page_css %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'vendor/css/pages/app-chat.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/css/simulator.css' %}" />
 <link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
 {% endblock page_css %}
 
 {% block page_js %}
 {{ block.super }}
-<script src="{% static 'js/app-chat.js' %}?v={{ CACHE_BUSTER }}"></script>
-{{ initial_messages|json_script:"initial-messages"}}
+<script src="{% static 'vendor/js/interview.js' %}?v={{ CACHE_BUSTER }}"></script>
+<script src="{% static 'vendor/js/simulator.js' %}?v={{ CACHE_BUSTER }}"></script>
+<script>
+  const elem = document.getElementById('simulator')
+  const api_base = "{% url 'project' pk=project.pk %}"
+  const static_url = "{% static '' %}"
+  const simulator = new Simulator(elem, api_base, static_url);
+</script>
 {% endblock page_js %}
 
 {% block content %}
-<div class="alert alert-info" role="alert">
+<div class="alert alert-info d-none" role="alert">
   The bot simulator will be ready soon. For now, use the public page link
   accessible from the bot list.
 </div>
-<div class="app-chat card overflow-hidden">
+<div id='simulator' class="simulator card overflow-hidden">
   <div class="row g-0">
     <!-- Test interview list -->
-    <div class="col app-chat-contacts app-sidebar flex-grow-0 overflow-hidden border-end" id="app-chat-contacts">
+    <div class="col simulator-left-pane simulator-bots app-sidebar flex-grow-0 overflow-hidden border-end">
       <div class="sidebar-header h-px-75 px-5 border-bottom d-flex align-items-center">
         <div class="d-flex align-items-center me-4 me-lg-0">
-          <div class="flex-shrink-0 avatar avatar-online me-4" data-bs-toggle="sidebar" data-overlay="app-overlay-ex" data-target="#app-chat-sidebar-left">
+          <div class="flex-shrink-0 avatar avatar-online me-4" data-bs-toggle="sidebar" data-overlay="app-overlay-ex" data-target="#simulator-sidebar-left">
             <img class="user-avatar rounded-circle cursor-pointer" src="{{ user.profile.avatar_url }}" alt="Avatar">
           </div>
           <div class="flex-grow-1">
             <h6>Bot simulator</h6>
           </div>
-          <!-- div class="flex-grow-1 input-group input-group-sm input-group-merge rounded-pill">
-            <span class="input-group-text" id="basic-addon-search31"><i class="ri-search-line lh-1 ri-20px"></i></span>
-            <input type="text" class="form-control chat-search-input" placeholder="Search..." aria-label="Search..." aria-describedby="basic-addon-search31">
-          </div -->
         </div>
-        <i class="ri-close-line ri-20px cursor-pointer position-absolute top-50 end-0 translate-middle fs-4 d-lg-none d-block" data-overlay data-bs-toggle="sidebar" data-target="#app-chat-contacts"></i>
+        <i class="ri-close-line ri-20px cursor-pointer position-absolute top-50 end-0 translate-middle fs-4 d-lg-none d-block" data-overlay data-bs-toggle="sidebar" data-target="#simulator-bots"></i>
       </div>
       <div class="sidebar-body">
-
-        <!-- Chats -->
-        <ul class="list-unstyled chat-contact-list py-2 mb-0" id="chat-list">
-          <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
+        <ul class="list-unstyled chat-bot-list py-2 mb-0" id="bot-list">
+          <li class="chat-bot-list-item chat-bot-list-item-title mt-0">
             <h5 class="text-primary mb-0">Available bots</h5>
           </li>
           {% if not bots %}
-          <li class="chat-contact-list-item chat-list-item-0"> <!-- d-none -->
+          <li class="chat-bot-list-item chat-list-item-0"> <!-- d-none -->
             <h6 class="text-muted mb-0">No bots available</h6>
           </li>
           {% endif %}
           {% for bot in project.enabled_bots %}
-          <li class="chat-contact-list-item mb-1" data-botid="{{bot.pk}}">
+          <li class="chat-bot-list-item mb-1" data-botid="{{bot.pk}}">
             <a class="d-flex align-items-center">
               <div class="flex-shrink-0 avatar {% if bot.status == 'live' %}avatar-online{% else %}avatar-away{% endif %}">
                 <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
               </div>
-              <div class="chat-contact-info flex-grow-1 ms-4">
+              <div class="chat-bot-info flex-grow-1 ms-4">
                 <div class="d-flex justify-content-between align-items-center">
-                  <h6 class="chat-contact-name text-truncate fw-normal m-0">{{ bot.name }}</h6>
+                  <h6 class="chat-bot-name text-truncate fw-normal m-0">{{ bot.name }}</h6>
                   <small class="text-muted">version {{bot.version}}</small>
                 </div>
-                <small class="chat-contact-status text-truncate">{{ bot.description }}</small>
-              </div>
-            </a>
-          </li>
-          {% endfor %}
-          <li class="chat-contact-list-item chat-contact-list-item-title mt-0">
-            <h5 class="text-primary mb-0">Test interviews</h5>
-          </li>
-          {% for iv in test_interviews %}
-          <li class="chat-contact-list-item mb-1">
-            <a class="d-flex align-items-center">
-              <div class="flex-shrink-0 avatar avatar-online">
-                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
-              </div>
-              <div class="chat-contact-info flex-grow-1 ms-4">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h6 class="chat-contact-name text-truncate fw-normal m-0">{{ iv.bot.name }} &amp; {{ iv.subject_name }}</h6>
-                  {% if iv.updated_at %}
-                  <small class="text-muted">{{ iv.updated_at | naturaltime }}</small>
-                  {% endif %}
-                </div>
-                <small class="chat-contact-status text-truncate">{{ iv.last_message_text }}</small>
+                <small class="chat-bot-status text-truncate">{{ bot.description }}</small>
               </div>
             </a>
           </li>
           {% endfor %}
         </ul>
+        <ul class="interview-list list-unstyled chat-bot-list py-2 mb-0">
+          <li class="chat-bot-list-item chat-bot-list-item-title mt-0">
+            <h5 class="text-primary mb-0">Test interviews</h5>
+          </li>
+        </ul>
       </div>
     </div>
-    <!-- /Chat contacts -->
-
-    <!-- Chat History -->
-    <div class="col app-chat-history">
+    <div class="col simulator-history">
       <div class="chat-history-wrapper">
         <div class="chat-history-header border-bottom">
           <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex overflow-hidden align-items-center">
-              <i class="ri-menu-line ri-24px cursor-pointer d-lg-none d-block me-4" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-contacts"></i>
+              <i class="ri-menu-line ri-24px cursor-pointer d-lg-none d-block me-4" data-bs-toggle="sidebar" data-overlay data-target="#simulator-bots"></i>
               <div class="flex-shrink-0 avatar avatar-online">
-                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right">
+                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle" data-bs-toggle="sidebar" data-overlay data-target="#simulator-sidebar-right">
               </div>
-              <div class="chat-contact-info flex-grow-1 ms-4">
+              <div class="chat-bot-info flex-grow-1 ms-4">
                 <h6 id="bot-name" class="m-0 fw-normal">Bot name</h6>
                 <small id="bot-version" class="user-status text-body">Version 1.0</small>
               </div>
@@ -131,11 +112,9 @@
           </div>
         </div>
         <div class="chat-history-body">
-          <ul id='app-chat-history-messages' class="list-unstyled chat-history">
-            <!-- messages go here -->
+          <ul class="list-unstyled chat-history">
           </ul>
         </div>
-        <!-- Chat message form -->
         <div class="chat-history-footer">
           <form class="form-send-message d-flex justify-content-between align-items-center ">
             <input class="form-control message-input me-4 shadow-none" placeholder="Type your message here...">
@@ -149,9 +128,6 @@
         </div>
       </div>
     </div>
-    <!-- /Chat History -->
-
-    <div class="app-overlay"></div>
   </div>
 </div>
 

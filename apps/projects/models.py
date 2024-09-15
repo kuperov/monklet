@@ -371,13 +371,14 @@ class Interview(models.Model):
             chat_session = model.start_chat(history=[])
             response = await chat_session.send_message_async(bot.opening_user_statement or 'Hello')
             response_dict = {
-                    'sender': 'model',
-                    'message': response.text.strip(),
-                    'sent_at': str(now()),
-                    'prompt_token_count': response.usage_metadata.prompt_token_count,
-                    'total_token_count': response.usage_metadata.total_token_count,
-                    'candidates_token_count': response.usage_metadata.candidates_token_count,
-                }
+                'uuid': str(uuid.uuid4),
+                'sender': 'model',
+                'message': response.text.strip(),
+                'sent_at': str(now()),
+                'prompt_token_count': response.usage_metadata.prompt_token_count,
+                'total_token_count': response.usage_metadata.total_token_count,
+                'candidates_token_count': response.usage_metadata.candidates_token_count,
+            }
             self.content.append(response_dict)
         except Exception as ex:  # noqa: E722
             response_dict = {'sender': 'System', 'message': 'An error occurred.', 'sent_at': str(now())}
@@ -392,7 +393,7 @@ class Interview(models.Model):
             self.content = []  # shouldn't happen?
         if self.status == 'complete':
             raise Exception('Interview is complete')
-        self.content.append(dict(sender='user', message=message, sent_at=str(now())))
+        self.content.append(dict(uuid=str(uuid.uuid4()), sender='user', message=message, sent_at=str(now())))
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
             model = genai.GenerativeModel(
@@ -412,6 +413,7 @@ class Interview(models.Model):
                 message = message.replace(self.end_string, '')
                 self.status = 'complete'
             response_dict = {
+                'uuid': str(uuid.uuid4()),
                 'sender': 'model',
                 'message': message.strip(),
                 'sent_at': str(now()),
@@ -421,7 +423,12 @@ class Interview(models.Model):
             }
             self.content.append(response_dict)
         except Exception as ex:  # noqa: E722
-            response_dict = {'sender': 'System', 'message': 'An error occurred.', 'sent_at': str(now())}
+            response_dict = {
+                'uuid': (uuid.uuid4()),
+                'sender': 'System',
+                'message': 'An error occurred.',
+                'sent_at': str(now())
+            }
             self.content.append(response_dict)
             import traceback
             traceback.print_exception(ex)

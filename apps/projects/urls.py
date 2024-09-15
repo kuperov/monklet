@@ -37,6 +37,8 @@ from .views import (
     project_transcripts_upload,
     invitation_landing,
     invitation_respond,
+    test_interviews_json,
+    interview_messages
 )
 
 
@@ -56,6 +58,7 @@ urlpatterns = [
     path("interviews/<str:pk>/delete", interview_delete, name="interview-delete"),
     path("interviews/<str:pk>/landing", interview_landing, name="interview-landing"),
     path("interviews/<str:pk>/conversation", interview_conversation, name="interview-conversation"),
+    path("interviews/<str:pk>/messages", interview_messages, name='interview-messages'),
     path("projects/<str:pk>/questions", project_questions, name="project-questions"),
     path(
         "projects/<str:pk>/questions/new",
@@ -105,6 +108,9 @@ urlpatterns = [
          project_interviews_list,
          name="project-interviews-list"
     ),
+    path("projects/<str:pk>/test_interviews",
+         test_interviews_json,
+         name='project-interviews-test-json'),
     path("projects/<str:pk>/transcripts", project_transcripts, name="project-responses"),
     path(
         "projects/<str:pk>/transcripts/upload",

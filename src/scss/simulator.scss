@@ -1,23 +1,22 @@
-// * App Chat
-// *******************************************************************************
+// chat simulator
 
-@use '../_bootstrap-extended/include' as light;
-@use '../_bootstrap-extended/include-dark' as dark;
-@import '../_components/include';
-@import '../_custom-variables/pages';
+@use '_bootstrap-extended/include' as light;
+@use '_bootstrap-extended/include-dark' as dark;
+@import '_components/include';
+@import '_custom-variables/pages';
 
 // Variables
-$chat-app-height: calc(100vh - 11rem);
-$chat-app-height-with-no-navbar: calc(100vh - 7rem);
-$chat-app-horizontal-height-diff: 4.2rem;
+$chat-sim-height: calc(100vh - 11rem);
+$chat-sim-height-with-no-navbar: calc(100vh - 7rem);
+$chat-sim-horizontal-height-diff: 4.2rem;
 
-$chat-contact-width: 21rem;
+$chat-bot-width: 21rem;
 
-$chat-contact-list-padding-x: 0.75rem;
-$chat-contact-list-padding-y: 0.5rem;
+$chat-bot-list-padding-x: 0.75rem;
+$chat-bot-list-padding-y: 0.5rem;
 
-$chat-contact-list-margin-x: $chat-contact-list-padding-x;
-$chat-contact-list-margin-y: 0.25rem;
+$chat-bot-list-margin-x: $chat-bot-list-padding-x;
+$chat-bot-list-margin-y: 0.25rem;
 
 $chat-history-padding-x: 1.25rem;
 $chat-history-padding-y: 1.25rem;
@@ -31,26 +30,26 @@ $chat-history-footer-padding-y: 0.5rem;
 $chat-history-footer-margin-x: $chat-history-padding-x;
 
 $chat-message-text-padding-x: 1rem;
-$chat-message-text-padding-y: $chat-contact-list-padding-y;
+$chat-message-text-padding-y: $chat-bot-list-padding-y;
 $chat-message-text-border-radius: light.$border-radius;
 $chat-list-margin: 2.5rem;
 
-$app-chat-shadow-light: light.$box-shadow-xs !default;
-$app-chat-shadow-dark: dark.$box-shadow-xs !default;
+$simulator-shadow-light: light.$box-shadow-xs !default;
+$simulator-shadow-dark: dark.$box-shadow-xs !default;
 
 $chat-bg-light: #f7f6fa;
 $chat-bg-dark: #373452;
 
 // App Chat Global
-.app-chat {
+.simulator {
   position: relative;
-  height: $chat-app-height;
+  height: $chat-sim-height;
   .layout-navbar-hidden & {
-    height: $chat-app-height-with-no-navbar;
+    height: $chat-sim-height-with-no-navbar;
   }
   @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
     .layout-horizontal & {
-      height: calc($chat-app-height - $chat-app-horizontal-height-diff);
+      height: calc($chat-sim-height - $chat-sim-horizontal-height-diff);
     }
   }
   // Common Styles Of two sidebars
@@ -79,19 +78,19 @@ $chat-bg-dark: #373452;
     }
   }
 
-  .app-chat-contacts {
+  .simulator-bots {
     position: absolute;
-    left: calc(-#{$chat-contact-width} - 1rem);
-    height: $chat-app-height;
-    width: $chat-contact-width;
-    flex-basis: $chat-contact-width;
+    left: calc(-#{$chat-bot-width} - 1rem);
+    height: $chat-sim-height;
+    width: $chat-bot-width;
+    flex-basis: $chat-bot-width;
     transition: all 0.25s ease;
     .layout-navbar-hidden & {
-      height: $chat-app-height-with-no-navbar;
+      height: $chat-sim-height-with-no-navbar;
     }
     @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
       .layout-horizontal & {
-        height: calc($chat-app-height - $chat-app-horizontal-height-diff);
+        height: calc($chat-sim-height - $chat-sim-horizontal-height-diff);
       }
     }
 
@@ -104,30 +103,30 @@ $chat-bg-dark: #373452;
     }
 
     .sidebar-body {
-      height: calc(#{$chat-app-height} - 4rem);
+      height: calc(#{$chat-sim-height} - 4rem);
       .layout-navbar-hidden & {
-        height: calc(#{$chat-app-height-with-no-navbar} - 4rem);
+        height: calc(#{$chat-sim-height-with-no-navbar} - 4rem);
       }
       @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
         .layout-horizontal & {
-          height: calc(#{$chat-app-height} - 3.5rem - #{$chat-app-horizontal-height-diff});
+          height: calc(#{$chat-sim-height} - 3.5rem - #{$chat-sim-horizontal-height-diff});
         }
       }
 
-      .chat-contact-list {
-        li.chat-contact-list-item {
+      .chat-bot-list {
+        li.chat-bot-list-item {
           display: flex;
           justify-content: space-between;
-          margin: $chat-contact-list-margin-y $chat-contact-list-margin-x;
-          padding: $chat-contact-list-padding-y $chat-contact-list-padding-x;
+          margin: $chat-bot-list-margin-y $chat-bot-list-margin-x;
+          padding: $chat-bot-list-padding-y $chat-bot-list-padding-x;
           cursor: pointer;
           border-radius: $chat-message-text-border-radius;
           a {
             width: 100%;
           }
-          .chat-contact-info {
+          .chat-bot-info {
             min-width: 0;
-            .chat-contact-name {
+            .chat-bot-name {
               line-height: 1.5;
             }
           }
@@ -135,28 +134,28 @@ $chat-bg-dark: #373452;
             white-space: nowrap;
           }
         }
-        li.chat-contact-list-item-title {
-          padding: $chat-contact-list-padding-y $chat-contact-list-padding-y * 2 $chat-contact-list-padding-y * 0.5;
+        li.chat-bot-list-item-title {
+          padding: $chat-bot-list-padding-y $chat-bot-list-padding-y * 2 $chat-bot-list-padding-y * 0.5;
         }
       }
     }
   }
 
-  .app-chat-sidebar-left {
+  .simulator-sidebar-left {
     position: absolute;
     top: 0;
-    left: calc(-#{$chat-contact-width} - 1rem);
-    width: $chat-contact-width;
-    height: $chat-app-height;
+    left: calc(-#{$chat-bot-width} - 1rem);
+    width: $chat-bot-width;
+    height: $chat-sim-height;
     opacity: 0;
     z-index: 5;
     transition: all 0.25s ease;
     .layout-navbar-hidden & {
-      height: $chat-app-height-with-no-navbar;
+      height: $chat-sim-height-with-no-navbar;
     }
     @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
       .layout-horizontal & {
-        height: calc($chat-app-height - $chat-app-horizontal-height-diff);
+        height: calc($chat-sim-height - $chat-sim-horizontal-height-diff);
       }
     }
 
@@ -166,28 +165,28 @@ $chat-bg-dark: #373452;
     }
 
     .sidebar-body {
-      height: calc(#{$chat-app-height} - 12.5rem);
+      height: calc(#{$chat-sim-height} - 12.5rem);
       .layout-navbar-hidden & {
-        height: calc(#{$chat-app-height-with-no-navbar} - 12.5rem);
+        height: calc(#{$chat-sim-height-with-no-navbar} - 12.5rem);
       }
       @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
         .layout-horizontal & {
-          height: calc(#{$chat-app-height} - 11.5rem - #{$chat-app-horizontal-height-diff});
+          height: calc(#{$chat-sim-height} - 11.5rem - #{$chat-sim-horizontal-height-diff});
         }
       }
     }
   }
 
-  .app-chat-history {
+  .simulator-history {
     position: relative;
-    height: $chat-app-height;
+    height: $chat-sim-height;
     transition: all 0.25s ease;
     .layout-navbar-hidden & {
-      height: $chat-app-height-with-no-navbar;
+      height: $chat-sim-height-with-no-navbar;
     }
     @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
       .layout-horizontal & {
-        height: calc($chat-app-height - $chat-app-horizontal-height-diff);
+        height: calc($chat-sim-height - $chat-sim-horizontal-height-diff);
       }
     }
 
@@ -204,7 +203,7 @@ $chat-bg-dark: #373452;
       }
       @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
         .layout-horizontal & {
-          height: calc($chat-history-height - $chat-app-horizontal-height-diff);
+          height: calc($chat-history-height - $chat-sim-horizontal-height-diff);
         }
       }
 
@@ -234,9 +233,6 @@ $chat-bg-dark: #373452;
 
             .chat-message-text {
               border-top-right-radius: 0;
-              p {
-                color: light.$white;
-              }
             }
 
             .user-avatar {
@@ -273,21 +269,21 @@ $chat-bg-dark: #373452;
     }
   }
 
-  .app-chat-sidebar-right {
+  .simulator-sidebar-right {
     position: absolute;
     top: 0;
-    right: calc(-#{$chat-contact-width} - 1rem);
-    width: $chat-contact-width;
-    height: $chat-app-height;
+    right: calc(-#{$chat-bot-width} - 1rem);
+    width: $chat-bot-width;
+    height: $chat-sim-height;
     opacity: 0;
     z-index: 5;
     transition: all 0.25s ease;
     .layout-navbar-hidden & {
-      height: $chat-app-height-with-no-navbar;
+      height: $chat-sim-height-with-no-navbar;
     }
     @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
       .layout-horizontal & {
-        height: calc($chat-app-height - $chat-app-horizontal-height-diff);
+        height: calc($chat-sim-height - $chat-sim-horizontal-height-diff);
       }
     }
 
@@ -297,13 +293,13 @@ $chat-bg-dark: #373452;
     }
 
     .sidebar-body {
-      height: calc(#{$chat-app-height} - 13.6rem);
+      height: calc(#{$chat-sim-height} - 13.6rem);
       .layout-navbar-hidden & {
-        height: calc(#{$chat-app-height-with-no-navbar} - 13.6rem);
+        height: calc(#{$chat-sim-height-with-no-navbar} - 13.6rem);
       }
       @include light.media-breakpoint-up($menu-collapsed-layout-breakpoint) {
         .layout-horizontal & {
-          height: calc(#{$chat-app-height} - 11.1rem - #{$chat-app-horizontal-height-diff});
+          height: calc(#{$chat-sim-height} - 11.1rem - #{$chat-sim-horizontal-height-diff});
         }
       }
     }
@@ -312,10 +308,10 @@ $chat-bg-dark: #373452;
 
 // Small screen media
 @media (max-width: 576px) {
-  .app-chat {
-    .app-chat-sidebar-right,
-    .app-chat-sidebar-left,
-    .app-chat-contacts {
+  .simulator {
+    .simulator-sidebar-right,
+    .simulator-sidebar-left,
+    .simulator-bots {
       &.show {
         width: 100%;
       }
@@ -326,12 +322,12 @@ $chat-bg-dark: #373452;
 // Light style
 @if $enable-light-style {
   .light-style {
-    .app-chat {
+    .simulator {
       .app-sidebar .sidebar-header .chat-sidebar-avatar::after {
         box-shadow: 0 0 0 3px light.$card-bg;
       }
-      .app-chat-contacts,
-      .app-chat-sidebar-left {
+      .simulator-bots,
+      .simulator-sidebar-left {
         background-color: light.$white;
         box-shadow: 0 0 0 1px rgba(light.$black, 0.075);
 
@@ -342,7 +338,7 @@ $chat-bg-dark: #373452;
         }
 
         .sidebar-body {
-          .chat-contact-list {
+          .chat-bot-list {
             li {
               &.active {
                 color: light.$white;
@@ -357,7 +353,7 @@ $chat-bg-dark: #373452;
         }
       }
 
-      .app-chat-history {
+      .simulator-history {
         background-color: $chat-bg-light;
         .chat-history-wrapper {
           background-color: $chat-bg-light;
@@ -365,7 +361,7 @@ $chat-bg-dark: #373452;
 
         .chat-history-footer {
           background-color: light.$card-bg;
-          box-shadow: $app-chat-shadow-light;
+          box-shadow: $simulator-shadow-light;
         }
 
         .chat-history-body {
@@ -373,28 +369,28 @@ $chat-bg-dark: #373452;
             .chat-message {
               .chat-message-text {
                 background-color: light.$card-bg;
-                box-shadow: $app-chat-shadow-light;
+                box-shadow: $simulator-shadow-light;
               }
 
               &.chat-message-right {
                 justify-content: flex-end;
 
-                .chat-message-text {
-                  color: white; //light.$white;
-                }
+                // .chat-message-text {
+                //   color: light.$black;
+                // }
               }
             }
           }
         }
       }
 
-      .app-chat-sidebar-right {
+      .simulator-sidebar-right {
         background-color: light.$white;
         box-shadow: 16px 1px 45px 3px rgba(light.$black, 0.5);
       }
 
       @media (max-width: 992px) {
-        .app-chat-contacts {
+        .simulator-bots {
           .chat-actions {
             .chat-search-input {
               background-color: light.$white;
@@ -409,12 +405,12 @@ $chat-bg-dark: #373452;
 // Dark Style
 @if $enable-dark-style {
   .dark-style {
-    .app-chat {
+    .simulator {
       .app-sidebar .sidebar-header .chat-sidebar-avatar::after {
         box-shadow: 0 0 0 3px dark.$card-bg;
       }
-      .app-chat-contacts,
-      .app-chat-sidebar-left {
+      .simulator-bots,
+      .simulator-sidebar-left {
         background-color: dark.$card-bg;
 
         .chat-actions {
@@ -424,7 +420,7 @@ $chat-bg-dark: #373452;
         }
 
         .sidebar-body {
-          .chat-contact-list {
+          .chat-bot-list {
             li {
               &.active {
                 color: dark.$white;
@@ -439,7 +435,7 @@ $chat-bg-dark: #373452;
         }
       }
 
-      .app-chat-history {
+      .simulator-history {
         background-color: $chat-bg-dark;
         .chat-history-wrapper {
           background-color: $chat-bg-dark;
@@ -448,7 +444,7 @@ $chat-bg-dark: #373452;
         // chat footer bg color
         .chat-history-footer {
           background-color: dark.$card-bg;
-          box-shadow: $app-chat-shadow-dark;
+          box-shadow: $simulator-shadow-dark;
         }
 
         .chat-history-body {
@@ -456,7 +452,7 @@ $chat-bg-dark: #373452;
             .chat-message {
               .chat-message-text {
                 background-color: dark.$card-bg;
-                box-shadow: $app-chat-shadow-dark;
+                box-shadow: $simulator-shadow-dark;
               }
 
               &.chat-message-right {
@@ -471,7 +467,7 @@ $chat-bg-dark: #373452;
         }
       }
 
-      .app-chat-sidebar-right {
+      .simulator-sidebar-right {
         background-color: dark.$card-bg;
       }
     }
@@ -480,10 +476,10 @@ $chat-bg-dark: #373452;
 
 // RTL
 @if $enable-rtl-support {
-  [dir='rtl'] .app-chat {
-    .app-chat-sidebar-left,
-    .app-chat-contacts {
-      right: calc(-#{$chat-contact-width} - 1rem);
+  [dir='rtl'] .simulator {
+    .simulator-sidebar-left,
+    .simulator-bots {
+      right: calc(-#{$chat-bot-width} - 1rem);
       left: auto;
 
       &.show {
@@ -492,8 +488,8 @@ $chat-bg-dark: #373452;
       }
     }
 
-    .app-chat-sidebar-right {
-      left: calc(-#{$chat-contact-width} - 1rem);
+    .simulator-sidebar-right {
+      left: calc(-#{$chat-bot-width} - 1rem);
       right: auto;
 
       &.show {
@@ -502,7 +498,7 @@ $chat-bg-dark: #373452;
       }
     }
 
-    .app-chat-history {
+    .simulator-history {
       .chat-history-body .chat-history .chat .user-avatar {
         margin-left: 1rem;
         margin-right: 0;

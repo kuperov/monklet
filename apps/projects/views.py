@@ -4,9 +4,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.utils.timezone import now
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvitation
 from .forms import (
@@ -367,7 +368,7 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
-    if not project.can_edit(request.user):
+    if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
     ctx = backend_context({
         "project": project,
@@ -375,8 +376,33 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
         "test_interviews": project.test_interviews(),
         "menu_data": menu(project)
     })
-    return render(request, "bots/simulate.html", ctx)
+    return render(request, "bots/simulator.html", ctx)
 
+@login_required
+def test_interviews_json(request: HttpRequest, pk: str) -> JsonResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    def format(iv: Interview):
+        return {
+            'interview': iv.pk,
+            'names': f"{iv.bot.name} & {iv.subject_name}",
+            'last_text': iv.last_message_text(),
+            'updated_at': naturaltime(iv.updated_at)
+        }
+    data = [format(iv) for iv in project.test_interviews()]
+    return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
+
+@login_required
+def interview_messages(request: HttpRequest, pk: str) -> JsonResponse:
+    interview = get_object_or_404(Interview, pk=pk)
+    project = interview.project
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    def format(msg):
+        return {k: msg.get(k) for k in ['uuid', 'sender', 'message', 'sent_at']}
+    data = [format(msg) for msg in interview.content]
+    return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
 
 # note: unauthenticated view - interview_code provides security
 def interview(request, interview_code):
