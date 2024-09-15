@@ -26,8 +26,8 @@ class Simulator {
     this.sendButton = el.querySelector('.send-msg-btn')
     this.historyFooter = el.querySelector('.chat-history-footer')
     this.leftPane = el.querySelector('.simulator-left-pane')
-
-    console.log(this.leftPane)
+    this.botName = el.querySelector('.bot-name')
+    this.botVersion = el.querySelector('.bot-version')
 
     this.leftPane_ps = new PerfectScrollbar(this.leftPane, {
       wheelPropagation: false,
@@ -42,11 +42,7 @@ class Simulator {
     this.interview_code = null
     this._bindEvents()
 
-    this.enabled = false
-    this._refreshInterviews().then(x => {
-      this.enabled = true
-      console.log(this.leftPane)
-    }).catch(error => {
+    this._refreshInterviews().catch(error => {
       alert("Error loading interviews: "+error);
     })
   }
@@ -71,15 +67,18 @@ class Simulator {
       /* {
         "interview": "ab606492-1bb3-4a98-b297-1d39e922a163",
         "names": "Percival & Bob",
+        "bot_name": "Percival",
+        "version": 1,
         "last_text": "Lorem ipsum.",
-        "updated_at": "13 hours ago"
+        "updated_at": "13 hours ago",
+        "status": "complete"
       }, */
-      this._addInterview(iv['interview'], iv['names'], iv['last_text'], iv['updated_at'])
+      this._addInterview(iv['interview'], iv['names'], iv['bot_name'], iv['bot_version'], iv['last_text'], iv['updated_at'], iv['status'])
     })
     this.leftPane_ps.update()
   }
 
-  _addInterview(interview_code, names, last_text, updated_at) {
+  _addInterview(interview_code, names, bot_name, bot_version, last_text, updated_at, status) {
     const li = document.createElement('li')
     const simulator = this
     li.className = 'chat-bot-list-item mb-1'
@@ -96,21 +95,34 @@ class Simulator {
                 <small class="chat-bot-status text-truncate">${last_text}</small>
               </div>
             </a>`
-    li.onclick = () => { simulator.startInterview(interview_code) }
+    li.onclick = () => { simulator.startInterview(interview_code, bot_name, bot_version, status) }
     this.interviewList.appendChild(li)
   }
 
-  async startInterview(interview_code) {
+  async startInterview(interview_code, bot_name, bot_version, status) {
     this.interviewCode = interview_code
     // stop current interview
     this._clearMessages()
     await this._loadMessages(interview_code)
     // set up header
+    if (bot_name) {
+      this.botName.textContent = bot_name
+    }
+    if (bot_version) {
+      this.botVersion.textContent = `Version ${bot_version}`
+    }
     // load menu items
-    // connect interview
 
+    // connect interview
     this.messageInput.focus()
     this.connectWebSocket() // connect to chat
+    console.log('status = '+status)
+    if (status == 'complete') {
+      this.disable_chat()
+    } else {
+      this.enable_chat()
+    }
+    this.scrollToBottom()
   }
 
   connectWebSocket() {
@@ -144,6 +156,7 @@ class Simulator {
   }
 
   _clearMessages() {
+    this.chatHistoryBody.scrollTo(0, 0)
     while (this.messageList.firstChild) {
       this.messageList.removeChild(this.messageList.firstChild)
     }
@@ -154,15 +167,19 @@ class Simulator {
     while (self.messageList.firstChild) {
       self.messageList.removeChild(myLi.firstChild);
     }
+    this.enable_chat()
+  }
+
+  enable_chat() {
     // show input elements
-    self.historyFooter.style.visibility = 'visible';
-    self.startHook();
+    this.historyFooter.style.visibility = 'visible';
+    //self.startHook();
   }
 
   disable_chat() {
     // hide input elements
-    self.historyFooter.style.visibility = 'hidden';
-    self.completeHook();
+    this.historyFooter.style.visibility = 'hidden';
+    //self.completeHook();
   }
 
   add_user_message(msg, time, uuid, received) {
@@ -233,7 +250,7 @@ class Simulator {
   scrollToBottom() {
     this.ps.update();
     const scroll_pos = this.messageList.scrollHeight - 0.9 * this.chatHistoryBody.clientHeight;
-    this.chatHistoryBody.scrollTo(100, scroll_pos);
+    this.chatHistoryBody.scrollTo(0, scroll_pos);
   }
 
   _bindEvents() {

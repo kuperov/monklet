@@ -44,18 +44,18 @@ class Interview {
 
   init_chat() {
     // clear elements
-    while (self.messageList.firstChild) {
-      self.messageList.removeChild(myLi.firstChild);
+    while (this.messageList.firstChild) {
+      this.messageList.removeChild(myLi.firstChild);
     }
     // show input elements
-    self.historyFooter.style.visibility = 'visible';
-    self.startHook();
+    this.historyFooter.style.visibility = 'visible';
+    this.startHook();
   }
 
   disable_chat() {
     // hide input elements
-    self.historyFooter.style.visibility = 'hidden';
-    self.completeHook();
+    this.historyFooter.style.visibility = 'hidden';
+    this.completeHook();
   }
 
   add_user_message(msg, time, uuid, received) {

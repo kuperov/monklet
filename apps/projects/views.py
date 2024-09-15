@@ -387,8 +387,11 @@ def test_interviews_json(request: HttpRequest, pk: str) -> JsonResponse:
         return {
             'interview': iv.pk,
             'names': f"{iv.bot.name} & {iv.subject_name}",
+            'bot_name': iv.bot.name,
+            'bot_version': iv.bot.version,
             'last_text': iv.last_message_text(),
-            'updated_at': naturaltime(iv.updated_at)
+            'updated_at': naturaltime(iv.updated_at),
+            'status': iv.status
         }
     data = [format(iv) for iv in project.test_interviews()]
     return JsonResponse(data, safe=False)  # safe=False serializes uuid and date

@@ -29,7 +29,6 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.channel_ident, self.channel_name)
 
     async def receive(self, text_data):
-        print(text_data)
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
         await self.channel_layer.group_send(
