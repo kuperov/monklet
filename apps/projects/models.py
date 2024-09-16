@@ -16,6 +16,7 @@ import google.generativeai as genai
 
 import markdown
 
+from apps.projects.util import datetime_str
 from apps.users.models import User
 
 
@@ -374,14 +375,14 @@ class Interview(models.Model):
                 'uuid': str(uuid.uuid4),
                 'sender': 'model',
                 'message': response.text.strip(),
-                'sent_at': str(now()),
+                'sent_at': datetime_str(now()),
                 'prompt_token_count': response.usage_metadata.prompt_token_count,
                 'total_token_count': response.usage_metadata.total_token_count,
                 'candidates_token_count': response.usage_metadata.candidates_token_count,
             }
             self.content.append(response_dict)
         except Exception as ex:  # noqa: E722
-            response_dict = {'sender': 'System', 'message': 'An error occurred.', 'sent_at': str(now())}
+            response_dict = {'sender': 'System', 'message': 'An error occurred.', 'sent_at': datetime_str(now())}
             self.content.append(response_dict)
             import traceback
             traceback.print_exception(ex)
@@ -393,7 +394,7 @@ class Interview(models.Model):
             self.content = []  # shouldn't happen?
         if self.status == 'complete':
             raise Exception('Interview is complete')
-        self.content.append(dict(uuid=str(uuid.uuid4()), sender='user', message=message, sent_at=str(now())))
+        self.content.append(dict(uuid=str(uuid.uuid4()), sender='user', message=message, sent_at=datetime_str(now())))
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
             model = genai.GenerativeModel(
@@ -416,7 +417,7 @@ class Interview(models.Model):
                 'uuid': str(uuid.uuid4()),
                 'sender': 'model',
                 'message': message.strip(),
-                'sent_at': str(now()),
+                'sent_at': datetime_str(now()),
                 'prompt_token_count': response.usage_metadata.prompt_token_count,
                 'total_token_count': response.usage_metadata.total_token_count,
                 'candidates_token_count': response.usage_metadata.candidates_token_count,
@@ -427,7 +428,7 @@ class Interview(models.Model):
                 'uuid': (uuid.uuid4()),
                 'sender': 'System',
                 'message': 'An error occurred.',
-                'sent_at': str(now())
+                'sent_at': datetime_str(now())
             }
             self.content.append(response_dict)
             import traceback

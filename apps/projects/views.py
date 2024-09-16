@@ -1,4 +1,3 @@
-from datetime import datetime
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -23,6 +22,7 @@ from .forms import (
     InterviewConsentForm,
 )
 from apps.context_helpers import backend_context, blank_context
+from apps.projects.util import parse_datetime
 
 
 def menu(project: Project):
@@ -361,7 +361,12 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect(interview_url)
     else:
         form = PublicConsentForm()
-    ctx = blank_context({'bot': bot, 'project': project, 'form': form, 'ip_address': request.headers.get("X-Real-IP"), 'is_collaborator': is_collaborator})
+    ctx = blank_context({
+        'bot': bot,
+        'project': project,
+        'form': form,
+        'ip_address': request.headers.get("X-Real-IP"),
+        'is_collaborator': is_collaborator})
     return render(request, "interviews/public.html", ctx)
 
 
@@ -420,6 +425,7 @@ def interview_messages(request: HttpRequest, pk: str) -> JsonResponse:
     def format(msg):
         return {k: msg.get(k) for k in ['uuid', 'sender', 'message', 'sent_at']}
     data = [format(msg) for msg in interview.content]
+    data['sent_at'] = datetime_str(data.get('sent_at'))
     return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
 
 # note: unauthenticated view - interview_code provides security
@@ -467,15 +473,15 @@ def interview_conversation(request, pk):
     msg_list = []
     prompt_tokens = gen_tokens = total_tokens = 0
     if iv.content:
-        FORMAT = '%Y-%m-%d %H:%M:%S.%f%z'
-        start_at = datetime.strptime(iv.content[0]['sent_at'], FORMAT)  # UTC
+        # all times in UTC
+        start_at = parse_datetime(iv.content[0]['sent_at'])
         name_map = {
             'system': 'System',
             'user': iv.subject_name,
             'model': iv.bot.name
         }
         def format(msg):
-            sent_at = datetime.strptime(msg['sent_at'], FORMAT)
+            sent_at = parse_datetime(msg['sent_at'])
             delta = sent_at - start_at
             days = delta.days
             hours, remainder = divmod(delta.seconds, 3600)
