@@ -329,7 +329,7 @@ class Interview(models.Model):
     is_test = models.BooleanField("This is a test interview", default=False, null=False, blank=False)
 
     class Meta:
-        ordering = ["subject_name"]
+        ordering = ["-updated_at"]
 
     def __str__(self):
         return f"{self.bot.name} & {self.subject_name}"

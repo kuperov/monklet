@@ -370,11 +370,24 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
+    if request.GET.get('bot'):
+        bot = get_object_or_404(Bot, pk=request.GET['bot'])
+        if bot.project.pk != project.pk:
+            raise PermissionDenied("Invalid bot code")
+        interview = Interview.objects.create(
+            project=project,
+            bot=bot,
+            subject_name=request.user.name,
+            subject_email=request.user.email,
+            is_test=True,
+            status='invited'
+        )
     ctx = backend_context({
         "project": project,
         "bots": project.enabled_bots(),
         "test_interviews": project.test_interviews(),
-        "menu_data": menu(project)
+        "menu_data": menu(project),
+        "initial_interview": interview.pk
     })
     return render(request, "bots/simulator.html", ctx)
 
