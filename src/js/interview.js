@@ -117,9 +117,9 @@ class Interview {
 
   add_message(msg) {
     if (msg.sender == 'user') {
-      this.add_user_message([msg.message], msg.sent_at, msg.uuid, true);
+      this.add_user_message([msg.message], new Date(msg.sent_at), msg.uuid, true);
     } else {
-      this.add_remote_message([msg.message], msg.sent_at, msg.uuid);
+      this.add_remote_message([msg.message], new Date(msg.sent_at), msg.uuid);
     }
   }
 

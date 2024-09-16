@@ -116,7 +116,6 @@ class Simulator {
     // connect interview
     this.messageInput.focus()
     this.connectWebSocket() // connect to chat
-    console.log('status = '+status)
     if (status == 'complete') {
       this.disable_chat()
     } else {
@@ -143,6 +142,7 @@ class Simulator {
 
     this.chatSocket.onclose = function(e) {
         console.error('Chat socket closed unexpectedly');
+        this.chatSocket.onmessage = null;
     }
   }
 
@@ -241,9 +241,9 @@ class Simulator {
 
   add_message(msg) {
     if (msg.sender == 'user') {
-      this.add_user_message([msg.message], msg.sent_at, msg.uuid, true);
+      this.add_user_message([msg.message], new Date(msg.sent_at), msg.uuid, true);
     } else {
-      this.add_remote_message([msg.message], msg.sent_at, msg.uuid);
+      this.add_remote_message([msg.message], new Date(msg.sent_at), msg.uuid);
     }
   }
 
