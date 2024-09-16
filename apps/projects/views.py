@@ -600,7 +600,7 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
             "menu_data": menu(project),
             "invited_interviews": project.interviews.filter(deleted_at=None, status="invited", is_test=False),
             "started_interviews": project.interviews.filter(deleted_at=None, status="started", is_test=False),
-            "completed_interviews": project.interviews.filter(deleted_at=None, status="completed", is_test=False),
+            "completed_interviews": project.interviews.filter(deleted_at=None, status="complete", is_test=False),
             "test_interviews": project.interviews.filter(deleted_at=None, is_test=True)
          }
     )
