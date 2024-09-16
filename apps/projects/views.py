@@ -22,7 +22,7 @@ from .forms import (
     InterviewConsentForm,
 )
 from apps.context_helpers import backend_context, blank_context
-from apps.projects.util import parse_datetime
+from apps.projects.util import parse_datetime, datetime_str
 
 
 def menu(project: Project):
@@ -423,9 +423,13 @@ def interview_messages(request: HttpRequest, pk: str) -> JsonResponse:
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
     def format(msg):
-        return {k: msg.get(k) for k in ['uuid', 'sender', 'message', 'sent_at']}
+        return {
+            'uuid': msg.get('uuid'),
+            'sender': msg.get('sender'),
+            'message': msg.get('message'),
+            'sent_at': datetime_str(msg.get('sent_at'))
+        }
     data = [format(msg) for msg in interview.content]
-    data['sent_at'] = datetime_str(data.get('sent_at'))
     return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
 
 # note: unauthenticated view - interview_code provides security
