@@ -47,11 +47,6 @@ def menu(project: Project):
                 "icon": "menu-icon tf-icons ri-group-3-line",
                 "name": "Members",
             },
-            {
-                "url": project.consent_letters_url,
-                "icon": "menu-icon tf-icons ri-heart-3-line",
-                "name": "Consent letters",
-            },
             {"menu_header": "Interview design"},
             {
                 "url": project.questions_url,
@@ -64,15 +59,20 @@ def menu(project: Project):
                 "name": "Bots",
             },
             {
-                "url": reverse_lazy("project-interviews-list", kwargs={'pk': project.pk}),
-                "icon": "menu-icon tf-icons ri-chat-2-line",
-                "name": "Interviews",
+                "url": project.consent_letters_url,
+                "icon": "menu-icon tf-icons ri-heart-3-line",
+                "name": "Consent letters",
             },
             {"menu_header": "Analysis"},
             {
                 "url": reverse_lazy('project-responses', kwargs={"pk": project.pk}),
                 "icon": "menu-icon tf-icons ri-message-line",
                 "name": "Data",
+            },
+            {
+                "url": reverse_lazy("project-interviews-list", kwargs={'pk': project.pk}),
+                "icon": "menu-icon tf-icons ri-chat-2-line",
+                "name": "Interviews",
             },
             {
                 "url": project.analysis_url,

@@ -26,12 +26,7 @@ def menu():
             {
                 "url": reverse_lazy("users:profile"),
                 "icon": "menu-icon tf-icons ri-home-line",
-                "name": "My projects",
-            },
-            {
-                "url": reverse_lazy("project-new"),
-                "icon": "menu-icon tf-icons ri-message-line",
-                "name": "New project",
+                "name": "Home",
             },
         ]
     }

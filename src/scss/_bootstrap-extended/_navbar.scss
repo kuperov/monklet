@@ -13,6 +13,11 @@
   }
 }
 
+.navbar h4 {
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+
 .fixed-top {
   z-index: $zindex-fixed;
 }

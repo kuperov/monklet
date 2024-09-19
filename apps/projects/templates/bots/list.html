@@ -17,21 +17,15 @@
     <table class="table">
       <thead class="table-light">
         <tr class="text-nowrap">
-            <th>Name</th>
-            <th>Description</th>
-            <th style='width: 5%;'>Version</th>
-            <th style='width: 10%;'>AI Model</th>
-            <th style='width: 10%;'>Status</th>
-            <th style='width: 5%;'></th>
+            <th>Bot</th>
+            <th>Status</th>
+            <th></th>
         </tr>
       </thead>
       <tbody>
         {% for bot in project.bots.all %}
         <tr>
-        <td>{{ bot.name }}</td>
-        <td>{{ bot.description }}</td>
-        <td>{{ bot.version }}</td>
-        <td>{{ bot.aimodel }}</td>
+        <td>{{ bot.name }} v{{ bot.version }}</td>
         <td>{% if bot.status == 'live' %}
           <span class="badge rounded-pill bg-label-success me-1">Live</span>
           {% elif bot.status == 'test' %}
@@ -63,8 +57,10 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+  <div class="card-footer">
     <div class="px-0 pt-0 d-flex justify-content-end">
-      <a class="m-4 btn btn-primary" href="{% url 'project-bots-new' pk=project.pk %}">Add bot</a>
+      <a class="m-4 btn btn-primary" href="{% url 'project-bots-new' pk=project.pk %}">New bot</a>
       <a class="m-4 btn btn-secondary" href="{% url 'projects-simulate' pk=project.pk %}">Simulator</a>
     </div>
   </div>
