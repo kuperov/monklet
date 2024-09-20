@@ -572,8 +572,7 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
             "project": project,
             "menu_data": menu(project),
             "invited_interviews": project.invited_interviews(),
-            "started_interviews": project.started_interviews(),
-            "completed_interviews": project.completed_interviews(),
+            "interviews": project.started_completed_interviews(),
             "test_interviews": project.test_interviews(),
             "is_editor": project.can_edit(request.user)
          }
@@ -589,29 +588,24 @@ def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == 'POST':
         form = ExportInterviewsForm(request.POST)
         if form.is_valid():
-            include_sets = []
-            if form.cleaned_data['include_complete']:
-                include_sets.append(proj.completed_interviews())
-            if form.cleaned_data['include_incomplete']:
-                include_sets.append(proj.started_interviews())
-            if form.cleaned_data['include_test']:
-                include_sets.append(proj.test_interviews())
-            if include_sets:
-                zip_buffer = io.BytesIO()
-                with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_archive:
-                    for group in include_sets:
-                        for iv in group:
-                            doc_buffer = io.BytesIO()
-                            iv.as_docx().save(doc_buffer)
-                            doc_buffer.seek(0)
-                            fname = f"{iv.subject_name}-{iv.bot.name}.docx"
-                            zip_archive.writestr(fname, doc_buffer.read())
-                zip_buffer.seek(0)
-                response = HttpResponse(zip_buffer, content_type='application/zip')
-                response['Content-Disposition'] = 'attachment; filename="interviews.zip"'
-                return response
+            if form.what == 'interviews':
+                interviews = proj.started_completed_interviews()
+            elif form.what == 'test':
+                interviews = proj.test_interviews()
             else:
-                form.add_error(None, "Please select something to export")
+                raise Exception("Invalid selection")
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_archive:
+                for iv in interviews:
+                    doc_buffer = io.BytesIO()
+                    iv.as_docx().save(doc_buffer)
+                    doc_buffer.seek(0)
+                    fname = f"{iv.subject_name}-{iv.bot.name}.docx"
+                    zip_archive.writestr(fname, doc_buffer.read())
+            zip_buffer.seek(0)
+            response = HttpResponse(zip_buffer, content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="interviews.zip"'
+            return response
     else:
         form = ExportInterviewsForm()
     ctx = backend_context({'form': form, 'menu_data': menu(proj)})

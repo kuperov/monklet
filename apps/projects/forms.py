@@ -178,10 +178,8 @@ class InterviewConsentForm(forms.ModelForm):
 
 
 class ExportInterviewsForm(forms.Form):
-    include_complete = forms.BooleanField(label="Include complete interviews", initial=True, required=False)
-    include_incomplete = forms.BooleanField(label="Include incomplete interviews", initial=True, required=False)
-    include_test = forms.BooleanField(label="Include test interviews", initial=False, required=False)
-    acknowledge = forms.BooleanField(label="I am aware of my obligations to safeguard the security of interview contents", required=True, initial=False)
+    what = forms.ChoiceField(label="Download", choices=[('interviews', 'Interviews'), ('test', 'Test interviews')], initial='interviews', required=True)
+    acknowledge = forms.BooleanField(label="I understand my obligations to safeguard the security of interview material", required=True, initial=False)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

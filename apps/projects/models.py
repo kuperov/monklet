@@ -79,11 +79,8 @@ class Project(models.Model):
     def invited_interviews(self):
         return self.interviews.filter(deleted_at=None, status="invited", is_test=False)
 
-    def completed_interviews(self):
-        return self.interviews.filter(deleted_at=None, status="complete", is_test=False)
-
-    def started_interviews(self):
-        return self.interviews.filter(deleted_at=None, status="started", is_test=False)
+    def started_completed_interviews(self):
+        return self.interviews.filter(deleted_at=None, is_test=False).exclude(status = 'invited')
 
     @property
     def url(self):
