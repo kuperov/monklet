@@ -31,14 +31,23 @@
   [ ] copy interviews to transcripts
   [x] show messages on page via template
   [ ] simple project dashboard
-  [ ] decent chat for single individual (ie proper chat screen)
-  [ ] chat simulator for whole project not just one bot
+  [x] decent chat for single individual (ie proper chat screen)
+  [x] chat simulator for whole project not just one bot
   [ ] crud for consent letters to bots screen
   [ ] file upload to s3
   [ ] avatars as files
   [ ] basic landing page for "launch"
   [ ] bot prompt generator
-
+  [x] cache buster
+  [ ] running tests
+  [ ] interview page pulls in a script file
+  [ ] dates in safari wtf
+  [ ] simulator flow for a single bot
+  [ ] simulator add/remove chats
+  [ ] chat waits for lull in conversation
+  [ ] configurable thresholds for waiting before responding
+  [ ] sanitize chat text
+  [ ] export handles markdown
 
 ## context variables for layout
 
