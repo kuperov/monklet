@@ -64,7 +64,8 @@ class Simulator {
     this.interviewList.appendChild(heading)
     // one entry per interview
     await interviews.forEach(iv => {
-      /* {
+      /* sample --
+      {
         "interview": "ab606492-1bb3-4a98-b297-1d39e922a163",
         "names": "Percival & Bob",
         "bot_name": "Percival",

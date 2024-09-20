@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict
+from typing import Dict, Optional
 import datetime
 
 from django.db import models
@@ -12,11 +12,13 @@ from django.core import mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
+from docx import Document
 import google.generativeai as genai
 
 import markdown
 
-from apps.projects.util import datetime_str
+from apps.projects.export import interview_doc
+from apps.projects.util import datetime_str, format_timedelta, parse_datetime
 from apps.users.models import User
 
 
@@ -73,6 +75,15 @@ class Project(models.Model):
 
     def test_interviews(self):
         return self.interviews.filter(is_test=True, deleted_at=None)
+
+    def invited_interviews(self):
+        return self.interviews.filter(deleted_at=None, status="invited", is_test=False)
+
+    def completed_interviews(self):
+        return self.interviews.filter(deleted_at=None, status="complete", is_test=False)
+
+    def started_interviews(self):
+        return self.interviews.filter(deleted_at=None, status="started", is_test=False)
 
     @property
     def url(self):
@@ -471,6 +482,72 @@ class Interview(models.Model):
         self.save()
         return result
 
+    def messages_list(self):
+        msg_list = []
+        if self.content and isinstance(self.content, list):
+            start_at = parse_datetime(self.content[0].get('sent_at'))
+            name_map = {
+                'system': 'System',
+                'user': self.subject_name,
+                'model': self.bot.name
+            }
+            def format(msg):
+                sent_at = parse_datetime(msg['sent_at'])
+                delta = sent_at - start_at
+                time_fmt = format_timedelta(delta)
+                return {
+                    'message': msg['message'],
+                    'sender': name_map.get(msg['sender']),
+                    'time': time_fmt
+                }
+            msg_list = [format(msg) for msg in self.content]
+        return msg_list
+
+    def total_duration(self) -> Optional[datetime.timedelta]:
+        """Time from first to last message. Null if can't be computed."""
+        if not self.content or not isinstance(self.content, list):
+            return None
+        start_at = parse_datetime(self.content[0].get('sent_at'))
+        end_at = parse_datetime(self.content[-1].get('sent_at'))
+        if not start_at or not end_at or start_at == end_at:
+            return None
+        return end_at - start_at
+
+    def total_token_usage(self):
+        """Sum up token usage for this interview.
+
+        Returns:
+            tuple of (prompt_tokens, gen_tokens, total_tokens)
+        """
+        prompt_tokens = gen_tokens = total_tokens = 0
+        if self.content and isinstance(self.config, list):
+            for msg in self.content:
+                if not isinstance(msg, dict):
+                    continue
+                prompt_tokens += msg.get("prompt_token_count", 0)
+                gen_tokens += msg.get("candidates_token_count", 0)
+                total_tokens += msg.get("total_token_count", 0)
+        return prompt_tokens, gen_tokens, total_tokens
+
+    def as_docx(self) -> Document:  # noqa: F821
+        messages = self.messages_list()
+        dur = self.total_duration()
+        prompt_tokens, gen_tokens, total_tokens = self.total_token_usage()
+        metadata = {
+            'Subject name': self.subject_name,
+            'Subject email': self.subject_email,
+            'Interview status': self.status.title(),
+            'Total duration': format_timedelta(dur) if dur else None,
+            'Participation consent': 'Yes' if self.has_consented else 'No',
+            'Follow-up consent': 'Yes' if self.followup_consented else 'No',
+            'Bot': self.bot.name,
+            'Model': self.aimodel,
+            'Model tokens consumed': f"{total_tokens} ({prompt_tokens} prompt, {gen_tokens} output)",
+            'Created': f"{self.created_at: %Y-%m-%d %H:%M} UTC",
+            'Last updated': f"{self.updated_at: %Y-%m-%d %H:%M} UTC"
+        }
+        title = f"{self.subject_name} & {self.bot.name}"
+        return interview_doc(title, messages, metadata)
 
 class Dimension(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)

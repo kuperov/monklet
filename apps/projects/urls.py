@@ -38,7 +38,8 @@ from .views import (
     invitation_landing,
     invitation_respond,
     test_interviews_json,
-    interview_messages
+    interview_messages,
+    projects_export_interviews
 )
 
 
@@ -59,6 +60,7 @@ urlpatterns = [
     path("interviews/<str:pk>/landing", interview_landing, name="interview-landing"),
     path("interviews/<str:pk>/conversation", interview_conversation, name="interview-conversation"),
     path("interviews/<str:pk>/messages", interview_messages, name='interview-messages'),
+    path("projects/<str:pk>/export", projects_export_interviews, name='export-interviews'),
     path("projects/<str:pk>/questions", project_questions, name="project-questions"),
     path(
         "projects/<str:pk>/questions/new",

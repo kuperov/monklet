@@ -1,0 +1,19 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+<h5>Export interviews</h5>
+<div class="card">
+  <div class="card-header">
+  </div>
+  <div class="card-body">
+    {% crispy form %}
+  </div>
+  <div class="card-footer">
+  </div>
+</div>
+
+{% endblock content %}

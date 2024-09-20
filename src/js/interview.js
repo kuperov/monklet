@@ -1,5 +1,8 @@
 'use strict'
 
+import DOMPurify from 'dompurify'
+import marked from 'marked'
+
 function formatLocalTime(isoString) {
   const utcDate = new Date(isoString);
   let hours = utcDate.getHours();
@@ -26,8 +29,10 @@ class Interview {
     this.sendButton = el.querySelector('.send-msg-btn')
     this.historyFooter = el.querySelector('.chat-history-footer')
 
+    var last_message_sender = null;
     initialMessages.forEach(msg => {
       this.add_message(msg);
+      last_message_sender = msg['sender'];
     })
 
     this.ps = new PerfectScrollbar(this.chatHistoryBody, {
@@ -40,6 +45,13 @@ class Interview {
     this._bindEvents()  // gets ref to socket
 
     this.connectWebSocket() // connect to chat
+
+    const system_next = !last_message_sender || last_message_sender == 'user';
+    if (system_next) {
+      this.poll_response()
+    }
+
+    this.lastKeystroke = new Date()
   }
 
   init_chat() {
@@ -56,6 +68,15 @@ class Interview {
     // hide input elements
     this.historyFooter.style.visibility = 'hidden';
     this.completeHook();
+  }
+
+  // request a response message from the server
+  // we do this from the client because we want to wait until a
+  // user is finished typing, but we don't want to keep
+  // pinging the server with keystrokes or status updates
+  poll_response() {
+    // display typing bubble
+    // request response
   }
 
   add_user_message(msg, time, uuid, received) {
@@ -153,8 +174,8 @@ class Interview {
   _bindEvents() {
     const interview = this
     this.messageInput.onkeyup = function(e) {
-      /* enter sends message */
-      if (e.keyCode === 13) {
+      /* enter sends message, but shift+enter does newline without send */
+      if ((e.keyCode === 13) && !e.shiftKey) {
         interview.sendButton.click(e);
       }
     }

@@ -1,3 +1,5 @@
+import io
+import zipfile
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -10,6 +12,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvitation
 from .forms import (
+    ExportInterviewsForm,
     ProjectForm,
     MemberInvitationForm,
     PublicConsentForm,
@@ -22,7 +25,7 @@ from .forms import (
     InterviewConsentForm,
 )
 from apps.context_helpers import backend_context, blank_context
-from apps.projects.util import parse_datetime, datetime_str
+from apps.projects.util import datetime_str
 
 
 def menu(project: Project):
@@ -474,38 +477,8 @@ def interview_landing(request, pk):
 @login_required
 def interview_conversation(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
-    msg_list = []
-    prompt_tokens = gen_tokens = total_tokens = 0
-    if iv.content:
-        # all times in UTC
-        start_at = parse_datetime(iv.content[0]['sent_at'])
-        name_map = {
-            'system': 'System',
-            'user': iv.subject_name,
-            'model': iv.bot.name
-        }
-        def format(msg):
-            sent_at = parse_datetime(msg['sent_at'])
-            delta = sent_at - start_at
-            days = delta.days
-            hours, remainder = divmod(delta.seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            if days > 0:
-                time_fmt = f"{days} days, {hours:02}:{minutes:02}:{seconds:02}"
-            elif hours:
-                time_fmt = f"{hours:02}:{minutes:02}:{seconds:02}"
-            else:
-                time_fmt = f"{minutes:02}:{seconds:02}"
-            return {
-                'message': msg['message'],
-                'sender': name_map.get(msg['sender']),
-                'time': time_fmt
-            }
-        msg_list = [format(msg) for msg in iv.content]
-        for msg in iv.content:
-            prompt_tokens += msg.get("prompt_token_count", 0)
-            gen_tokens += msg.get("candidates_token_count", 0)
-            total_tokens += msg.get("total_token_count", 0)
+    msg_list = iv.messages_list()
+    prompt_tokens, gen_tokens, total_tokens = iv.token_usage()
     ctx = backend_context({
         "interview": iv,
         "project": iv.project,
@@ -598,14 +571,51 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
         {
             "project": project,
             "menu_data": menu(project),
-            "invited_interviews": project.interviews.filter(deleted_at=None, status="invited", is_test=False),
-            "started_interviews": project.interviews.filter(deleted_at=None, status="started", is_test=False),
-            "completed_interviews": project.interviews.filter(deleted_at=None, status="complete", is_test=False),
-            "test_interviews": project.interviews.filter(deleted_at=None, is_test=True)
+            "invited_interviews": project.invited_interviews(),
+            "started_interviews": project.started_interviews(),
+            "completed_interviews": project.completed_interviews(),
+            "test_interviews": project.test_interviews(),
+            "is_editor": project.can_edit(request.user)
          }
     )
     return render(request, "interviews/list.html", ctx)
 
+
+@login_required
+def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
+    proj = get_object_or_404(Project, pk=pk)
+    if not proj.can_edit(request.user):
+        raise PermissionDenied("User must be an editor of the project to export interviews")
+    if request.method == 'POST':
+        form = ExportInterviewsForm(request.POST)
+        if form.is_valid():
+            include_sets = []
+            if form.cleaned_data['include_complete']:
+                include_sets.append(proj.completed_interviews())
+            if form.cleaned_data['include_incomplete']:
+                include_sets.append(proj.started_interviews())
+            if form.cleaned_data['include_test']:
+                include_sets.append(proj.test_interviews())
+            if include_sets:
+                zip_buffer = io.BytesIO()
+                with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_archive:
+                    for group in include_sets:
+                        for iv in group:
+                            doc_buffer = io.BytesIO()
+                            iv.as_docx().save(doc_buffer)
+                            doc_buffer.seek(0)
+                            fname = f"{iv.subject_name}-{iv.bot.name}.docx"
+                            zip_archive.writestr(fname, doc_buffer.read())
+                zip_buffer.seek(0)
+                response = HttpResponse(zip_buffer, content_type='application/zip')
+                response['Content-Disposition'] = 'attachment; filename="interviews.zip"'
+                return response
+            else:
+                form.add_error(None, "Please select something to export")
+    else:
+        form = ExportInterviewsForm()
+    ctx = backend_context({'form': form, 'menu_data': menu(proj)})
+    return render(request, 'interviews/export.html', ctx)
 
 @login_required
 def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:

@@ -175,3 +175,15 @@ class InterviewConsentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100"))
+
+
+class ExportInterviewsForm(forms.Form):
+    include_complete = forms.BooleanField(label="Include complete interviews", initial=True, required=False)
+    include_incomplete = forms.BooleanField(label="Include incomplete interviews", initial=True, required=False)
+    include_test = forms.BooleanField(label="Include test interviews", initial=False, required=False)
+    acknowledge = forms.BooleanField(label="I am aware of my obligations to safeguard the security of interview contents", required=True, initial=False)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("Export", "export"))
+        self.helper.add_input(cancel())

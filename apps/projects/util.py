@@ -20,3 +20,16 @@ def parse_datetime(s: str) -> datetime:
         except Exception:
             pass
     return s
+
+def format_timedelta(delta):
+    """Sensible formatting for timedelta as dd days, hh:mm:ss or hh:mm:ss or mm:ss"""
+    days = delta.days
+    hours, remainder = divmod(delta.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if days > 0:
+        time_fmt = f"{days} days, {hours:02}:{minutes:02}:{seconds:02}"
+    elif hours:
+        time_fmt = f"{hours:02}:{minutes:02}:{seconds:02}"
+    else:
+        time_fmt = f"{minutes:02}:{seconds:02}"
+    return time_fmt
