@@ -490,8 +490,11 @@ class Interview(models.Model):
             }
             def format(msg):
                 sent_at = parse_datetime(msg['sent_at'])
-                delta = sent_at - start_at
-                time_fmt = format_timedelta(delta)
+                if isinstance(sent_at, datetime.datetime) and isinstance(start_at, datetime.datetime):
+                    delta = sent_at - start_at
+                    time_fmt = format_timedelta(delta)
+                else:
+                    time_fmt = ''
                 return {
                     'message': msg['message'],
                     'sender': name_map.get(msg['sender']),

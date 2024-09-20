@@ -588,9 +588,9 @@ def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == 'POST':
         form = ExportInterviewsForm(request.POST)
         if form.is_valid():
-            if form.what == 'interviews':
+            if form.cleaned_data['what'] == 'interviews':
                 interviews = proj.started_completed_interviews()
-            elif form.what == 'test':
+            elif form.cleaned_data['what'] == 'test':
                 interviews = proj.test_interviews()
             else:
                 raise Exception("Invalid selection")
