@@ -146,12 +146,21 @@ class InvitationResponseForm(forms.Form):
 class PublicConsentForm(forms.ModelForm):
     class Meta:
         model = Interview
-        fields = ["subject_name", "subject_email", "has_consented", "followup_consented"]
+        fields = [
+            "subject_name",
+            "subject_email",
+            "has_consented",
+            "followup_consented",
+        ]
 
     subject_name = forms.CharField(label="Your name", required=True)
     subject_email = forms.CharField(label="Your email address", required=False)
-    has_consented = forms.BooleanField(label="I consent to participating in this study", required=True)
-    followup_consented = forms.BooleanField(label="The investigators may contact me for follow-up", required=False)
+    has_consented = forms.BooleanField(
+        label="I consent to participating in this study", required=True
+    )
+    followup_consented = forms.BooleanField(
+        label="The investigators may contact me for follow-up", required=False
+    )
     if not settings.DEBUG:
         # https://pypi.org/project/django-recaptcha/
         captcha = ReCaptchaField(widget=ReCaptchaV3)
@@ -159,7 +168,9 @@ class PublicConsentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100"))
+        self.helper.add_input(
+            Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100")
+        )
 
 
 class InterviewConsentForm(forms.ModelForm):
@@ -167,19 +178,35 @@ class InterviewConsentForm(forms.ModelForm):
         model = Interview
         fields = ["has_consented", "followup_consented"]
 
-    has_consented = forms.BooleanField(label="I consent to participating in this study", required=True)
-    followup_consented = forms.BooleanField(label="The investigators may contact me for follow-up", required=False)
+    has_consented = forms.BooleanField(
+        label="I consent to participating in this study", required=True
+    )
+    followup_consented = forms.BooleanField(
+        label="The investigators may contact me for follow-up", required=False
+    )
     # no captcha because this is not a public url
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100"))
+        self.helper.add_input(
+            Submit("proceed", "Proceed", css_class="btn btn-primary d-grid w-100")
+        )
 
 
 class ExportInterviewsForm(forms.Form):
-    what = forms.ChoiceField(label="Download", choices=[('interviews', 'Interviews'), ('test', 'Test interviews')], initial='interviews', required=True)
-    acknowledge = forms.BooleanField(label="I understand my obligations to safeguard the security of interview material", required=True, initial=False)
+    what = forms.ChoiceField(
+        label="Download",
+        choices=[("interviews", "Interviews"), ("test", "Test interviews")],
+        initial="interviews",
+        required=True,
+    )
+    acknowledge = forms.BooleanField(
+        label="I understand my obligations to safeguard the security of interview material",
+        required=True,
+        initial=False,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

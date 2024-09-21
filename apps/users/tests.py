@@ -10,10 +10,7 @@ class CreateProfileTestCase(TestCase):
 
     def setUp(self) -> None:
         self.user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=pw,
-            name="Cornelius Klonk"
+            username=email, email=email, password=pw, name="Cornelius Klonk"
         )
         self.user.save()
         self.client.login(email=email, password=pw)
@@ -29,10 +26,7 @@ class UnauthenticatedProfileTestCase(TestCase):
 
     def setUp(self) -> None:
         self.user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=pw,
-            name="Cornelius Klonk"
+            username=email, email=email, password=pw, name="Cornelius Klonk"
         )
         self.user.save()
         self.profile = Profile.objects.create(user=self.user)

@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-MANAGE = any(['manage.py' in s for s in sys.argv])
+MANAGE = any(["manage.py" in s for s in sys.argv])
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", default="")
@@ -38,9 +38,21 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ["true", "yes", "1"]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 if DEBUG:
-    ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "192.168.168.110", "monklet.com"]
+    ALLOWED_HOSTS = [
+        "localhost",
+        "0.0.0.0",
+        "127.0.0.1",
+        "192.168.168.110",
+        "monklet.com",
+    ]
 else:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "monklet.com", "www.monklet.com", "51.20.117.226"]
+    ALLOWED_HOSTS = [
+        "localhost",
+        "127.0.0.1",
+        "monklet.com",
+        "www.monklet.com",
+        "51.20.117.226",
+    ]
 
 # Current DJANGO_ENVIRONMENT
 ENVIRONMENT = os.environ.get("DJANGO_ENVIRONMENT", default="local")
@@ -61,8 +73,8 @@ INSTALLED_APPS = [
     "apps.users",
     "crispy_forms",
     "crispy_bootstrap5",
-    'django_recaptcha',
-    "channels"
+    "django_recaptcha",
+    "channels",
 ]
 
 if DEBUG:
@@ -135,10 +147,10 @@ else:
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": os.environ.get("DB_NAME"),
-            #"USER": os.environ.get("DB_USER"),
-            #"PASSWORD": os.environ.get("DB_PASSWORD"),
-            #"HOST": os.environ.get("DB_HOST"),
-            #"PORT": os.environ.get("DB_PORT"),
+            # "USER": os.environ.get("DB_USER"),
+            # "PASSWORD": os.environ.get("DB_PASSWORD"),
+            # "HOST": os.environ.get("DB_HOST"),
+            # "PORT": os.environ.get("DB_PORT"),
         }
     }
 
@@ -222,7 +234,7 @@ TEMPLATE_CONFIG = TEMPLATE_CONFIG
 AUTH_USER_MODEL = "users.User"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/"
-LOGIN_REDIRECT_URL = '/users/profile'
+LOGIN_REDIRECT_URL = "/users/profile"
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
@@ -253,7 +265,7 @@ if DEBUG:
     EMAIL_HOST = "localhost"
     # https://docs.djangoproject.com/en/dev/ref/settings/#email-port
     EMAIL_PORT = 1025
-    EMAIL_SENDER = 'support@monklet.com'
+    EMAIL_SENDER = "support@monklet.com"
 else:
     # Use mailgun in prod via Anymail
     # https://anymail.readthedocs.io/en/stable/installation/#installing-anymail
@@ -269,16 +281,12 @@ else:
             "MAILGUN_API_URL", default="https://api.eu.mailgun.net/v3"
         ),
     }
-    EMAIL_SENDER = 'support@monklet.com'
+    EMAIL_SENDER = "support@monklet.com"
 
 INVITATION_EXPIRY_DAYS = 7
 
 if DEBUG:
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels.layers.InMemoryChannelLayer"
-        }
-    }
+    CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 else:
     CHANNEL_LAYERS = {
         "default": {
@@ -306,9 +314,7 @@ if not DEBUG and not MANAGE:
                 "filename": "/var/log/monklet/monklet.log",
             },
         },
-        "root": {
-            "level": "WARNING",
-            "handlers": ["file"]},
+        "root": {"level": "WARNING", "handlers": ["file"]},
         "loggers": {
             "django": {
                 "handlers": ["file"],
@@ -346,7 +352,7 @@ else:
                 "level": "INFO",
                 "propagate": True,
             },
-        }
+        },
     }
 
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")

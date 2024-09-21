@@ -1,6 +1,5 @@
-
-
 from web_project.template_helpers.theme import TemplateHelper
+
 
 class TemplateBootstrapLayoutVertical:
     def init(context):
@@ -15,7 +14,7 @@ class TemplateBootstrapLayoutVertical:
                 "navbar_type": "fixed",
                 "theme": "theme-semi-dark",
                 "style": "system",
-                "rtl_support": False
+                "rtl_support": False,
             }
         )
 

@@ -71,7 +71,7 @@ class Project(models.Model):
         return md.convert(self.description)
 
     def enabled_bots(self):
-        return self.bots.exclude(status='disabled')
+        return self.bots.exclude(status="disabled")
 
     def test_interviews(self):
         return self.interviews.filter(is_test=True, deleted_at=None)
@@ -80,7 +80,9 @@ class Project(models.Model):
         return self.interviews.filter(deleted_at=None, status="invited", is_test=False)
 
     def started_completed_interviews(self):
-        return self.interviews.filter(deleted_at=None, is_test=False).exclude(status = 'invited')
+        return self.interviews.filter(deleted_at=None, is_test=False).exclude(
+            status="invited"
+        )
 
     @property
     def url(self):
@@ -236,6 +238,7 @@ class ConsentLetter(models.Model):
         md = markdown.Markdown(extensions=["fenced_code"])
         return md.convert(self.letter_md)
 
+
 AI_MODELS = [("gemini-1.5-flash", "Gemini Flash 1.5")]
 
 BOT_STATUSES = [("test", "Testing"), ("live", "Live"), ("disabled", "Disabled")]
@@ -264,7 +267,9 @@ class Bot(models.Model):
     description = models.TextField("Description")
     version = models.CharField(default="1.0", max_length=10)
     prompt = models.TextField("Model prompt")
-    caution = models.CharField(max_length=200, default="Please do not disclose sensitive information")
+    caution = models.CharField(
+        max_length=200, default="Please do not disclose sensitive information"
+    )
     aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
     config = models.JSONField("LLM options", default=default_bot_config)
     opening_user_statement = models.CharField(
@@ -328,14 +333,14 @@ class Interview(models.Model):
     status = models.CharField(
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
     )
-    ip_address = models.CharField(
-        max_length=20, blank=True, null=True
-    )
+    ip_address = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField("Started at", blank=True, null=True)
     updated_at = models.DateTimeField("Last modified", auto_now=True)
     deleted_at = models.DateTimeField("Deleted", blank=True, null=True)
-    is_test = models.BooleanField("This is a test interview", default=False, null=False, blank=False)
+    is_test = models.BooleanField(
+        "This is a test interview", default=False, null=False, blank=False
+    )
 
     class Meta:
         ordering = ["-updated_at"]
@@ -347,16 +352,16 @@ class Interview(models.Model):
         if not self.content:
             return ""
         else:
-            return self.content[-1].get('message')
+            return self.content[-1].get("message")
 
     async def start_async(self):
         """Generate prompt and config, create initial message, post greeting from model"""
         # this should be the only time we look up the bot in the course of the chat
         # (apart from rendering the chat page)
-        if self.status != 'invited':
-            raise Exception(f'Interview is {self.status}')
+        if self.status != "invited":
+            raise Exception(f"Interview is {self.status}")
         try:
-            self.status = 'started'
+            self.status = "started"
             bot = await Bot.objects.aget(pk=self.bot_id)
             # generate and store prompt, config, end_string
             # keeping these values avoids issues with bot getting updated
@@ -364,9 +369,9 @@ class Interview(models.Model):
             self.aimodel = bot.aimodel
             self.end_string = bot.end_string
             generation_config = default_bot_config()
-            generation_config.update({
-                k: bot.config[k] for k in generation_config.keys() if k in bot.config
-            })
+            generation_config.update(
+                {k: bot.config[k] for k in generation_config.keys() if k in bot.config}
+            )
             self.config = generation_config
             # set up ai model
             genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -375,24 +380,31 @@ class Interview(models.Model):
                 generation_config=self.config,
                 # safety_settings = Adjust safety settings
                 # See https://ai.google.dev/gemini-api/docs/safety-settings
-                system_instruction=self.prompt
+                system_instruction=self.prompt,
             )
             chat_session = model.start_chat(history=[])
-            response = await chat_session.send_message_async(bot.opening_user_statement or 'Hello')
+            response = await chat_session.send_message_async(
+                bot.opening_user_statement or "Hello"
+            )
             response_dict = {
-                'uuid': str(uuid.uuid4),
-                'sender': 'model',
-                'message': response.text.strip(),
-                'sent_at': datetime_str(now()),
-                'prompt_token_count': response.usage_metadata.prompt_token_count,
-                'total_token_count': response.usage_metadata.total_token_count,
-                'candidates_token_count': response.usage_metadata.candidates_token_count,
+                "uuid": str(uuid.uuid4),
+                "sender": "model",
+                "message": response.text.strip(),
+                "sent_at": datetime_str(now()),
+                "prompt_token_count": response.usage_metadata.prompt_token_count,
+                "total_token_count": response.usage_metadata.total_token_count,
+                "candidates_token_count": response.usage_metadata.candidates_token_count,
             }
             self.content.append(response_dict)
         except Exception as ex:  # noqa: E722
-            response_dict = {'sender': 'System', 'message': 'An error occurred.', 'sent_at': datetime_str(now())}
+            response_dict = {
+                "sender": "System",
+                "message": "An error occurred.",
+                "sent_at": datetime_str(now()),
+            }
             self.content.append(response_dict)
             import traceback
+
             traceback.print_exception(ex)
         await self.asave()
         return response_dict
@@ -400,9 +412,16 @@ class Interview(models.Model):
     async def add_user_message_async(self, message: str):
         if self.content is None:
             self.content = []  # shouldn't happen?
-        if self.status == 'complete':
-            raise Exception('Interview is complete')
-        self.content.append(dict(uuid=str(uuid.uuid4()), sender='user', message=message, sent_at=datetime_str(now())))
+        if self.status == "complete":
+            raise Exception("Interview is complete")
+        self.content.append(
+            dict(
+                uuid=str(uuid.uuid4()),
+                sender="user",
+                message=message,
+                sent_at=datetime_str(now()),
+            )
+        )
         try:
             genai.configure(api_key=settings.GEMINI_API_KEY)
             model = genai.GenerativeModel(
@@ -410,36 +429,40 @@ class Interview(models.Model):
                 generation_config=self.config,
                 # safety_settings = Adjust safety settings
                 # See https://ai.google.dev/gemini-api/docs/safety-settings
-                system_instruction=self.prompt
+                system_instruction=self.prompt,
             )
-            chat_session = model.start_chat(history=[
-                {'role': h['sender'], 'parts': [h['message']]}
-                for h in self.content if h['sender'] in ['user', 'model']
-            ])
+            chat_session = model.start_chat(
+                history=[
+                    {"role": h["sender"], "parts": [h["message"]]}
+                    for h in self.content
+                    if h["sender"] in ["user", "model"]
+                ]
+            )
             response = await chat_session.send_message_async(message)
             message = response.text.strip()
             if self.end_string in message:
-                message = message.replace(self.end_string, '')
-                self.status = 'complete'
+                message = message.replace(self.end_string, "")
+                self.status = "complete"
             response_dict = {
-                'uuid': str(uuid.uuid4()),
-                'sender': 'model',
-                'message': message.strip(),
-                'sent_at': datetime_str(now()),
-                'prompt_token_count': response.usage_metadata.prompt_token_count,
-                'total_token_count': response.usage_metadata.total_token_count,
-                'candidates_token_count': response.usage_metadata.candidates_token_count,
+                "uuid": str(uuid.uuid4()),
+                "sender": "model",
+                "message": message.strip(),
+                "sent_at": datetime_str(now()),
+                "prompt_token_count": response.usage_metadata.prompt_token_count,
+                "total_token_count": response.usage_metadata.total_token_count,
+                "candidates_token_count": response.usage_metadata.candidates_token_count,
             }
             self.content.append(response_dict)
         except Exception as ex:  # noqa: E722
             response_dict = {
-                'uuid': (uuid.uuid4()),
-                'sender': 'System',
-                'message': 'An error occurred.',
-                'sent_at': datetime_str(now())
+                "uuid": (uuid.uuid4()),
+                "sender": "System",
+                "message": "An error occurred.",
+                "sent_at": datetime_str(now()),
             }
             self.content.append(response_dict)
             import traceback
+
             traceback.print_exception(ex)
         await self.asave()
         return response_dict
@@ -452,7 +475,8 @@ class Interview(models.Model):
         URL, which is different per environment.
         """
         landing_url = request.build_absolute_uri(
-            reverse_lazy('interview-landing', kwargs={'pk': self.pk}))
+            reverse_lazy("interview-landing", kwargs={"pk": self.pk})
+        )
         ctx = {
             "request": request,
             "user": request.user,
@@ -482,24 +506,28 @@ class Interview(models.Model):
     def messages_list(self):
         msg_list = []
         if self.content and isinstance(self.content, list):
-            start_at = parse_datetime(self.content[0].get('sent_at'))
+            start_at = parse_datetime(self.content[0].get("sent_at"))
             name_map = {
-                'system': 'System',
-                'user': self.subject_name,
-                'model': self.bot.name
+                "system": "System",
+                "user": self.subject_name,
+                "model": self.bot.name,
             }
+
             def format(msg):
-                sent_at = parse_datetime(msg['sent_at'])
-                if isinstance(sent_at, datetime.datetime) and isinstance(start_at, datetime.datetime):
+                sent_at = parse_datetime(msg["sent_at"])
+                if isinstance(sent_at, datetime.datetime) and isinstance(
+                    start_at, datetime.datetime
+                ):
                     delta = sent_at - start_at
                     time_fmt = format_timedelta(delta)
                 else:
-                    time_fmt = ''
+                    time_fmt = ""
                 return {
-                    'message': msg['message'],
-                    'sender': name_map.get(msg['sender']),
-                    'time': time_fmt
+                    "message": msg["message"],
+                    "sender": name_map.get(msg["sender"]),
+                    "time": time_fmt,
                 }
+
             msg_list = [format(msg) for msg in self.content]
         return msg_list
 
@@ -507,8 +535,8 @@ class Interview(models.Model):
         """Time from first to last message. Null if can't be computed."""
         if not self.content or not isinstance(self.content, list):
             return None
-        start_at = parse_datetime(self.content[0].get('sent_at'))
-        end_at = parse_datetime(self.content[-1].get('sent_at'))
+        start_at = parse_datetime(self.content[0].get("sent_at"))
+        end_at = parse_datetime(self.content[-1].get("sent_at"))
         if not start_at or not end_at or start_at == end_at:
             return None
         return end_at - start_at
@@ -534,20 +562,21 @@ class Interview(models.Model):
         dur = self.total_duration()
         prompt_tokens, gen_tokens, total_tokens = self.total_token_usage()
         metadata = {
-            'Subject name': self.subject_name,
-            'Subject email': self.subject_email,
-            'Interview status': self.status.title(),
-            'Total duration': format_timedelta(dur) if dur else None,
-            'Participation consent': 'Yes' if self.has_consented else 'No',
-            'Follow-up consent': 'Yes' if self.followup_consented else 'No',
-            'Bot': self.bot.name,
-            'Model': self.aimodel,
-            'Model tokens consumed': f"{total_tokens} ({prompt_tokens} prompt, {gen_tokens} output)",
-            'Created': f"{self.created_at: %Y-%m-%d %H:%M} UTC",
-            'Last updated': f"{self.updated_at: %Y-%m-%d %H:%M} UTC"
+            "Subject name": self.subject_name,
+            "Subject email": self.subject_email,
+            "Interview status": self.status.title(),
+            "Total duration": format_timedelta(dur) if dur else None,
+            "Participation consent": "Yes" if self.has_consented else "No",
+            "Follow-up consent": "Yes" if self.followup_consented else "No",
+            "Bot": self.bot.name,
+            "Model": self.aimodel,
+            "Model tokens consumed": f"{total_tokens} ({prompt_tokens} prompt, {gen_tokens} output)",
+            "Created": f"{self.created_at: %Y-%m-%d %H:%M} UTC",
+            "Last updated": f"{self.updated_at: %Y-%m-%d %H:%M} UTC",
         }
         title = f"{self.subject_name} & {self.bot.name}"
         return interview_doc(title, messages, metadata)
+
 
 class Dimension(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -707,10 +736,7 @@ class MemberInvitation(models.Model):
     def resend_email(self, request) -> int:
         """Resend invitation by expiring this one and issuing another."""
         inv = MemberInvitation.objects.create(
-            project=self.project,
-            email=self.email,
-            name=self.name,
-            role=self.role
+            project=self.project, email=self.email, name=self.name, role=self.role
         )
         inv.send_email(request)  # regenerates email content from template
         self.expire()

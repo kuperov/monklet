@@ -30,7 +30,11 @@ from apps.projects.util import datetime_str
 
 def menu(project: Project):
     menu = [
-        {"url": reverse_lazy('users:profile'), "icon": "menu-icon tf-icons ri-home-line", "name": "Home"}
+        {
+            "url": reverse_lazy("users:profile"),
+            "icon": "menu-icon tf-icons ri-home-line",
+            "name": "Home",
+        }
     ]
     if project:
         menu += [
@@ -68,12 +72,14 @@ def menu(project: Project):
             },
             {"menu_header": "Analysis"},
             {
-                "url": reverse_lazy('project-responses', kwargs={"pk": project.pk}),
+                "url": reverse_lazy("project-responses", kwargs={"pk": project.pk}),
                 "icon": "menu-icon tf-icons ri-message-line",
                 "name": "Data",
             },
             {
-                "url": reverse_lazy("project-interviews-list", kwargs={'pk': project.pk}),
+                "url": reverse_lazy(
+                    "project-interviews-list", kwargs={"pk": project.pk}
+                ),
                 "icon": "menu-icon tf-icons ri-chat-2-line",
                 "name": "Interviews",
             },
@@ -92,14 +98,30 @@ def project(request: HttpRequest, pk: str) -> HttpResponse:
     proj = get_object_or_404(Project, pk=pk)
     if not proj.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    inv_only = proj.interviews.filter(is_test=False, status='invited').count()
-    started = proj.interviews.filter(is_test=False, has_consented=True, status='started').count()
-    complete = proj.interviews.filter(is_test=False, has_consented=True, status='complete').count()
-    followup_ok = proj.interviews.filter(is_test=False, followup_consented=True).exclude(status='invited').count()
+    inv_only = proj.interviews.filter(is_test=False, status="invited").count()
+    started = proj.interviews.filter(
+        is_test=False, has_consented=True, status="started"
+    ).count()
+    complete = proj.interviews.filter(
+        is_test=False, has_consented=True, status="complete"
+    ).count()
+    followup_ok = (
+        proj.interviews.filter(is_test=False, followup_consented=True)
+        .exclude(status="invited")
+        .count()
+    )
     test = proj.interviews.filter(is_test=True).count()
-    ctx = backend_context({"project": proj, "menu_data": menu(proj),
-                           'inv_only': inv_only, 'started': started, 'complete': complete,
-                           'followup_ok': followup_ok, 'test': test})
+    ctx = backend_context(
+        {
+            "project": proj,
+            "menu_data": menu(proj),
+            "inv_only": inv_only,
+            "started": started,
+            "complete": complete,
+            "followup_ok": followup_ok,
+            "test": test,
+        }
+    )
     return render(request, "projects/project.html", ctx)
 
 
@@ -275,7 +297,8 @@ def project_resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
     if not project.can_edit(request.user) or inv.accepted_email:
         raise PermissionDenied("User action not permitted.")
     inv.resend_email(request)
-    return redirect('project-members', pk=project.pk)
+    return redirect("project-members", pk=project.pk)
+
 
 @login_required
 def project_cancel_invitation(request: HttpRequest, pk: str) -> HttpResponse:
@@ -284,7 +307,8 @@ def project_cancel_invitation(request: HttpRequest, pk: str) -> HttpResponse:
     if not project.can_edit(request.user) or inv.accepted_email:
         raise PermissionDenied("User action not permitted.")
     inv.expire()
-    return redirect('project-members', pk=project.pk)
+    return redirect("project-members", pk=project.pk)
+
 
 @login_required
 def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
@@ -347,29 +371,39 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
         raise PermissionDenied("Use of this bot is by invitation only.")
     project = bot.project
     is_collaborator = project.can_view(request.user)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PublicConsentForm(request.POST)
         form.is_valid()
-        if not form.cleaned_data["subject_email"] and form.cleaned_data["followup_consented"]:
-            form.add_error("subject_email", "Please provide your email address for follow-up.")
+        if (
+            not form.cleaned_data["subject_email"]
+            and form.cleaned_data["followup_consented"]
+        ):
+            form.add_error(
+                "subject_email", "Please provide your email address for follow-up."
+            )
         if form.is_valid():
             interview = form.save(commit=False)
             interview.project = project
             interview.bot = bot
             interview.ip_address = request.headers.get("X-Real-IP")
-            interview.status = 'invited'
+            interview.status = "invited"
             interview.is_test = is_collaborator  # user is logged in as a collaborator
             interview.save()
-            interview_url = reverse_lazy('interview', kwargs={'interview_code': interview.pk})
+            interview_url = reverse_lazy(
+                "interview", kwargs={"interview_code": interview.pk}
+            )
             return redirect(interview_url)
     else:
         form = PublicConsentForm()
-    ctx = blank_context({
-        'bot': bot,
-        'project': project,
-        'form': form,
-        'ip_address': request.headers.get("X-Real-IP"),
-        'is_collaborator': is_collaborator})
+    ctx = blank_context(
+        {
+            "bot": bot,
+            "project": project,
+            "form": form,
+            "ip_address": request.headers.get("X-Real-IP"),
+            "is_collaborator": is_collaborator,
+        }
+    )
     return render(request, "interviews/public.html", ctx)
 
 
@@ -379,8 +413,8 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
     interview = None
-    if request.GET.get('bot'):
-        bot = get_object_or_404(Bot, pk=request.GET['bot'])
+    if request.GET.get("bot"):
+        bot = get_object_or_404(Bot, pk=request.GET["bot"])
         if bot.project.pk != project.pk:
             raise PermissionDenied("Invalid bot code")
         interview = Interview.objects.create(
@@ -389,35 +423,41 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
             subject_name=request.user.name,
             subject_email=request.user.email,
             is_test=True,
-            status='invited'
+            status="invited",
         )
-    ctx = backend_context({
-        "project": project,
-        "bots": project.enabled_bots(),
-        "test_interviews": project.test_interviews(),
-        "menu_data": menu(project),
-    })
+    ctx = backend_context(
+        {
+            "project": project,
+            "bots": project.enabled_bots(),
+            "test_interviews": project.test_interviews(),
+            "menu_data": menu(project),
+        }
+    )
     if interview:
         ctx["initial_interview"] = interview.pk
     return render(request, "bots/simulator.html", ctx)
+
 
 @login_required
 def test_interviews_json(request: HttpRequest, pk: str) -> JsonResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
+
     def format(iv: Interview):
         return {
-            'interview': iv.pk,
-            'names': f"{iv.bot.name} & {iv.subject_name}",
-            'bot_name': iv.bot.name,
-            'bot_version': iv.bot.version,
-            'last_text': iv.last_message_text(),
-            'updated_at': naturaltime(iv.updated_at),
-            'status': iv.status
+            "interview": iv.pk,
+            "names": f"{iv.bot.name} & {iv.subject_name}",
+            "bot_name": iv.bot.name,
+            "bot_version": iv.bot.version,
+            "last_text": iv.last_message_text(),
+            "updated_at": naturaltime(iv.updated_at),
+            "status": iv.status,
         }
+
     data = [format(iv) for iv in project.test_interviews()]
     return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
+
 
 @login_required
 def interview_messages(request: HttpRequest, pk: str) -> JsonResponse:
@@ -425,21 +465,29 @@ def interview_messages(request: HttpRequest, pk: str) -> JsonResponse:
     project = interview.project
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
+
     def format(msg):
         return {
-            'uuid': msg.get('uuid'),
-            'sender': msg.get('sender'),
-            'message': msg.get('message'),
-            'sent_at': datetime_str(msg.get('sent_at'))
+            "uuid": msg.get("uuid"),
+            "sender": msg.get("sender"),
+            "message": msg.get("message"),
+            "sent_at": datetime_str(msg.get("sent_at")),
         }
+
     data = [format(msg) for msg in interview.content]
     return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
+
 
 # note: unauthenticated view - interview_code provides security
 def interview(request, interview_code):
     iv = get_object_or_404(Interview, pk=interview_code)
     ctx = blank_context({"project": iv.project, "interview": iv})
-    return render(request, "interviews/interview.html", ctx,)
+    return render(
+        request,
+        "interviews/interview.html",
+        ctx,
+    )
+
 
 @login_required
 def interview_delete(request, pk):
@@ -448,47 +496,56 @@ def interview_delete(request, pk):
         raise PermissionDenied("User action not permitted.")
     iv.deleted_at = now()
     iv.save()
-    next = request.GET.get("next", reverse_lazy('project-responses', kwargs={'pk': iv.project.id}))
+    next = request.GET.get(
+        "next", reverse_lazy("project-responses", kwargs={"pk": iv.project.id})
+    )
     return redirect(next)
+
 
 # unauthenticated view
 def interview_landing(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
     project = iv.project
-    interview_url = reverse_lazy('interview', kwargs={'interview_code': iv.pk})
+    interview_url = reverse_lazy("interview", kwargs={"interview_code": iv.pk})
     if iv.has_consented:
         return redirect(interview_url)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = InterviewConsentForm(request.POST, instance=iv)
         if form.is_valid():
             iv = form.save()
             return redirect(interview_url)
     else:
         form = InterviewConsentForm(instance=iv)
-    ctx = blank_context({
-        'form': form,
-        'project': project,
-        'bot': iv.bot,
-        'interview': iv,
-        'is_collaborator': project.can_view(request.user)
-    })
+    ctx = blank_context(
+        {
+            "form": form,
+            "project": project,
+            "bot": iv.bot,
+            "interview": iv,
+            "is_collaborator": project.can_view(request.user),
+        }
+    )
     return render(request, "interviews/landing.html", ctx)
+
 
 @login_required
 def interview_conversation(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
     msg_list = iv.messages_list()
     prompt_tokens, gen_tokens, total_tokens = iv.token_usage()
-    ctx = backend_context({
-        "interview": iv,
-        "project": iv.project,
-        "msg_list": msg_list,
-        "menu_data": menu(iv.project),
-        "prompt_tokens": prompt_tokens,
-        "gen_tokens": gen_tokens,
-        "total_tokens": total_tokens
-    })
+    ctx = backend_context(
+        {
+            "interview": iv,
+            "project": iv.project,
+            "msg_list": msg_list,
+            "menu_data": menu(iv.project),
+            "prompt_tokens": prompt_tokens,
+            "gen_tokens": gen_tokens,
+            "total_tokens": total_tokens,
+        }
+    )
     return render(request, "interviews/conversation.html", ctx)
+
 
 @login_required
 def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
@@ -538,9 +595,9 @@ def consent_letter_edit(request: HttpRequest, pk: str) -> HttpResponse:
 
 def consent_letter_public(request: HttpRequest, pk: str) -> HttpRequest:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
-    ctx = blank_context({
-        'project': consent_letter.project, 'letter': consent_letter})
+    ctx = blank_context({"project": consent_letter.project, "letter": consent_letter})
     return render(request, "consent_letters/public.html", ctx)
+
 
 @login_required
 def consent_letter_delete(_request: HttpRequest, pk: str) -> HttpResponse:
@@ -574,8 +631,8 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
             "invited_interviews": project.invited_interviews(),
             "interviews": project.started_completed_interviews(),
             "test_interviews": project.test_interviews(),
-            "is_editor": project.can_edit(request.user)
-         }
+            "is_editor": project.can_edit(request.user),
+        }
     )
     return render(request, "interviews/list.html", ctx)
 
@@ -584,18 +641,20 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
 def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
     proj = get_object_or_404(Project, pk=pk)
     if not proj.can_edit(request.user):
-        raise PermissionDenied("User must be an editor of the project to export interviews")
-    if request.method == 'POST':
+        raise PermissionDenied(
+            "User must be an editor of the project to export interviews"
+        )
+    if request.method == "POST":
         form = ExportInterviewsForm(request.POST)
         if form.is_valid():
-            if form.cleaned_data['what'] == 'interviews':
+            if form.cleaned_data["what"] == "interviews":
                 interviews = proj.started_completed_interviews()
-            elif form.cleaned_data['what'] == 'test':
+            elif form.cleaned_data["what"] == "test":
                 interviews = proj.test_interviews()
             else:
                 raise Exception("Invalid selection")
             zip_buffer = io.BytesIO()
-            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_archive:
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_archive:
                 for iv in interviews:
                     doc_buffer = io.BytesIO()
                     iv.as_docx().save(doc_buffer)
@@ -603,13 +662,14 @@ def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
                     fname = f"{iv.subject_name}-{iv.bot.name}.docx"
                     zip_archive.writestr(fname, doc_buffer.read())
             zip_buffer.seek(0)
-            response = HttpResponse(zip_buffer, content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="interviews.zip"'
+            response = HttpResponse(zip_buffer, content_type="application/zip")
+            response["Content-Disposition"] = 'attachment; filename="interviews.zip"'
             return response
     else:
         form = ExportInterviewsForm()
-    ctx = backend_context({'form': form, 'menu_data': menu(proj)})
-    return render(request, 'interviews/export.html', ctx)
+    ctx = backend_context({"form": form, "menu_data": menu(proj)})
+    return render(request, "interviews/export.html", ctx)
+
 
 @login_required
 def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
@@ -621,15 +681,15 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
         if form.is_valid:
             inv = form.save(commit=False)
             inv.project = project
-            inv.status = 'invited'
+            inv.status = "invited"
             inv.save()
             inv.send_invitation_email(request)
             messages.add_message(request, messages.SUCCESS, "Interview invitation sent")
             return redirect("project-invitations", pk=project.pk)
     else:
         form = InterviewForm()
-        if 'bot' in request.GET:
-            form.initial['bot'] = request.GET['bot']
+        if "bot" in request.GET:
+            form.initial["bot"] = request.GET["bot"]
     ctx = backend_context(
         {"form": form, "project": project, "menu_data": menu(project)}
     )

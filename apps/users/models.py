@@ -1,4 +1,3 @@
-
 from typing import ClassVar
 
 from django.contrib.auth.models import AbstractUser
@@ -18,6 +17,7 @@ class User(AbstractUser):
     If adding fields that need to be filled at user signup,
     check forms.SignupForm and forms.SocialSignupForms accordingly.
     """
+
     # First and last name do not cover name patterns around the globe
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     first_name = None  # type: ignore[assignment]
@@ -59,7 +59,7 @@ class Profile(models.Model):
         # email = self.user.email
         # email_hash = hashlib.md5(email.strip().lower().encode("utf-8")).hexdigest()
         # return f"//www.gravatar.com/avatar/{email_hash}"
-        return settings.STATIC_URL + 'img/avatars/generic.svg'
+        return settings.STATIC_URL + "img/avatars/generic.svg"
 
     def all_projects(self):
         projects = []

@@ -14,15 +14,17 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         await self.accept()
         # initialize interview if required
         interview = await Interview.objects.aget(pk=self.interview_code)
-        if interview.status == 'invited':  # uninitialized
+        if interview.status == "invited":  # uninitialized
             first = await interview.start_async()  # calls llm api, so takes a while
             await self.channel_layer.group_send(
-                self.channel_ident, {
+                self.channel_ident,
+                {
                     "type": "chat_message",
-                    "message": first['message'],
-                    "sender": first['sender'],
+                    "message": first["message"],
+                    "sender": first["sender"],
                     "sent_at": str(now()),
-                    "uuid": str(uuid.uuid4())}
+                    "uuid": str(uuid.uuid4()),
+                },
             )
 
     async def disconnect(self, close_code):
@@ -32,38 +34,48 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
         await self.channel_layer.group_send(
-            self.channel_ident, {
+            self.channel_ident,
+            {
                 "type": "chat_message",
                 "message": message,
                 "sender": "user",
                 "sent_at": str(now()),
-                "uuid": text_data_json["uuid"]
-        })
+                "uuid": text_data_json["uuid"],
+            },
+        )
         interview = await Interview.objects.aget(pk=self.interview_code)
         resp = await interview.add_user_message_async(message)
         await self.channel_layer.group_send(
-            self.channel_ident, {
+            self.channel_ident,
+            {
                 "type": "chat_message",
-                "message": resp['message'],
-                "sender": resp['sender'],
+                "message": resp["message"],
+                "sender": resp["sender"],
                 "sent_at": str(now()),
-                "uuid": str(uuid.uuid4())
-        })
-        if interview.status == 'complete':
+                "uuid": str(uuid.uuid4()),
+            },
+        )
+        if interview.status == "complete":
             await self.channel_layer.group_send(
-                self.channel_ident, {
+                self.channel_ident,
+                {
                     "type": "chat_message",
                     "message": "Interview complete",
                     "sender": "system",
                     "sent_at": str(now()),
-                    "uuid": str(uuid.uuid4())
-            })
+                    "uuid": str(uuid.uuid4()),
+                },
+            )
             await self.disconnect(1000)
 
     async def chat_message(self, event):
-        await self.send(text_data=json.dumps({
-            "message": event["message"],
-            "sender": event["sender"],
-            "sent_at": event["sent_at"],
-            "uuid": event["uuid"]
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "message": event["message"],
+                    "sender": event["sender"],
+                    "sent_at": event["sent_at"],
+                    "uuid": event["uuid"],
+                }
+            )
+        )

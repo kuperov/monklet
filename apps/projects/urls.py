@@ -39,7 +39,7 @@ from .views import (
     invitation_respond,
     test_interviews_json,
     interview_messages,
-    projects_export_interviews
+    projects_export_interviews,
 )
 
 
@@ -53,14 +53,28 @@ urlpatterns = [
     path("projects/<str:pk>/analysis", project_analysis, name="project-analysis"),
     path("projects/<str:pk>/files", project_files, name="project-files"),
     path("projects/<str:pk>/invite", project_invite, name="project-invite"),
-    path("invitations/<str:pk>/resend", project_resend_invitation, name='invitation-resend'),
-    path("invitations/<str:pk>/cancel", project_cancel_invitation, name='invitation-cancel'),
+    path(
+        "invitations/<str:pk>/resend",
+        project_resend_invitation,
+        name="invitation-resend",
+    ),
+    path(
+        "invitations/<str:pk>/cancel",
+        project_cancel_invitation,
+        name="invitation-cancel",
+    ),
     path("interviews/<str:interview_code>", interview, name="interview"),
     path("interviews/<str:pk>/delete", interview_delete, name="interview-delete"),
     path("interviews/<str:pk>/landing", interview_landing, name="interview-landing"),
-    path("interviews/<str:pk>/conversation", interview_conversation, name="interview-conversation"),
-    path("interviews/<str:pk>/messages", interview_messages, name='interview-messages'),
-    path("projects/<str:pk>/export", projects_export_interviews, name='export-interviews'),
+    path(
+        "interviews/<str:pk>/conversation",
+        interview_conversation,
+        name="interview-conversation",
+    ),
+    path("interviews/<str:pk>/messages", interview_messages, name="interview-messages"),
+    path(
+        "projects/<str:pk>/export", projects_export_interviews, name="export-interviews"
+    ),
     path("projects/<str:pk>/questions", project_questions, name="project-questions"),
     path(
         "projects/<str:pk>/questions/new",
@@ -106,19 +120,28 @@ urlpatterns = [
         project_interviews_invite,
         name="project-interviews-invite",
     ),
-    path("projects/<str:pk>/interviews",
-         project_interviews_list,
-         name="project-interviews-list"
+    path(
+        "projects/<str:pk>/interviews",
+        project_interviews_list,
+        name="project-interviews-list",
     ),
-    path("projects/<str:pk>/test_interviews",
-         test_interviews_json,
-         name='project-interviews-test-json'),
-    path("projects/<str:pk>/transcripts", project_transcripts, name="project-responses"),
+    path(
+        "projects/<str:pk>/test_interviews",
+        test_interviews_json,
+        name="project-interviews-test-json",
+    ),
+    path(
+        "projects/<str:pk>/transcripts", project_transcripts, name="project-responses"
+    ),
     path(
         "projects/<str:pk>/transcripts/upload",
         project_transcripts_upload,
         name="project-transcripts-upload",
     ),
-    path("collaborate/landing/<str:code>", invitation_landing, name="invitation-landing"),
-    path("collaborate/respond/<str:code>", invitation_respond, name="invitation-respond"),
+    path(
+        "collaborate/landing/<str:code>", invitation_landing, name="invitation-landing"
+    ),
+    path(
+        "collaborate/respond/<str:code>", invitation_respond, name="invitation-respond"
+    ),
 ]

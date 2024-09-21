@@ -20,9 +20,11 @@ django_asgi_app = get_asgi_application()  # initializes apps so we can import mo
 
 import apps.projects.routing as p_routing
 
-application = ProtocolTypeRouter({
-    "http": django_asgi_app,
-    "websocket": AllowedHostsOriginValidator(
-                AuthMiddlewareStack(URLRouter(p_routing.websocket_urlpatterns))
-            ),
-})
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(URLRouter(p_routing.websocket_urlpatterns))
+        ),
+    }
+)
