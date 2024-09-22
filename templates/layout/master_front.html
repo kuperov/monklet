@@ -16,12 +16,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'vendor/fonts/remixicon/remixicon.css' %}" />
-    <link rel="stylesheet" href="{% static 'vendor/css/core.css' %}" />
-    <link rel="stylesheet" href="{% static 'vendor/css/light-style.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/css/core.css' %}?t={{CACHE_BUSTER}}" />
+    <link rel="stylesheet" href="{% static 'vendor/css/light-style.css' %}?t={{CACHE_BUSTER}}" />
     <!-- link rel="stylesheet" href="{% static 'vendor/css/dark-style.css' %}" / -->
 
-    <link rel="stylesheet" href="{% static 'css/demo.css' %}" />
-    <link rel="stylesheet" href="{% static 'vendor/css/pages/front-page.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/demo.css' %}?t={{CACHE_BUSTER}}" />
+    <link rel="stylesheet" href="{% static 'vendor/css/pages/front-page.css' %}?t={{CACHE_BUSTER}}" />
     <!-- link rel="stylesheet" href="{% static 'vendor/libs/node-waves/node-waves.css' %}" / -->
 
     {% block vendor_css %}{% endblock vendor_css %}
@@ -35,7 +35,7 @@
     <script src="{% static 'vendor/js/bootstrap.js' %}"></script>
     <!-- script src="{% static 'vendor/libs/node-waves/node-waves.js' %}"></! -->
     <script src="{% static 'vendor/js/htmx.js' %}"></script>
-    <script src="{% static 'js/front-main.js' %}"></script>
+    <script src="{% static 'js/front-main.js' %}?t={{CACHE_BUSTER}}"></script>
     {% block vendor_js %} {% endblock vendor_js %}
     {% block page_js %} {% endblock page_js %}
   </body>
