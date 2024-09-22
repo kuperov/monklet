@@ -557,23 +557,33 @@ class Interview(models.Model):
                 total_tokens += msg.get("total_token_count", 0)
         return prompt_tokens, gen_tokens, total_tokens
 
-    def as_docx(self) -> Document:  # noqa: F821
+    def as_docx(self, include_metadata:bool=True) -> Document:  # noqa: F821
+        """Construct docx.Document summarizing the interviw
+
+        Args:
+            include_metadata (bool, optional): Include metadata. Defaults to True.
+
+        Returns:
+            Document: Document representation
+        """
         messages = self.messages_list()
         dur = self.total_duration()
         prompt_tokens, gen_tokens, total_tokens = self.total_token_usage()
-        metadata = {
-            "Subject name": self.subject_name,
-            "Subject email": self.subject_email,
-            "Interview status": self.status.title(),
-            "Total duration": format_timedelta(dur) if dur else None,
-            "Participation consent": "Yes" if self.has_consented else "No",
-            "Follow-up consent": "Yes" if self.followup_consented else "No",
-            "Bot": self.bot.name,
-            "Model": self.aimodel,
-            "Model tokens consumed": f"{total_tokens} ({prompt_tokens} prompt, {gen_tokens} output)",
-            "Created": f"{self.created_at: %Y-%m-%d %H:%M} UTC",
-            "Last updated": f"{self.updated_at: %Y-%m-%d %H:%M} UTC",
-        }
+        metadata = None
+        if include_metadata:
+            metadata = {
+                "Subject name": self.subject_name,
+                "Subject email": self.subject_email,
+                "Interview status": self.status.title(),
+                "Total duration": format_timedelta(dur) if dur else None,
+                "Participation consent": "Yes" if self.has_consented else "No",
+                "Follow-up consent": "Yes" if self.followup_consented else "No",
+                "Bot": self.bot.name,
+                "Model": self.aimodel,
+                "Model tokens consumed": f"{total_tokens} ({prompt_tokens} prompt, {gen_tokens} output)",
+                "Created": f"{self.created_at: %Y-%m-%d %H:%M} UTC",
+                "Last updated": f"{self.updated_at: %Y-%m-%d %H:%M} UTC",
+            }
         title = f"{self.subject_name} & {self.bot.name}"
         return interview_doc(title, messages, metadata)
 

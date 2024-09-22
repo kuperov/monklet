@@ -201,8 +201,13 @@ class ExportInterviewsForm(forms.Form):
         initial="interviews",
         required=True,
     )
+    include_metadata = forms.BooleanField(
+        label="Include interview metadata",
+        initial=True,
+        required=False
+    )
     acknowledge = forms.BooleanField(
-        label="I understand my obligations to safeguard the security of interview material",
+        label="I understand my ethical and legal obligations to safeguard the security of interview material",
         required=True,
         initial=False,
     )

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from docx import Document
 from docx.shared import Cm, RGBColor
@@ -46,13 +46,15 @@ def styled_document() -> Document:
 
 
 def interview_doc(
-    title: str, messages: List[Dict[str, str]], metadata: Dict[str, str]
+    title: str, messages: List[Dict[str, str]], metadata: Optional[Dict[str, str]]
 ) -> Document:  # noqa: F821
     """
     Creates a word doc summarizing an interview
 
     Args:
+        title: page title
         interview: interview object
+        metadata: metadata table contents, or null to exclude table
 
     Returns:
         (unsaved) docx.Document object
@@ -61,23 +63,24 @@ def interview_doc(
     document.add_heading(title, level=1)
 
     # metadata section
-    document.add_heading("Metadata", level=2)
-    table = document.add_table(rows=1, cols=2)
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = "Field"
-    hdr_cells[1].text = "Value"
-    for k, v in metadata.items():
-        row_cells = table.add_row().cells
-        row_cells[0].text = k
-        row_cells[1].text = v or "Not provided"
-    widths_cm = [6, 6]
-    for c, w in enumerate(widths_cm):
-        table.columns[c].width = Cm(w)
-    table.allow_autofit = False
-    table.autofit = False
-    for j in range(len(table.rows)):
+    if metadata:
+        document.add_heading("Metadata", level=2)
+        table = document.add_table(rows=1, cols=2)
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = "Field"
+        hdr_cells[1].text = "Value"
+        for k, v in metadata.items():
+            row_cells = table.add_row().cells
+            row_cells[0].text = k
+            row_cells[1].text = v or "Not provided"
+        widths_cm = [6, 6]
         for c, w in enumerate(widths_cm):
-            table.cell(j, c).width = Cm(w)
+            table.columns[c].width = Cm(w)
+        table.allow_autofit = False
+        table.autofit = False
+        for j in range(len(table.rows)):
+            for c, w in enumerate(widths_cm):
+                table.cell(j, c).width = Cm(w)
 
     # messages section
     document.add_heading("Conversation", level=2)

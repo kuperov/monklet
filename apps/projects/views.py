@@ -653,11 +653,12 @@ def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
                 interviews = proj.test_interviews()
             else:
                 raise Exception("Invalid selection")
+            include_metadata = form.cleaned_data['include_metadata']
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_archive:
                 for iv in interviews:
                     doc_buffer = io.BytesIO()
-                    iv.as_docx().save(doc_buffer)
+                    iv.as_docx(include_metadata=include_metadata).save(doc_buffer)
                     doc_buffer.seek(0)
                     fname = f"{iv.subject_name}-{iv.bot.name}.docx"
                     zip_archive.writestr(fname, doc_buffer.read())

@@ -11,15 +11,79 @@
     <meta name="description" content="AI-driven qualitative data analysis platform" />
     <meta name="keywords" content="qualitative analysis, chatbot, AI" />
     <link rel="shortcut icon" type="image/svg+xml" href="{% static 'img/favicon/bird-circle.svg' %}" />
-    {% include "./partials/styles.html" %}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'vendor/fonts/remixicon/remixicon.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/fonts/flag-icons.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'vendor/css/core.css' %}" />
+    <!-- link rel="stylesheet" href="{% static 'vendor/css/dark-style.css' %}" / -->
+    <link rel="stylesheet" href="{% static 'vendor/css/light-style.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/demo.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/typeahead-js/typeahead.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/node-waves/node-waves.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+
     {% block vendor_css %}{% endblock vendor_css %}
     {% block page_css %}{% endblock page_css %}
-    {% include "./partials/scripts_includes.html" %}
+    <script src="{% static 'vendor/js/helpers.js' %}"></script>
+    {% comment %}
+    {% if has_customizer %}
+    <script src="{% static 'vendor/js/template-customizer.js' %}"></script>
+    {% endif %}
+    <script src="{% static 'js/config.js' %}"></script>
+    <script>
+    if (typeof TemplateCustomizer !== 'undefined') {
+      window.templateCustomizer = new TemplateCustomizer({
+        cssPath: '',
+        themesPath: '',
+        defaultStyle: "light", // Required as system style can't decided without JS
+        defaultTextDir: 'ltr',
+        defaultShowDropdownOnHover : {{show_dropdown_onhover_value}},
+        lang: 'en',
+        pathResolver: function(path) {
+          var resolvedPaths = {
+            'core.css': "{% static 'vendor/css/core.css' %}",
+            'core-dark.css': "{% static 'vendor/css/core-dark.css' %}",
+
+            'theme-default.css': "{% static 'vendor/css/theme-default.css' %}",
+            'theme-default-dark.css': "{% static 'vendor/css/theme-default-dark.css' %}",
+
+            'theme-bordered.css': "{% static 'vendor/css/theme-bordered.css' %}",
+            'theme-bordered-dark.css': "{% static 'vendor/css/theme-bordered-dark.css' %}",
+
+            'theme-semi-dark.css': "{% static 'vendor/css/theme-semi-dark.css' %}",
+            'theme-semi-dark-dark.css': "{% static 'vendor/css/theme-semi-dark-dark.css' %}"
+          }
+          return resolvedPaths[path] || path;
+        },
+        controls: {{ customizer_controls | safe }},
+      });
+    }
+    </script>
+    {% endcomment %}
   </head>
   <body>
     {% block layout %}
     {% endblock layout %}
-    {% include "./partials/scripts.html" %}
+    <script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+    <script src="{% static 'vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'vendor/js/bootstrap.js' %}"></script>
+    <script src="{% static 'vendor/libs/node-waves/node-waves.js' %}"></script>
+    <script src="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+    <script src="{% static 'vendor/libs/hammer/hammer.js' %}"></script>
+    <script src="{% static 'vendor/libs/typeahead-js/typeahead.js' %}"></script>
+    <script src="{% static 'vendor/js/menu.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+    <script src="{% static 'js/toast.js' %}"></script>
     {% block vendor_js %} {% endblock vendor_js %}
     {% block page_js %} {% endblock page_js %}
   </body>

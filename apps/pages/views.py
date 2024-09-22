@@ -1,13 +1,13 @@
 from django.views.generic import TemplateView
+
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+
 from web_project import TemplateLayout
 from web_project.template_helpers.theme import TemplateHelper
 
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
-
 from .forms import EnquiryForm
-from apps.context_helpers import blank_context, front_context
+from apps.context_helpers import front_context
 
 
 class PagesView(TemplateView):
@@ -25,25 +25,18 @@ def landing_page(request):
     if request.user.is_authenticated:
         return redirect(reverse_lazy("users:profile"))
     else:
-        ctx = front_context()
+        form = EnquiryForm()
+        ctx = front_context({'form': form})
         return render(request, "landing_page.html", ctx)
 
 
-def comingsoon(request):
-    if request.user.is_authenticated:
-        return redirect(reverse_lazy("users:profile"))
+def enquiry_partial(request):
     if request.method == "POST":
         form = EnquiryForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse_lazy("enquiry_success"))
+            # TODO: send email
+            return render(request, "_enquiry.html", {'success': True})
     else:
         form = EnquiryForm()
-
-    ctx = blank_context({"form": form})
-    return render(request, "comingsoon.html", ctx)
-
-
-def enquiry_success(request):
-    ctx = blank_context()
-    return render(request, "enquiry_success.html", ctx)
+    return render(request, "_enquiry.html", {'form': form, 'success': False})

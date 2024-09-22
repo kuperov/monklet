@@ -1,12 +1,10 @@
 from django.urls import path
-from .views import PagesView, landing_page, comingsoon, enquiry_success
+from .views import landing_page, enquiry_partial, PagesView
 
 
 urlpatterns = [
-    # temporary - remove when launched
-    path("", comingsoon, name="index"),
-    path("thanks/", enquiry_success, name="enquiry_success"),
-    # /temporary
+    path("", landing_page, name="index"),
+    path("enquiry", enquiry_partial, name="enquiry_partial"),
     path(
         "error/",
         PagesView.as_view(template_name="pages_misc_error.html"),
@@ -22,7 +20,6 @@ urlpatterns = [
         PagesView.as_view(template_name="pages_misc_not_authorized.html"),
         name="pages-misc-not-authorized",
     ),
-    path("landing/", landing_page, name="landing"),
     path(
         "pricing/",
         PagesView.as_view(template_name="pricing_page.html"),

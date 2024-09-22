@@ -520,18 +520,17 @@ class TemplateCustomizer {
 
     // Open btn
     //
-    const openBtn = this.container.querySelector('.template-customizer-open-btn')
-    const openBtnCb = () => {
-      this.container.classList.add('template-customizer-open')
-      this.update()
-
-      if (this._updateInterval) clearInterval(this._updateInterval)
-      this._updateInterval = setInterval(() => {
-        this.update()
-      }, 500)
-    }
-    openBtn.addEventListener('click', openBtnCb)
-    this._listeners.push([openBtn, 'click', openBtnCb])
+    // const openBtn = this.container.querySelector('.template-customizer-open-btn')
+    // const openBtnCb = () => {
+    //   this.container.classList.add('template-customizer-open')
+    //   this.update()
+    //   if (this._updateInterval) clearInterval(this._updateInterval)
+    //   this._updateInterval = setInterval(() => {
+    //     this.update()
+    //   }, 500)
+    // }
+    // openBtn.addEventListener('click', openBtnCb)
+    // this._listeners.push([openBtn, 'click', openBtnCb])
 
     // Reset btn
     //

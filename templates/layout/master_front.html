@@ -2,26 +2,41 @@
 
 <!DOCTYPE html>
 
-<html lang="en" class="{{style}}-style {{navbar_type_class}} {{header_type_class}} {{menu_fixed_class}} {{menu_collapsed_class}} {{footer_fixed_class}} {{display_customizer_class}} {{content_layout_class}}" dir="{{text_direction_value}}" data-theme="{{theme}}" data-assets-path="{% static '/' %}" data-base-url="{{url}}" data-framework="django" data-template="horizontal-menu-front-{{ theme }}-{{style}}">
-
+<html lang="en" class="light-style layout-navbar-fixed  layout-menu-fixed    layout-wide" dir="ltr" data-theme="theme-default" data-assets-path="/static/" data-base-url="" data-framework="django" data-template="vertical-menu-front-theme-default-light">
   <head>
     <title>{% block title %}{% endblock title %} | monklet</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <meta name="description" content="AI-driven qualitative data analysis platform" />
     <meta name="keywords" content="qualitative analysis, chatbot, AI" />
+
     <link rel="shortcut icon" type="image/svg+xml" href="{% static 'img/favicon/bird-circle.svg' %}" />
-    {% include "./partials/styles_front.html" %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'vendor/fonts/remixicon/remixicon.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/css/core.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/css/light-style.css' %}" />
+    <!-- link rel="stylesheet" href="{% static 'vendor/css/dark-style.css' %}" / -->
+
+    <link rel="stylesheet" href="{% static 'css/demo.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/css/pages/front-page.css' %}" />
+    <!-- link rel="stylesheet" href="{% static 'vendor/libs/node-waves/node-waves.css' %}" / -->
+
     {% block vendor_css %}{% endblock vendor_css %}
     {% block page_css %}{% endblock page_css %}
-    {% include "./partials/scripts_includes_front.html" %}
+    <script src="{% static 'vendor/js/helpers.js' %}"></script>
   </head>
   <body>
     {% block layout %}
     {% endblock layout %}
-    {% include "./partials/scripts_front.html" %}
+    <script src="{% static 'vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'vendor/js/bootstrap.js' %}"></script>
+    <!-- script src="{% static 'vendor/libs/node-waves/node-waves.js' %}"></! -->
+    <script src="{% static 'vendor/js/htmx.js' %}"></script>
+    <script src="{% static 'js/front-main.js' %}"></script>
     {% block vendor_js %} {% endblock vendor_js %}
     {% block page_js %} {% endblock page_js %}
   </body>
-
 </html>
