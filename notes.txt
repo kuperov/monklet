@@ -48,6 +48,9 @@
   [ ] configurable thresholds for waiting before responding
   [ ] sanitize chat text
   [ ] export handles markdown
+  [ ] automated tests for chat
+  [ ] implement dompurify, marked
+  [ ] frontend script implementation
 
 ## context variables for layout
 

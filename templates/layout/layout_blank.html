@@ -12,10 +12,11 @@
     <link rel="shortcut icon" type="image/svg+xml" href="{% static 'img/favicon/bird-circle.svg' %}" />
     <link rel="stylesheet" href="{% static 'vendor/fonts/remixicon/remixicon.css' %}" />
     <link rel="stylesheet" href="{% static 'vendor/css/core.css' %}" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="{% static 'vendor/css/theme-semi-dark.css' %}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'vendor/css/light-style.css' %}" class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{% static 'css/demo.css' %}" />
     <link rel="stylesheet" href="{% static 'vendor/css/pages/front-page.css' %}" />
-    <link rel="stylesheet" href="{% static 'vendor/libs/node-waves/node-waves.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+    <!-- link rel="stylesheet" href="{% static 'vendor/libs/node-waves/node-waves.css' %}" / -->
     {% block vendor_css %}{% endblock vendor_css %}
     {% block page_css %}{% endblock page_css %}
     <script src="{% static 'vendor/js/helpers.js' %}"></script>
@@ -61,11 +62,13 @@
     {% block content %}
     {% endblock content %}
     {% endblock layout %}
-    <!-- script src="{% static 'vendor/js/dropdown-hover.js' %}"></script>
+    <script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+    <!-- script src="{% static 'vendor/js/dropdown-hover.js' %}"></!-script>
     <script src="{% static 'vendor/js/mega-dropdown.js' %}"></script -->
     <script src="{% static 'vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
     <script src="{% static 'vendor/js/bootstrap.js' %}"></script>
-    <script src="{% static 'vendor/libs/node-waves/node-waves.js' %}"></script>
+    <!-- script src="{% static 'vendor/libs/node-waves/node-waves.js' %}"></!-- -->
     <script src="{% static 'js/front-main.js' %}"></script>
     {% block vendor_js %}{% endblock vendor_js %}
     {% block page_js %}{% endblock page_js %}

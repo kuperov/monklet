@@ -41,44 +41,18 @@
   <div class="row g-0">
     <!-- Test interview list -->
     <div class="col simulator-left-pane simulator-bots app-sidebar flex-grow-0 overflow-hidden border-end">
-      <div class="sidebar-header h-px-75 px-5 border-bottom d-flex align-items-center">
+      <div class="sidebar-header h-px-75 px-5 border-bottom d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center me-4 me-lg-0">
-          <div class="flex-shrink-0 avatar avatar-online me-4" data-bs-toggle="sidebar" data-overlay="app-overlay-ex" data-target="#simulator-sidebar-left">
-            <img class="user-avatar rounded-circle cursor-pointer" src="{{ user.profile.avatar_url }}" alt="Avatar">
-          </div>
           <div class="flex-grow-1">
             <h6>Bot simulator</h6>
           </div>
         </div>
-        <i class="ri-close-line ri-20px cursor-pointer position-absolute top-50 end-0 translate-middle fs-4 d-lg-none d-block" data-overlay data-bs-toggle="sidebar" data-target="#simulator-bots"></i>
+        <div class="">
+        </div>
+        <!-- div><a href="#" class="btn btn-primary">New chat</a></! -->
+        <!-- i class="ri-close-line ri-20px cursor-pointer position-absolute top-50 end-0 translate-middle fs-4 d-lg-none d-block" data-overlay data-bs-toggle="sidebar" data-target="#simulator-bots"></! -->
       </div>
       <div class="sidebar-body">
-        <ul class="list-unstyled chat-bot-list py-2 mb-0" id="bot-list">
-          <li class="chat-bot-list-item chat-bot-list-item-title mt-0">
-            <h5 class="text-primary mb-0">Available bots</h5>
-          </li>
-          {% if not bots %}
-          <li class="chat-bot-list-item chat-list-item-0"> <!-- d-none -->
-            <h6 class="text-muted mb-0">No bots available</h6>
-          </li>
-          {% endif %}
-          {% for bot in project.enabled_bots %}
-          <li class="chat-bot-list-item mb-1" data-botid="{{bot.pk}}">
-            <a class="d-flex align-items-center">
-              <div class="flex-shrink-0 avatar {% if bot.status == 'live' %}avatar-online{% else %}avatar-away{% endif %}">
-                <img src="{% static 'img/avatars/bot.svg' %}" alt="Avatar" class="rounded-circle">
-              </div>
-              <div class="chat-bot-info flex-grow-1 ms-4">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h6 class="chat-bot-name text-truncate fw-normal m-0">{{ bot.name }}</h6>
-                  <small class="text-muted">version {{bot.version}}</small>
-                </div>
-                <small class="chat-bot-status text-truncate">{{ bot.description }}</small>
-              </div>
-            </a>
-          </li>
-          {% endfor %}
-        </ul>
         <ul class="interview-list list-unstyled chat-bot-list py-2 mb-0">
           <li class="chat-bot-list-item chat-bot-list-item-title mt-0">
             <h5 class="text-primary mb-0">Test interviews</h5>

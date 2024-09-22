@@ -32,21 +32,23 @@ window.isDarkStyle = window.Helpers.isDarkStyle();
     nav = document.querySelector('.landing-navbar'),
     navItemLink = document.querySelectorAll('.navbar-nav .nav-link');
 
-  // Navbar
-  window.addEventListener('scroll', e => {
-    if (window.scrollY > 10) {
-      nav.classList.add('navbar-active');
-    } else {
-      nav.classList.remove('navbar-active');
-    }
-  });
-  window.addEventListener('load', e => {
-    if (window.scrollY > 10) {
-      nav.classList.add('navbar-active');
-    } else {
-      nav.classList.remove('navbar-active');
-    }
-  });
+  if (nav) {
+    // Navbar
+    window.addEventListener('scroll', e => {
+      if (window.scrollY > 10) {
+        nav.classList.add('navbar-active');
+      } else {
+        nav.classList.remove('navbar-active');
+      }
+    });
+    window.addEventListener('load', e => {
+      if (window.scrollY > 10) {
+        nav.classList.add('navbar-active');
+      } else {
+        nav.classList.remove('navbar-active');
+      }
+    });
+  };
 
   // Function to close the mobile menu
   function closeMenu() {

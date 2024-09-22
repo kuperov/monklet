@@ -62,8 +62,10 @@
   </div>
   <div class="card-footer">
     <div class="px-0 pt-0 d-flex justify-content-end">
-      <a class="m-4 btn btn-primary" href="{% url 'project-bots-new' pk=project.pk %}">New bot</a>
-      <a class="m-4 btn btn-secondary" href="{% url 'projects-simulate' pk=project.pk %}">Simulator</a>
+      <a class="m-4 btn btn-primary" href="{% url 'project-bots-new' pk=project.pk %}">
+        <i class="ri ri-robot-2-line me-2"></i>New bot</a>
+      <a class="m-4 btn btn-secondary" href="{% url 'projects-simulate' pk=project.pk %}">
+        <i class="ri ri-tools-line me-2"></i>Simulator</a>
     </div>
   </div>
 </div>
