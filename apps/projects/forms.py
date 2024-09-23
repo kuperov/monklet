@@ -217,3 +217,32 @@ class ExportInterviewsForm(forms.Form):
         self.helper = FormHelper()
         self.helper.add_input(Submit("Export", "export"))
         self.helper.add_input(cancel())
+
+
+class LundSurveyForm(forms.Form):
+    ACADEMIC_CHOICES = [
+        ('public', 'Yes, and I am employed by a public university'),
+        ('private', 'Yes, and I am employed by a private institution'),
+        ('independent', 'Yes, I am an independent researcher'),
+        ('no', 'No, I am not an academic')
+    ]
+    is_academic = forms.ChoiceField(
+        label="Are you an academic?",
+        required=True,
+        choices=ACADEMIC_CHOICES,
+        widget=forms.Select())
+    academic_age = forms.IntegerField(
+        label="Your academic age",
+        required=False,
+        widget=forms.NumberInput(attrs={'placeholder': "Number of years post PhD or relevant qualification"})
+    )
+    discipline = forms.CharField(
+        label="Main academic discipline",
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': "e.g. Sociology or Economics"})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("Continue", "continue"))

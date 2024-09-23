@@ -33,6 +33,9 @@ $app-chat-shadow-dark: dark.$box-shadow-xs !default;
 $chat-bg-light: #f7f6fa;
 $chat-bg-dark: #373452;
 
+// landing page
+$interview-landing-inner-max-width: 460px !default;
+
 .interview-chat {
   position: relative;
   height: $chat-app-height;
@@ -236,5 +239,80 @@ $chat-bg-dark: #373452;
         background-color: dark.$card-bg;
       }
     }
+  }
+}
+
+// interview landing pages
+.interview-landing-wrapper {
+  display: flex;
+  flex-basis: 100%;
+  min-height: 100vh;
+  width: 100%;
+
+  .interview-landing-inner {
+    width: 100%;
+  }
+
+  &.interview-landing-basic {
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-cover-illustration {
+    z-index: 1;
+    max-inline-size: 38rem;
+  }
+
+  .interview-landing-image-object {
+    &-left {
+      position: absolute;
+      bottom: 6%;
+      inset-inline-start: 4%;
+    }
+    &-right {
+      position: absolute;
+      bottom: 7%;
+      inset-inline-end: 4%;
+    }
+  }
+
+  .interview-landing-image {
+    z-index: -1;
+    inline-size: 100%;
+    position: absolute;
+    inset-inline-start: 0;
+    bottom: 0;
+  }
+  .interview-landing-image-model {
+    width: 768px;
+  }
+
+  &.interview-landing-cover {
+    align-items: flex-start;
+    .interview-landing-inner {
+      min-height: 100vh;
+      position: relative;
+    }
+    .interview-landing-image {
+      @include app-ltr() {
+        inset-inline-start: unset;
+      }
+    }
+    .interview-landing-image-tree {
+      position: absolute;
+      bottom: 4rem;
+      left: 3rem;
+    }
+  }
+
+  &.interview-landing-basic .interview-landing-inner {
+    max-width: $interview-landing-inner-max-width;
+  }
+
+  // For two-steps auth
+  .auth-input-wrapper .auth-input {
+    max-width: 50px;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+    font-size: light.$large-font-size;
   }
 }

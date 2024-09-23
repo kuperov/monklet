@@ -13,6 +13,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvitation
 from .forms import (
     ExportInterviewsForm,
+    LundSurveyForm,
     ProjectForm,
     MemberInvitationForm,
     PublicConsentForm,
@@ -389,6 +390,9 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
             interview.status = "invited"
             interview.is_test = is_collaborator  # user is logged in as a collaborator
             interview.save()
+            # hack hack hack
+            if bot.config.get('show_lund_questions'):
+                return redirect(reverse_lazy('lund-questions', kwargs=dict(pk=interview.pk)))
             interview_url = reverse_lazy(
                 "interview", kwargs={"interview_code": interview.pk}
             )
@@ -405,6 +409,30 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
         }
     )
     return render(request, "interviews/public.html", ctx)
+
+
+def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
+    interview = get_object_or_404(Interview, pk=pk)
+    if request.method == 'POST':
+        form = LundSurveyForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['is_academic'] != 'no':
+                if not form.cleaned_data['academic_age']:
+                    form.add_error('academic_age', 'How many years since you received your academic qualification?')
+                if not form.cleaned_data['discipline']:
+                    form.add_error('discipline', 'Please specify your main academic discipline')
+        if form.is_valid():
+            attrs = {k: form.cleaned_data[k] for k in ['is_academic', 'academic_age', 'discipline']}
+            interview.attributes.update(attrs)
+            interview.save()
+            return redirect('interview', interview_code=interview.pk)
+    else:
+        form = LundSurveyForm()
+    ctx = blank_context({
+        'interview': interview,
+        'form': form
+    })
+    return render(request, 'interviews/lund_questions.html', ctx)
 
 
 @login_required
@@ -513,7 +541,10 @@ def interview_landing(request, pk):
         form = InterviewConsentForm(request.POST, instance=iv)
         if form.is_valid():
             iv = form.save()
-            return redirect(interview_url)
+            if iv.bot.config.get("show_lund_questions"):
+                return redirect(reverse_lazy('lund-questions', kwargs=dict(pk=iv.pk)))
+            else:
+                return redirect(interview_url)
     else:
         form = InterviewConsentForm(instance=iv)
     ctx = blank_context(
@@ -532,7 +563,7 @@ def interview_landing(request, pk):
 def interview_conversation(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
     msg_list = iv.messages_list()
-    prompt_tokens, gen_tokens, total_tokens = iv.token_usage()
+    prompt_tokens, gen_tokens, total_tokens = iv.total_token_usage()
     ctx = backend_context(
         {
             "interview": iv,

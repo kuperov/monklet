@@ -1,6 +1,6 @@
 {% extends 'layout/layout_blank.html' %}
 
-{% load static i18n %}
+{% load static i18n crispy_forms_tags %}
 
 {% block title %}Log in to Monklet{% endblock %}
 
@@ -48,6 +48,7 @@
         </div>
         {% endfor %}
         {% endif %}
+        {% crispy form %}
         <form id="formAuthentication" class="mb-5" action="{% url 'login' %}" method="post">
           {% csrf_token %}
           <div class="form-floating form-floating-outline mb-5">

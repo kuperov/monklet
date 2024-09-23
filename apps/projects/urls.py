@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import (
+    lund_questions,
     project,
     project_settings,
     project_new,
@@ -66,6 +67,7 @@ urlpatterns = [
     path("interviews/<str:interview_code>", interview, name="interview"),
     path("interviews/<str:pk>/delete", interview_delete, name="interview-delete"),
     path("interviews/<str:pk>/landing", interview_landing, name="interview-landing"),
+    path("interviews/<str:pk>/lund", lund_questions, name="lund-questions"),
     path(
         "interviews/<str:pk>/conversation",
         interview_conversation,

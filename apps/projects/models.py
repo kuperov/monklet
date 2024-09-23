@@ -4,6 +4,8 @@ import datetime
 
 from django.db import models
 from django.urls import reverse_lazy
+from django.db.models import Count
+from django.db.models.functions import TruncWeek, TruncDay
 
 from django.utils.timezone import now
 from django.conf import settings
@@ -82,6 +84,24 @@ class Project(models.Model):
     def started_completed_interviews(self):
         return self.interviews.filter(deleted_at=None, is_test=False).exclude(
             status="invited"
+        )
+
+    def count_by_day(self):
+        return (self
+                .started_completed_interviews()
+                .annotate(day_start=TruncDay('updated_at'))
+                .values('day_start')
+                .annotate(number=Count('id'))
+                .order_by('day_start')
+        )
+
+    def count_by_week(self):
+        return (self
+                .started_completed_interviews()
+                .annotate(week_start=TruncWeek('updated_at'))
+                .values('week_start')
+                .annotate(number=Count('id'))
+                .order_by('week_start')
         )
 
     @property
@@ -333,6 +353,7 @@ class Interview(models.Model):
     status = models.CharField(
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
     )
+    attributes = models.JSONField("Additional attributes", null=False, blank=False, default=dict)
     ip_address = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField("Started at", blank=True, null=True)
@@ -587,11 +608,18 @@ class Interview(models.Model):
         title = f"{self.subject_name} & {self.bot.name}"
         return interview_doc(title, messages, metadata)
 
+# DIM_TYPE_CHOICES = [
+#     ('char', 'Character'),
+#     ('int', 'Integer'),
+#     ('choice', 'Choice')
+# ]
 
 class Dimension(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField("Dimension name", max_length=100)
     order = models.IntegerField("Order")
+    # dimtype = models.CharField("Type", max_length=10, choices=DIM_TYPE_CHOICES, null=False, blank=False)
+    # dimspec = models.JSONField(default=dict, blank=False)
 
     def __str__(self):
         return f"Dimension {self.name} on {self.project}"
