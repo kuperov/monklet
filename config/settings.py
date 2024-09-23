@@ -174,7 +174,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ACCOUNT_FORMS = {
     'login': 'apps.users.forms.LoginForm',
-    'signup': 'apps.users.forms.SignupForm'
+    'signup': 'apps.users.forms.SignupForm',
+    'reset_password': 'apps.users.forms.ResetPasswordForm',
+    'reset_password_from_key': 'apps.users.forms.ResetPasswordKeyForm'
 }
 
 # Internationalization

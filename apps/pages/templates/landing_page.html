@@ -34,6 +34,13 @@
     <img src="{% static 'img/front-pages/backgrounds/hero-bg-' %}{{ COOKIES.style|default:style }}.png" alt="hero background" class="position-absolute top-0 start-0 w-100 h-100 z-n1" data-speed="1" data-app-light-img="front-pages/backgrounds/hero-bg-light.png" data-app-dark-img="front-pages/backgrounds/hero-bg-dark.png" />
     <div class="container">
       <div class="hero-text-box text-center">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-warning{% endif %}" role="alert">
+          {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
         <h2 class="text-primary hero-title mb-4">Qualitative analysis with AI</h2>
         <h2 class="h6 mb-8 lh-md">
           Monklet lets you use AI to build chatbots for semi-structured interviews and analyze the results.

@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from web_project.template_helpers.theme import TemplateHelper
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -68,7 +67,6 @@ def profile_edit(request: HttpRequest, pk: str) -> HttpResponse:
             "menu_data": menu(),
         }
     )
-    ctx["layout_path"] = TemplateHelper.set_layout("layout_vertical.html", ctx)
     return render(request, "profile/profile-edit.html", ctx)
 
 

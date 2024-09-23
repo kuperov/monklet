@@ -49,7 +49,7 @@
         {% endfor %}
         {% endif %}
         {% crispy form %}
-        <form id="formAuthentication" class="mb-5" action="{% url 'login' %}" method="post">
+        <form id="formAuthentication" class="mb-5" action="{% url 'account_login' %}" method="post">
           {% csrf_token %}
           <div class="form-floating form-floating-outline mb-5">
             <input type="email" class="form-control" id="email" name="email-username" placeholder="Email/Username" autofocus />
@@ -73,7 +73,7 @@
                 Remember Me
               </label>
             </div>
-            <a href="{% url 'forgot-password' %}" class="float-end mb-1">
+            <a href="{% url 'account_reset_password' %}" class="float-end mb-1">
               <span>Forgot Password?</span>
             </a>
           </div>
@@ -85,7 +85,7 @@
 
           <p class="text-center">
           <span>New on our platform?</span>
-          <a href="{% url 'register' %}">
+          <a href="{% url 'account_signup' %}">
             <span>Create an account</span>
           </a>
         </p>

@@ -1,9 +1,10 @@
-{% extends layout_path %}
+{% extends 'layout/layout_blank.html' %}
 
-{% load static %}
-{% load i18n %}
+{% load static i18n %}
 
-{% block title %}Register Cover - Pages{% endblock %}
+{% block title %}
+  {% trans "Signup" %}
+{% endblock %}
 
 {% block vendor_css %}
 {{ block.super }}
