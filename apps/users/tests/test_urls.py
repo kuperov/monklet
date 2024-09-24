@@ -1,7 +1,7 @@
 from django.urls import resolve
 from django.urls import reverse
 
-from monklet.users.models import User
+from apps.users.models import User
 
 
 def test_detail(user: User):

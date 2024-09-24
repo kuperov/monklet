@@ -12,12 +12,12 @@ from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from monklet.users.forms import UserAdminChangeForm
-from monklet.users.models import User
-from monklet.users.tests.factories import UserFactory
-from monklet.users.views import UserRedirectView
-from monklet.users.views import UserUpdateView
-from monklet.users.views import user_detail_view
+from apps.users.forms import UserAdminChangeForm
+from apps.users.models import User
+from apps.users.tests.factories import UserFactory
+from apps.users.views import UserRedirectView
+from apps.users.views import UserUpdateView
+from apps.users.views import user_detail_view
 
 pytestmark = pytest.mark.django_db
 

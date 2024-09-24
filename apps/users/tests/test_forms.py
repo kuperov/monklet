@@ -2,8 +2,8 @@
 
 from django.utils.translation import gettext_lazy as _
 
-from monklet.users.forms import UserAdminCreationForm
-from monklet.users.models import User
+from apps.users.forms import UserAdminCreationForm
+from apps.users.models import User
 
 
 class TestUserAdminCreationForm:
