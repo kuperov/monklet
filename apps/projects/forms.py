@@ -161,7 +161,7 @@ class PublicConsentForm(forms.ModelForm):
     followup_consented = forms.BooleanField(
         label="The investigators may contact me for follow-up", required=False
     )
-    if not settings.DEBUG:
+    if not (settings.DEBUG or settings.TESTING):
         # https://pypi.org/project/django-recaptcha/
         captcha = ReCaptchaField(widget=ReCaptchaV3)
 
@@ -202,9 +202,7 @@ class ExportInterviewsForm(forms.Form):
         required=True,
     )
     include_metadata = forms.BooleanField(
-        label="Include interview metadata",
-        initial=True,
-        required=False
+        label="Include interview metadata", initial=True, required=False
     )
     acknowledge = forms.BooleanField(
         label="I understand my ethical and legal obligations to safeguard the security of interview material",
@@ -221,25 +219,28 @@ class ExportInterviewsForm(forms.Form):
 
 class LundSurveyForm(forms.Form):
     ACADEMIC_CHOICES = [
-        ('public', 'Yes, and I am employed by a public university'),
-        ('private', 'Yes, and I am employed by a private institution'),
-        ('independent', 'Yes, I am an independent researcher'),
-        ('no', 'No, I am not an academic')
+        ("public", "Yes, and I am employed by a public university"),
+        ("private", "Yes, and I am employed by a private institution"),
+        ("independent", "Yes, I am an independent researcher"),
+        ("no", "No, I am not an academic"),
     ]
     is_academic = forms.ChoiceField(
         label="Are you an academic?",
         required=True,
         choices=ACADEMIC_CHOICES,
-        widget=forms.Select())
+        widget=forms.Select(),
+    )
     academic_age = forms.IntegerField(
         label="Your academic age",
         required=False,
-        widget=forms.NumberInput(attrs={'placeholder': "Number of years post PhD or relevant qualification"})
+        widget=forms.NumberInput(
+            attrs={"placeholder": "Number of years post PhD or relevant qualification"}
+        ),
     )
     discipline = forms.CharField(
         label="Main academic discipline",
         required=False,
-        widget=forms.TextInput(attrs={'placeholder': "e.g. Sociology or Economics"})
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Sociology or Economics"}),
     )
 
     def __init__(self, *args, **kwargs):

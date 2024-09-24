@@ -4,6 +4,7 @@ from apps.pages.models import Enquiry
 
 import logging
 
+
 class ErrorPageTestCase(TestCase):
 
     def setUp(self):
@@ -35,9 +36,9 @@ class FrontPagesTestCase(TestCase):
         resp = self.client.get("/")
         self.assertContains(resp, "Get in touch", status_code=200)
         payload = {"email": "abc@dummy.com", "name": "John", "message": "Hi"}
-        resp = self.client.post(reverse_lazy('enquiry_partial'), payload, follow=True)
+        resp = self.client.post(reverse_lazy("enquiry_partial"), payload, follow=True)
         enq = Enquiry.objects.filter(email="abc@dummy.com").first()
         self.assertIsNotNone(enq)
         self.assertIsNotNone(enq.created_at)
-        self.assertEqual(enq.message, payload['message'])
-        self.assertEqual(enq.name, payload['name'])
+        self.assertEqual(enq.message, payload["message"])
+        self.assertEqual(enq.name, payload["name"])

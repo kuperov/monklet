@@ -18,29 +18,23 @@ class EnquiryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse_lazy('enquiry_partial')
-        self.helper.form_method = 'POST'
-        #self.helper.form_id = 'university-form'
+        self.helper.form_action = reverse_lazy("enquiry_partial")
+        self.helper.form_method = "POST"
+        # self.helper.form_id = 'university-form'
         self.helper.attrs = {
-            'hx-post': reverse_lazy('enquiry_partial'),
-            'hx-target': '#enquiry-card',
-            'hx-swap': 'outerHTML'
+            "hx-post": reverse_lazy("enquiry_partial"),
+            "hx-target": "#enquiry-card",
+            "hx-swap": "outerHTML",
         }
         self.helper.layout = Layout(
             Div(
+                Div(FloatingField("name"), css_class="col-md-6"),
+                Div(FloatingField("email"), css_class="col-md-6"),
                 Div(
-                    FloatingField("name"),
-                    css_class="col-md-6"
+                    FloatingField("message", template="_bs5_floating_field_h_200.html"),
+                    css_class="col-12",
                 ),
-                Div(
-                    FloatingField("email"),
-                    css_class="col-md-6"
-                ),
-                Div(
-                    FloatingField("message", template='_bs5_floating_field_h_200.html'),
-                    css_class="col-12"
-                ),
-                css_class="row g-5"
+                css_class="row g-5",
             ),
-            Submit("send", "Send enquiry", css_class="mt-5")
+            Submit("send", "Send enquiry", css_class="mt-5"),
         )

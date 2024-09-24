@@ -64,12 +64,14 @@ class AccessTestCase(TestCase):
                     self.assertContains(resp, "not authorized")
             self.client.logout()
 
+
 o_e, o_pw, o_n = "a@b.com", "super secret", ["John", "Green"]  # owner
 r_e, r_pw = "r@s.com", "very secret"  # recipient
 
 
 class ReqMock:
     user = None
+
     def build_absolute_uri(self, uri):
         return settings.BASE_URL + uri
 
@@ -158,7 +160,7 @@ class InvitationTestCase(TestCase):
         self.invitation.expire()
         resp = self.client.get(self.invitation.landing_url, follow=True)
         self.assertContains(resp, "unavailable", status_code=200)
-        self.assertNotContains(resp, 'Sign up')
+        self.assertNotContains(resp, "Sign up")
 
     def test_email_sending(self):
         mail.outbox.clear()

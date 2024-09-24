@@ -9,7 +9,9 @@ email, pw = "a@b.com", "super secret"
 class CreateProfileTestCase(TestCase):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(email=email, password=pw, name="Cornelius Klonk")
+        self.user = User.objects.create_user(
+            email=email, password=pw, name="Cornelius Klonk"
+        )
         self.user.save()
         self.client.login(email=email, password=pw)
 
@@ -23,7 +25,9 @@ class CreateProfileTestCase(TestCase):
 class UnauthenticatedProfileTestCase(TestCase):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(email=email, password=pw, name="Cornelius Klonk")
+        self.user = User.objects.create_user(
+            email=email, password=pw, name="Cornelius Klonk"
+        )
         self.user.save()
         self.profile = Profile.objects.create(user=self.user)
         # disable annoying log output
@@ -41,7 +45,8 @@ class UnauthenticatedProfileTestCase(TestCase):
 
     def test_update_other_profile(self):
         em2, pw2 = "reg@hotmail.com", "lemon tea"
-        User.objects.create_user(email=em2,
+        User.objects.create_user(
+            email=em2,
             password=pw2,
             name="Reginald Goose",
         )

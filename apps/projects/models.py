@@ -87,21 +87,21 @@ class Project(models.Model):
         )
 
     def count_by_day(self):
-        return (self
-                .started_completed_interviews()
-                .annotate(day_start=TruncDay('updated_at'))
-                .values('day_start')
-                .annotate(number=Count('id'))
-                .order_by('day_start')
+        return (
+            self.started_completed_interviews()
+            .annotate(day_start=TruncDay("updated_at"))
+            .values("day_start")
+            .annotate(number=Count("id"))
+            .order_by("day_start")
         )
 
     def count_by_week(self):
-        return (self
-                .started_completed_interviews()
-                .annotate(week_start=TruncWeek('updated_at'))
-                .values('week_start')
-                .annotate(number=Count('id'))
-                .order_by('week_start')
+        return (
+            self.started_completed_interviews()
+            .annotate(week_start=TruncWeek("updated_at"))
+            .values("week_start")
+            .annotate(number=Count("id"))
+            .order_by("week_start")
         )
 
     @property
@@ -353,7 +353,9 @@ class Interview(models.Model):
     status = models.CharField(
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
     )
-    attributes = models.JSONField("Additional attributes", null=False, blank=False, default=dict)
+    attributes = models.JSONField(
+        "Additional attributes", null=False, blank=False, default=dict
+    )
     ip_address = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField("Started at", blank=True, null=True)
@@ -578,7 +580,7 @@ class Interview(models.Model):
                 total_tokens += msg.get("total_token_count", 0)
         return prompt_tokens, gen_tokens, total_tokens
 
-    def as_docx(self, include_metadata:bool=True) -> Document:  # noqa: F821
+    def as_docx(self, include_metadata: bool = True) -> Document:  # noqa: F821
         """Construct docx.Document summarizing the interviw
 
         Args:
@@ -608,11 +610,13 @@ class Interview(models.Model):
         title = f"{self.subject_name} & {self.bot.name}"
         return interview_doc(title, messages, metadata)
 
+
 # DIM_TYPE_CHOICES = [
 #     ('char', 'Character'),
 #     ('int', 'Integer'),
 #     ('choice', 'Choice')
 # ]
+
 
 class Dimension(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)

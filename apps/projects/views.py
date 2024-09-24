@@ -391,8 +391,10 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
             interview.is_test = is_collaborator  # user is logged in as a collaborator
             interview.save()
             # hack hack hack
-            if bot.config.get('show_lund_questions'):
-                return redirect(reverse_lazy('lund-questions', kwargs=dict(pk=interview.pk)))
+            if bot.config.get("show_lund_questions"):
+                return redirect(
+                    reverse_lazy("lund-questions", kwargs=dict(pk=interview.pk))
+                )
             interview_url = reverse_lazy(
                 "interview", kwargs={"interview_code": interview.pk}
             )
@@ -413,26 +415,31 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
 
 def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
     interview = get_object_or_404(Interview, pk=pk)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = LundSurveyForm(request.POST)
         if form.is_valid():
-            if form.cleaned_data['is_academic'] != 'no':
-                if not form.cleaned_data['academic_age']:
-                    form.add_error('academic_age', 'How many years since you received your academic qualification?')
-                if not form.cleaned_data['discipline']:
-                    form.add_error('discipline', 'Please specify your main academic discipline')
+            if form.cleaned_data["is_academic"] != "no":
+                if not form.cleaned_data["academic_age"]:
+                    form.add_error(
+                        "academic_age",
+                        "How many years since you received your academic qualification?",
+                    )
+                if not form.cleaned_data["discipline"]:
+                    form.add_error(
+                        "discipline", "Please specify your main academic discipline"
+                    )
         if form.is_valid():
-            attrs = {k: form.cleaned_data[k] for k in ['is_academic', 'academic_age', 'discipline']}
+            attrs = {
+                k: form.cleaned_data[k]
+                for k in ["is_academic", "academic_age", "discipline"]
+            }
             interview.attributes.update(attrs)
             interview.save()
-            return redirect('interview', interview_code=interview.pk)
+            return redirect("interview", interview_code=interview.pk)
     else:
         form = LundSurveyForm()
-    ctx = blank_context({
-        'interview': interview,
-        'form': form
-    })
-    return render(request, 'interviews/lund_questions.html', ctx)
+    ctx = blank_context({"interview": interview, "form": form})
+    return render(request, "interviews/lund_questions.html", ctx)
 
 
 @login_required
@@ -542,7 +549,7 @@ def interview_landing(request, pk):
         if form.is_valid():
             iv = form.save()
             if iv.bot.config.get("show_lund_questions"):
-                return redirect(reverse_lazy('lund-questions', kwargs=dict(pk=iv.pk)))
+                return redirect(reverse_lazy("lund-questions", kwargs=dict(pk=iv.pk)))
             else:
                 return redirect(interview_url)
     else:
@@ -684,7 +691,7 @@ def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
                 interviews = proj.test_interviews()
             else:
                 raise Exception("Invalid selection")
-            include_metadata = form.cleaned_data['include_metadata']
+            include_metadata = form.cleaned_data["include_metadata"]
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_archive:
                 for iv in interviews:
@@ -762,7 +769,7 @@ def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
     if request.user == inv.project.owner:  # owner clicked own link
         return redirect(inv.project.url)
     if not inv.is_valid:
-        ctx = blank_context({'unavailable': True})
+        ctx = blank_context({"unavailable": True})
     elif not request.user.is_authenticated:
         ctx = blank_context({"project": inv.project, "return_url": inv.landing_url})
     else:
