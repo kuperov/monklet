@@ -9,9 +9,7 @@ email, pw = "a@b.com", "super secret"
 class CreateProfileTestCase(TestCase):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            username=email, email=email, password=pw, name="Cornelius Klonk"
-        )
+        self.user = User.objects.create_user(email=email, password=pw, name="Cornelius Klonk")
         self.user.save()
         self.client.login(email=email, password=pw)
 
@@ -25,9 +23,7 @@ class CreateProfileTestCase(TestCase):
 class UnauthenticatedProfileTestCase(TestCase):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            username=email, email=email, password=pw, name="Cornelius Klonk"
-        )
+        self.user = User.objects.create_user(email=email, password=pw, name="Cornelius Klonk")
         self.user.save()
         self.profile = Profile.objects.create(user=self.user)
 
@@ -38,9 +34,7 @@ class UnauthenticatedProfileTestCase(TestCase):
 
     def test_update_other_profile(self):
         em2, pw2 = "reg@hotmail.com", "lemon tea"
-        User.objects.create_user(
-            username=em2,
-            email=em2,
+        User.objects.create_user(email=em2,
             password=pw2,
             name="Reginald Goose",
         )
@@ -60,7 +54,6 @@ class UnauthenticatedProfileTestCase(TestCase):
     def test_admin_update(self):
         em2, pw2 = "reg@hotmail.com", "lemon tea"
         User.objects.create_user(
-            username=em2,
             email=em2,
             password=pw2,
             name="Reginald Goose",
@@ -82,7 +75,6 @@ class UpdateProfileTestCase(TestCase):
 
     def setUp(self) -> None:
         self.user = User.objects.create_user(
-            username=email,
             email=email,
             password=pw,
             name="Cornelius Klonk",

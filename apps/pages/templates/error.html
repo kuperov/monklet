@@ -1,0 +1,28 @@
+{% extends 'layout/layout_blank.html' %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Error - Pages{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/page-misc.css' %}" />
+{% endblock page_css %}
+
+
+{% block content %}
+<div class="misc-wrapper">
+  <h1 class="mb-2 mx-2" style="font-size: 6rem;line-height: 6rem;">{{ status }}</h1>
+  <h4 class="mb-2">{{ title }}</h4>
+  <p class="mb-10 mx-2">{{ message }}</p>
+  <div class="d-flex justify-content-center mt-5">
+    <div class="d-flex flex-column align-items-center">
+      <div>
+        <a href="{% url 'index' %}" class="btn btn-primary text-center my-4">Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Error -->
+{% endblock %}

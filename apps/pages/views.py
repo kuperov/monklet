@@ -7,7 +7,11 @@ from web_project import TemplateLayout
 from web_project.template_helpers.theme import TemplateHelper
 
 from .forms import EnquiryForm
-from apps.context_helpers import front_context
+from apps.context_helpers import blank_context, front_context
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PagesView(TemplateView):
@@ -19,6 +23,27 @@ class PagesView(TemplateView):
             }
         )
         return context
+
+
+def make_error_handler(status):
+    http_status_codes = {
+        400: ("Bad Request", "There was a problem with your request."),
+        401: ("Unauthorized", "You must authenticate yourself to access this resource."),
+        403: ("Forbidden", "You do not have permission to access this resource."),
+        404: ("Not Found", "The requested resource could not be found."),
+        500: ("Internal Server Error", "An unexpected error occurred on the server."),
+    }
+    code = http_status_codes.get(status, ("Error", "An error occurred"))
+    ctx = blank_context(dict(status=status, title=code[0], message=code[1]))
+    if status == 500:
+        def handler(request):
+            logger.error('A server error occurred, returning status=500')
+            return render(request, "error.html", ctx)
+    else:
+        def handler(request, exception=None):
+            logger.error('An error occurred, returning status=%d: %s', status, exception, exc_info=True)
+            return render(request, "error.html", ctx)
+    return handler
 
 
 def landing_page(request):

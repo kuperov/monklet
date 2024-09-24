@@ -24,10 +24,10 @@ creds = {o_e: o_pw, v_e: v_pw, e_e: e_pw, n_e: n_pw}
 class AccessTestCase(TestCase):
 
     def setUp(self):
-        self.owner = User.objects.create_user(username=o_e, email=o_e, password=o_pw)
-        self.viewer = User.objects.create_user(username=v_e, email=v_e, password=v_pw)
-        self.editor = User.objects.create_user(username=e_e, email=e_e, password=e_pw)
-        self.noaccess = User.objects.create_user(username=n_e, email=n_e, password=n_pw)
+        self.owner = User.objects.create_user(email=o_e, password=o_pw)
+        self.viewer = User.objects.create_user(email=v_e, password=v_pw)
+        self.editor = User.objects.create_user(email=e_e, password=e_pw)
+        self.noaccess = User.objects.create_user(email=n_e, password=n_pw)
         self.project = Project.objects.create(owner=self.owner, name="Foo")
         for u, r in [
             (self.viewer, "viewer"),
@@ -100,7 +100,7 @@ class ReqMock:
 class InvitationModelTestCase(TestCase):
 
     def setUp(self):
-        self.owner = User.objects.create_user(username=o_e, email=o_e, password=o_pw)
+        self.owner = User.objects.create_user(email=o_e, password=o_pw)
         self.project = Project.objects.create(owner=self.owner, name="Foo")
 
     def test_expiry(self):
@@ -124,7 +124,7 @@ class InvitationModelTestCase(TestCase):
 class InvitationTestCase(TestCase):
 
     def setUp(self):
-        self.owner = User.objects.create_user(username=o_e, email=o_e, password=o_pw)
+        self.owner = User.objects.create_user(email=o_e, password=o_pw)
         self.project = Project.objects.create(owner=self.owner, name="Foo")
         self.invitation = MemberInvitation.objects.create(
             project=self.project,
@@ -157,7 +157,7 @@ class InvitationTestCase(TestCase):
         self.assertContains(resp, "Sign up", status_code=200)
         self.assertNotContains(resp, "Yes")
         # logged in
-        recip = User.objects.create_user(username=r_e, email=r_e, password=r_pw)
+        recip = User.objects.create_user(email=r_e, password=r_pw)
         self.client.login(email=r_e, password=r_pw)
         resp = self.client.get(self.invitation.landing_url, follow=True)
         self.assertNotContains(resp, "Sign up")
