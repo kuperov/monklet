@@ -1,28 +1,12 @@
-from django.views.generic import TemplateView
+import logging
 
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 
-from web_project import TemplateLayout
-from web_project.template_helpers.theme import TemplateHelper
-
-from .forms import EnquiryForm
 from apps.context_helpers import blank_context, front_context
-
-import logging
+from apps.pages.forms import EnquiryForm
 
 logger = logging.getLogger(__name__)
-
-
-class PagesView(TemplateView):
-    def get_context_data(self, **kwargs):
-        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-        context.update(
-            {
-                "layout_path": TemplateHelper.set_layout("layout_blank.html", context),
-            }
-        )
-        return context
 
 
 def make_error_handler(status):
@@ -38,11 +22,11 @@ def make_error_handler(status):
     if status == 500:
         def handler(request):
             logger.error('A server error occurred, returning status=500')
-            return render(request, "error.html", ctx)
+            return render(request, "error.html", ctx, status=status)
     else:
         def handler(request, exception=None):
             logger.error('An error occurred, returning status=%d: %s', status, exception, exc_info=True)
-            return render(request, "error.html", ctx)
+            return render(request, "error.html", ctx, status=status)
     return handler
 
 

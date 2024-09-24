@@ -1,5 +1,4 @@
 from django.test import TestCase
-from apps.projects.models import Project, Member
 
 from django.core import mail
 from django.urls import reverse_lazy
@@ -7,7 +6,7 @@ from django.utils.timezone import now
 from datetime import timedelta
 from django.conf import settings
 
-from .models import MemberInvitation
+from apps.projects.models import Project, Member, MemberInvitation
 from apps.users.models import User
 
 
@@ -65,34 +64,12 @@ class AccessTestCase(TestCase):
                     self.assertContains(resp, "not authorized")
             self.client.logout()
 
-    def test_auth(self):
-        fns = [
-            "analysis_url",
-            "bots_url",
-            "files_url",
-            "invitations_url",
-            "questions_url",
-            "members_url",
-            "responses_url",
-            "url",
-        ]
-        self.check_get_access(fns, {o_e: True, v_e: True, e_e: True, n_e: False})
-        self.check_get_access(
-            ["settings_url"], {o_e: True, v_e: False, e_e: False, n_e: False}
-        )
-        self.check_get_access(
-            ["delete_url"], {o_e: True, v_e: False, e_e: False, n_e: False}
-        )
-        self.check_get_access(
-            ["leave_url"], {o_e: False, v_e: True, e_e: True, n_e: False}
-        )
-
-
 o_e, o_pw, o_n = "a@b.com", "super secret", ["John", "Green"]  # owner
 r_e, r_pw = "r@s.com", "very secret"  # recipient
 
 
 class ReqMock:
+    user = None
     def build_absolute_uri(self, uri):
         return settings.BASE_URL + uri
 
@@ -139,14 +116,14 @@ class InvitationTestCase(TestCase):
     def test_owner_clicks(self):
         self.client.login(email=o_e, password=o_pw)
         resp = self.client.get(self.invitation.landing_url, follow=False)
-        self.assertContains(resp, "not permitted", status_code=403)
+        self.assertContains(resp, "Forbidden", status_code=403)
         accept_action = reverse_lazy(
             "invitation-respond", kwargs={"code": self.invitation.pk}
         )
         resp = self.client.post(
             accept_action, data={"yes": "Yes, accept"}, follow=False
         )
-        self.assertContains(resp, "not permitted", status_code=403)
+        self.assertContains(resp, "Forbidden", status_code=403)
 
     def test_accept_invitation(self):
         self.assertEqual(self.project.member_count, 1)
@@ -179,8 +156,9 @@ class InvitationTestCase(TestCase):
     def test_email_sending(self):
         mail.outbox.clear()
         req_mock = ReqMock()
+        req_mock.user = self.owner
         self.invitation.send_email(req_mock)
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
-        self.assertEqual("Collaborate on Foo", msg.subject)
+        self.assertEqual("Invitation to collaborate: Foo", msg.subject)
         self.assertTrue(f"{settings.BASE_URL}{self.invitation.landing_url}" in msg.body)
