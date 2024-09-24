@@ -154,6 +154,12 @@ class InvitationTestCase(TestCase):
         self.assertTrue(inv.is_expired)
         self.assertFalse(inv.is_valid)
 
+    def test_expired(self):
+        self.invitation.expire()
+        resp = self.client.get(self.invitation.landing_url, follow=True)
+        self.assertContains(resp, "unavailable", status_code=200)
+        self.assertNotContains(resp, 'Sign up')
+
     def test_email_sending(self):
         mail.outbox.clear()
         req_mock = ReqMock()

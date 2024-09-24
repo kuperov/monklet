@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.users.forms import UserAdminChangeForm
 from apps.users.models import User
-from apps.users.tests.factories import UserFactory
+from apps.users.old_tests.factories import UserFactory
 from apps.users.views import UserRedirectView
 from apps.users.views import UserUpdateView
 from apps.users.views import user_detail_view

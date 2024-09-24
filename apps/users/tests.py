@@ -1,7 +1,7 @@
+import logging
 from django.test import TestCase
 from apps.users.models import Profile, User
 from django.urls import reverse_lazy
-
 
 email, pw = "a@b.com", "super secret"
 
@@ -15,7 +15,7 @@ class CreateProfileTestCase(TestCase):
 
     def test_create_profile(self):
         self.assertIsNone(Profile.objects.filter(user_id=self.user.id).first())
-        resp = self.client.get("/profile/", follow=True)
+        resp = self.client.get("/users/profile", follow=True)
         self.assertIsNotNone(Profile.objects.get(user_id=self.user.id))
         self.assertContains(resp, "Cornelius Klonk")
 
@@ -26,9 +26,16 @@ class UnauthenticatedProfileTestCase(TestCase):
         self.user = User.objects.create_user(email=email, password=pw, name="Cornelius Klonk")
         self.user.save()
         self.profile = Profile.objects.create(user=self.user)
+        # disable annoying log output
+        self.logger = logging.getLogger()
+        self.previous_level = self.logger.getEffectiveLevel()
+        self.logger.setLevel(level=logging.CRITICAL)
+
+    def tearDown(self) -> None:
+        self.logger.setLevel(self.previous_level)
 
     def test_unauthed_requests(self):
-        for url in ["/profile/"]:
+        for url in ["/users/profile"]:
             resp = self.client.get(url, follow=False)
             self.assertEqual(resp.status_code, 302)
 

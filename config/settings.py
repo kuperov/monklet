@@ -21,6 +21,8 @@ from .template import TEMPLATE_CONFIG, THEME_LAYOUT_DIR
 
 load_dotenv()  # take environment variables from .env.
 
+TESTING = hasattr(sys, 'argv') and 'test' in sys.argv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -304,7 +306,7 @@ else:
     }
 
 
-if not DEBUG and not MANAGE:
+if not DEBUG and not MANAGE and not TESTING:
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": True,
@@ -339,7 +341,7 @@ if not DEBUG and not MANAGE:
             },
         },
     }
-else:
+elif not TESTING:
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
