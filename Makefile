@@ -1,3 +1,4 @@
 .PHONY: test
 test:
-	./manage.py test apps.projects.tests apps.projects.pages apps.projects.users
+	./manage.py test apps.projects.tests apps.pages.tests
+  #apps.users.tests

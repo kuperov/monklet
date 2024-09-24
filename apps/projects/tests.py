@@ -114,16 +114,17 @@ class InvitationTestCase(TestCase):
         )
 
     def test_owner_clicks(self):
+        # owner can't accept own
         self.client.login(email=o_e, password=o_pw)
         resp = self.client.get(self.invitation.landing_url, follow=False)
-        self.assertContains(resp, "Forbidden", status_code=403)
+        self.assertRedirects(resp, self.project.url)
         accept_action = reverse_lazy(
             "invitation-respond", kwargs={"code": self.invitation.pk}
         )
         resp = self.client.post(
             accept_action, data={"yes": "Yes, accept"}, follow=False
         )
-        self.assertContains(resp, "Forbidden", status_code=403)
+        self.assertRedirects(resp, self.project.url)
 
     def test_accept_invitation(self):
         self.assertEqual(self.project.member_count, 1)

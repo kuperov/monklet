@@ -1,5 +1,6 @@
 import unittest
 from django.test import TestCase
+from django.urls import reverse_lazy
 from apps.pages.models import Enquiry
 
 
@@ -21,11 +22,13 @@ class ErrorPageTestCase(TestCase):
 
 class FrontPagesTestCase(TestCase):
 
-    def test_placeholder_page(self):
+    def test_feedback_page(self):
         resp = self.client.get("/")
-        self.assertContains(resp, "We're launching soon.", status_code=200)
-        resp = self.client.post("/", {"email": "abc@dummy.com"}, follow=True)
+        self.assertContains(resp, "Get in touch", status_code=200)
+        payload = {"email": "abc@dummy.com", "name": "John", "message": "Hi"}
+        resp = self.client.post(reverse_lazy('enquiry_partial'), payload, follow=True)
         enq = Enquiry.objects.filter(email="abc@dummy.com").first()
         self.assertIsNotNone(enq)
         self.assertIsNotNone(enq.created_at)
-        # IP address?
+        self.assertEqual(enq.message, payload['message'])
+        self.assertEqual(enq.name, payload['name'])

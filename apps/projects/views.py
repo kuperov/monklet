@@ -759,16 +759,12 @@ def project_transcripts_upload(request: HttpRequest, pk: str) -> HttpResponse:
 # at this point users are possibly unauthenticated
 def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
     inv = get_object_or_404(MemberInvitation, pk=code)
-    if not inv.is_valid:
-        return render(request, "invitations/not_available.html")
     if request.user == inv.project.owner:  # owner clicked own link
-        raise PermissionDenied("User action not permitted.")
-    if not request.user.is_authenticated:
-        return render(
-            request,
-            "invitations/landing_not_logged_in.html",
-            blank_context({"project": inv.project, "return_url": inv.landing_url}),
-        )
+        return redirect(inv.project.url)
+    if not inv.is_valid:
+        ctx = blank_context({'unavailable': True})
+    elif not request.user.is_authenticated:
+        ctx = blank_context({"project": inv.project, "return_url": inv.landing_url})
     else:
         # logged in, so just ask if accept
         form = InvitationResponseForm()
@@ -776,7 +772,7 @@ def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
             "invitation-respond", kwargs={"code": code}
         )
         ctx = blank_context({"form": form})
-        return render(request, "invitations/landing_logged_in.html", ctx)
+    return render(request, "invitations/landing.html", ctx)
 
 
 def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
@@ -784,7 +780,7 @@ def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
     if not inv.is_valid:
         return render(request, "invitations/not_available.html")
     if request.user == inv.project.owner:  # owner clicked own link
-        raise PermissionDenied("User action not permitted.")
+        return redirect(inv.project.url)
     if not request.user.is_authenticated:
         return redirect(inv.landing_url)
     if request.method == "POST" and request.POST.get("yes"):
