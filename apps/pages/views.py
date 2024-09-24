@@ -30,13 +30,13 @@ def make_error_handler(status):
     return handler
 
 
-def landing_page(request):
+def index(request):
     if request.user.is_authenticated:
         return redirect(reverse_lazy("users:profile"))
     else:
         form = EnquiryForm()
         ctx = front_context({'form': form})
-        return render(request, "landing_page.html", ctx)
+        return render(request, "index.html", ctx)
 
 
 def enquiry_partial(request):

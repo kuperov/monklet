@@ -17,7 +17,7 @@ handler403 = make_error_handler(status=403)
 handler400 = make_error_handler(status=400)
 handler500 = make_error_handler(status=500)
 
-if settings.DEBUG:
+if settings.DEBUG or settings.TEST_RUNNER:
     urlpatterns += [
         path("404", handler404),
         path("401", handler401),
