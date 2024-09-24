@@ -50,17 +50,21 @@ window.isDarkStyle = window.Helpers.isDarkStyle();
     });
   };
 
-  // Function to close the mobile menu
-  function closeMenu() {
-    menu.classList.remove('show');
-  }
-
-  document.addEventListener('click', function (event) {
-    // Check if the clicked element is inside mobile menu
-    if (!menu.contains(event.target)) {
-      closeMenu();
+    // Function to close the mobile menu
+    function closeMenu() {
+      if (menu) {
+        menu.classList.remove('show');
+      }
     }
-  });
+
+    if (menu) {
+      document.addEventListener('click', function (event) {
+      // Check if the clicked element is inside mobile menu
+      if (!menu.contains(event.target)) {
+        closeMenu();
+      }
+    });
+  }
 
   navItemLink.forEach(link => {
     link.addEventListener('click', event => {

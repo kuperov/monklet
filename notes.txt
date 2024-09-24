@@ -36,25 +36,32 @@
   [ ] crud for consent letters to bots screen
   [ ] file upload to s3
   [ ] avatars as files
-  [ ] basic landing page for "launch"
+  [x] basic landing page for "launch"
   [ ] bot prompt generator
   [x] cache buster
-  [ ] running tests
+  [x] running tests
   [ ] interview page pulls in a script file
   [ ] dates in safari wtf
   [ ] simulator flow for a single bot
   [ ] simulator add/remove chats
-  [ ] chat waits for lull in conversation
+  [ ] chat should wait for lull in conversation
   [ ] configurable thresholds for waiting before responding
   [ ] sanitize chat text
   [ ] export handles markdown
   [ ] automated tests for chat
   [ ] implement dompurify, marked
   [ ] frontend script implementation
+  [x] favicon.ico
+  [ ] error reporting service
+  [x] hacky survey dimensions for lund chatbot
+  [ ] automatically pseudonymize
+  [ ] cache-control header in nginx - at a safe time of zero load
+  [ ] beta test landing page
+  [ ] pricing
+  [ ] language choice
+  [ ] duplicate bot
 
 ## context variables for layout
-
-ideally, we want very few of these and no metaprogramming in the page load cycle
 
 {'avatar_url': 'http://www.gravatar.com/avatar/4ed4fc49aaf43ec3968a08fb0c117137', 'date_joined': '23 Aug, 2024', 'layout': 'vertical', 'content_navbar': True, 'is_navbar': True, 'is_menu': True, 'is_footer': True, 'navbar_detached': True, 'header_type_class': '', 'navbar_type_class': 'layout-navbar-hidden', 'menu_collapsed_class': '', 'menu_fixed_class': '', 'footer_fixed_class': '', 'rtl_support_value': '', 'rtl_mode_value': 'ltr', 'text_direction_value': 'ltr', 'show_dropdown_onhover_value': 'false', 'display_customizer_class': 'customizer-hide', 'container_class': 'container-xxl', 'content_layout_class': 'layout-compact', 'navbar_detached_class': 'navbar-detached', 'menu_data': {'menu': [{'url': 'profile', 'icon': 'menu-icon tf-icons ri-home-smile-line', 'name': 'Profile', 'slug': 'profile'}]}, 'layout_path': 'layout/layout_vertical.html'}
 
