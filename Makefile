@@ -9,3 +9,7 @@ dev:
 .PHONY: gunicorn
 gunicorn:
 	.venv/bin/gunicorn config.asgi:application -w 4 -k uvicorn.workers.UvicornWorker
+
+.PHONY: run
+run:
+	.venv/bin/python3 manage.py runserver 0.0.0.0:8765

@@ -25,6 +25,7 @@ from .views import (
     bot_edit,
     bot_delete,
     bot_public,
+    bot_duplicate,
     project_consent_letters,
     project_consent_letters_new,
     consent_letter_edit,
@@ -90,6 +91,7 @@ urlpatterns = [
     path("projects/<str:pk>/bots/new", project_bots_new, name="project-bots-new"),
     path("bots/<str:pk>/edit", bot_edit, name="bot-edit"),
     path("bots/<str:pk>/delete", bot_delete, name="bot-delete"),
+    path("bots/<str:pk>/duplicate", bot_duplicate, name="bot-duplicate"),
     path("bots/<str:pk>/public", bot_public, name="bot-public"),
     path(
         "projects/<str:pk>/consent-letters",

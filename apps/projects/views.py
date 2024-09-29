@@ -412,6 +412,19 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
     )
     return render(request, "interviews/public.html", ctx)
 
+@login_required
+def bot_duplicate(request: HttpRequest, pk: str) -> HttpResponse:
+    bot = get_object_or_404(Bot, pk=pk)
+    if not bot.project.can_edit(request.user):
+        return redirect('users:profile')
+    bot.pk = None
+    prefix = 'Copy of '
+    for i in range(100):
+        if Bot.objects.filter(name=prefix+bot.name).exists():
+            prefix = prefix + 'copy of '
+    bot.name = prefix + bot.name
+    bot.save()
+    return redirect('project-bots', pk=bot.project.pk)
 
 def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
     interview = get_object_or_404(Interview, pk=pk)
