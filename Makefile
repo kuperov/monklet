@@ -4,7 +4,7 @@ test:
 
 .PHONY: dev
 dev:
-	.venv/bin/uvicorn --reload config.asgi:application
+	.venv/bin/uvicorn --reload config.asgi:application --host 0.0.0.0 --port 8765
 
 .PHONY: gunicorn
 gunicorn:
