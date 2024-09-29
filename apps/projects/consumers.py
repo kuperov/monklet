@@ -14,6 +14,9 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         await self.accept()
         # initialize interview if required
         interview = await Interview.objects.aget(pk=self.interview_code)
+        if interview is None:
+            await self.close(code=3000, reason='Not found')
+            return
         if interview.status == "invited":  # uninitialized
             first = await interview.start_async()  # calls llm api, so takes a while
             await self.channel_layer.group_send(

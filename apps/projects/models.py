@@ -305,6 +305,7 @@ class Bot(models.Model):
     allow_public = models.BooleanField("Allow public use", default=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.version})"
@@ -330,7 +331,7 @@ class Interview(models.Model):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="interviews"
     )
-    bot = models.ForeignKey(Bot, on_delete=models.CASCADE, related_name="interviews")
+    bot = models.ForeignKey(Bot, on_delete=models.SET_NULL, related_name="interviews", null=True)
     subject_email = models.EmailField("Recipient email", blank=True, null=False)
     subject_name = models.CharField(
         "Recipient name", max_length=50, blank=False, null=False

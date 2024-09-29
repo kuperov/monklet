@@ -316,7 +316,7 @@ def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project, "menu_data": menu(project), "bots": project.bots.filter(deleted_at=None)})
     return render(request, "bots/list.html", ctx)
 
 
@@ -358,10 +358,12 @@ def bot_edit(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def bot_delete(_request: HttpRequest, pk: str) -> HttpResponse:
+def bot_delete(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     project_id = bot.project.pk
-    bot.delete()
+    bot.deleted_at = now()
+    bot.save()
+    messages.success(request, "Bot deleted")
     return redirect("project-bots", pk=project_id)
 
 
