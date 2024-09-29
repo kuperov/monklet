@@ -419,7 +419,8 @@ def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
         form = LundSurveyForm(request.POST)
         if form.is_valid():
             if form.cleaned_data["is_academic"] != "no":
-                if not form.cleaned_data["academic_age"]:
+                is_student = form.cleaned_data["is_student"] != "no"
+                if not form.cleaned_data["academic_age"] and not is_student:
                     form.add_error(
                         "academic_age",
                         "How many years since you received your academic qualification?",
@@ -431,7 +432,7 @@ def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
         if form.is_valid():
             attrs = {
                 k: form.cleaned_data[k]
-                for k in ["is_academic", "academic_age", "discipline"]
+                for k in ["is_academic", "is_student", "academic_age", "discipline"]
             }
             interview.attributes.update(attrs)
             interview.save()

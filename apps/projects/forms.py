@@ -224,13 +224,18 @@ class LundSurveyForm(forms.Form):
         ("independent", "Yes, I am an independent researcher"),
         ("no", "No, I am not an academic"),
     ]
+    STUDENT_CHOICES = [
+        ('no', "No, I'm not a student"),
+        ('masters', "Yes, I'm a masters student"),
+        ('phd', "Yes, I'm a PhD student"),
+    ]
     is_academic = forms.ChoiceField(
         label="Are you an academic?",
         required=True,
         choices=ACADEMIC_CHOICES,
         widget=forms.Select(),
     )
-    is_phd = forms.BooleanField(label="Are you a PhD student?")
+    is_student = forms.ChoiceField(label="Are you a student?", choices=STUDENT_CHOICES, required=True)
     academic_age = forms.IntegerField(
         label="Your academic age",
         required=False,
