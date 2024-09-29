@@ -263,7 +263,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = ["https://monklet.com"]
+    CSRF_TRUSTED_ORIGINS = ["https://monklet.com", "https://www.monklet.com"]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-timeout
 EMAIL_TIMEOUT = 5
