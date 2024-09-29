@@ -60,7 +60,6 @@ else:
 ENVIRONMENT = os.environ.get("DJANGO_ENVIRONMENT", default="local")
 
 INSTALLED_APPS = [
-    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -153,6 +152,9 @@ else:
             # "PASSWORD": os.environ.get("DB_PASSWORD"),
             # "HOST": os.environ.get("DB_HOST"),
             # "PORT": os.environ.get("DB_PORT"),
+            "OPTIONS": {
+                "server_side_binding": True,
+            }
         }
     }
 

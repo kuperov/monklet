@@ -16,9 +16,9 @@ from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-django_asgi_app = get_asgi_application()  # initializes apps so we can import models etc
+django_asgi_app = get_asgi_application()  # initialize apps so we can import models etc
 
-import apps.projects.routing as p_routing
+import apps.projects.routing as p_routing  # noqa: E402
 
 application = ProtocolTypeRouter(
     {

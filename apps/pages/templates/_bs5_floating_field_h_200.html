@@ -13,7 +13,7 @@
         {% endif %}
     {% else %}
         {% if field.errors %}
-            {% crispy_field field 'class' 'form-control is-invalid' 'placeholder' field.name %}
+            {% crispy_field field 'class' 'form-control h-px-200 is-invalid' 'placeholder' field.name %}
         {% else %}
             {% crispy_field field 'class' 'form-control h-px-200' 'placeholder' field.name %}
         {% endif %}

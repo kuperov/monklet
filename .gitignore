@@ -173,3 +173,4 @@ cython_debug/
 mailpit
 db.sqlite3
 .env
+staticfiles.tar.gz

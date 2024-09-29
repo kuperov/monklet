@@ -230,6 +230,7 @@ class LundSurveyForm(forms.Form):
         choices=ACADEMIC_CHOICES,
         widget=forms.Select(),
     )
+    is_phd = forms.BooleanField(label="Are you a PhD student?")
     academic_age = forms.IntegerField(
         label="Your academic age",
         required=False,
@@ -240,7 +241,7 @@ class LundSurveyForm(forms.Form):
     discipline = forms.CharField(
         label="Main academic discipline",
         required=False,
-        widget=forms.TextInput(attrs={"placeholder": "e.g. Sociology or Economics"}),
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Sociology or Political Science"}),
     )
 
     def __init__(self, *args, **kwargs):

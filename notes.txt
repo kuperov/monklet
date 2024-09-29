@@ -60,6 +60,14 @@
   [ ] pricing
   [ ] language choice
   [ ] duplicate bot
+  [ ] track credits
+  [ ] payment page
+  [ ] subscription page
+  [1] replace daphne with gunicorn & uvicorn worker
+  [ ] add question re phd student
+  [ ] pausing things
+  [ ] prompt reduce verboseness etc
+  [ ] gender?
 
 ## context variables for layout
 
