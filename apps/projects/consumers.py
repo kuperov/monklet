@@ -11,12 +11,16 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         self.interview_code = self.scope["url_route"]["kwargs"]["interview_code"]
         self.channel_ident = f"chat_{self.interview_code}"
         await self.channel_layer.group_add(self.channel_ident, self.channel_name)
-        await self.accept()
-        # initialize interview if required
-        interview = await Interview.objects.aget(pk=self.interview_code)
+        try:
+            # initialize interview if required
+            interview = await Interview.objects.aget(pk=self.interview_code)
+        except ValueError:
+            await self.close(code=3000, reason='Invalid')
+            return  # invalid uuid
         if interview is None:
             await self.close(code=3000, reason='Not found')
             return
+        await self.accept()
         # enable the client
         await self.send(
             text_data=json.dumps({
