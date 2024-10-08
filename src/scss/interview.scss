@@ -86,6 +86,11 @@ $interview-landing-inner-max-width: 460px !default;
             .chat-message-text {
               border-radius: $chat-message-text-border-radius;
               padding: $chat-message-text-padding-y $chat-message-text-padding-x;
+
+              p {
+                margin-bottom: 0.4rem;
+                margin-top: 0.4rem;
+              }
             }
           }
           &:not(.chat-message-right) {
