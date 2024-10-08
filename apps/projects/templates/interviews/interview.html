@@ -76,8 +76,6 @@
 {{ block.super }}
 {{ interview.content|json_script:"initial-messages"}}
 <script src="{% static 'vendor/js/interview.js' %}?v={{ CACHE_BUSTER }}"></script>
-<script src="{% static 'vendor/libs/marked/marked.min.js' %}"></script>
-<script src="{% static 'vendor/libs/dompurify/purify.min.js' %}"></script>
 <script>
   const iv_el = document.getElementById('interview'),
     iv_code = "{{ interview.pk }}",

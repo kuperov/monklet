@@ -1,7 +1,7 @@
 'use strict'
 
-// import DOMPurify from 'dompurify'
-// import marked from 'marked'
+import DOMPurify from 'dompurify'
+import { marked } from 'marked'
 
 function format_local_time(isoString) {
   const utcDate = new Date(isoString);
@@ -123,11 +123,11 @@ class Interview {
     let checkmark = received ? 'ri-check-double-line' : 'ri-check-line';
     let checkmark_class = received ? 'text-success' : 'text-secondary';
     li.className = "chat-message chat-message-right";
-    //const message_html = marked.parse(msg) // TODO: DOMPurify
+    const message_html = DOMPurify.sanitize(marked.parse(msg))
     li.innerHTML = `<div class="d-flex overflow-hidden">
       <div class="chat-message-wrapper flex-grow-1">
         <div class="chat-message-text">
-        <p class="mb-0">${msg}</p>
+          ${message_html}
         </div>
         <div class="text-end text-muted mt-1">
           <i class='${checkmark} ri-14px ${checkmark_class} me-1'></i>
@@ -138,7 +138,7 @@ class Interview {
           <img src="${this.static_url}img/avatars/generic.svg" alt="Avatar" class="rounded-circle">
         </div>
       </div>
-    </div>`;
+    </div>`
     if (mode == 'create') {
       this.messageList.appendChild(li);
     }
@@ -149,6 +149,7 @@ class Interview {
     let li = document.createElement('li');
     li.className = 'chat-message';
     li.setAttribute("id", uuid);
+    const message_html = DOMPurify.sanitize(marked.parse(msg))
     li.innerHTML = `<div class="d-flex overflow-hidden">
         <div class="user-avatar flex-shrink-0 me-4">
           <div class="avatar avatar-sm">
@@ -157,18 +158,18 @@ class Interview {
         </div>
         <div class="chat-message-wrapper flex-grow-1">
           <div class="chat-message-text mb-3">
-            <p class="mb-0">${msg}</p>
+            ${message_html}
           </div>
         </div>
-      </div>`;
+      </div>`
     this.messageList.appendChild(li);
   }
 
   add_message(msg) {
     if (msg.sender == 'user') {
-      this.add_user_message([msg.message], new Date(msg.sent_at), msg.uuid, true);
+      this.add_user_message(msg.message, new Date(msg.sent_at), msg.uuid, true);
     } else {
-      this.add_remote_message([msg.message], new Date(msg.sent_at), msg.uuid);
+      this.add_remote_message(msg.message, new Date(msg.sent_at), msg.uuid);
     }
   }
 
@@ -274,7 +275,7 @@ class Interview {
     if (this.messageInput.value) {
       const message = this.messageInput.value;
       const uuid = crypto.randomUUID();
-      this.add_user_message([message], new Date(), uuid, false);
+      this.add_user_message(message, new Date(), uuid, false);
       this.chatSocket.send(JSON.stringify({'message': message, 'sender': 'user', 'uuid': uuid}));
       this.messageInput.value = '';
       this.scroll_to_bottom();
