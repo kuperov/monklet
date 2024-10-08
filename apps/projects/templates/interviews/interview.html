@@ -25,7 +25,6 @@
   <div class="flex-grow-1 container-p-y container-xxl">
     <div id='interview' class="interview-chat card overflow-hidden">
       <div class="row g-0">
-        <div id='interview-complete' class="alert alert-info {% if interview.status != 'complete' %}d-none{% endif %}" role="alert">This interview is complete</div>
         <div class="col interview-chat-history">
           <div class="chat-history-wrapper">
             <div class="chat-history-header border-bottom">
@@ -46,12 +45,11 @@
               <ul id='interview-chat-history-messages' class="list-unstyled chat-history">
               </ul>
             </div>
-            <div class="chat-history-footer {% if interview.status == 'complete' %}d-none{% endif %}">
-              <div class="form-send-message d-flex justify-content-between align-items-center ">
-                <!-- input class="form-control message-input me-4 shadow-none" placeholder="Type your message here..." -->
-                <textarea
-                  style="form-sizing: normal;"
-                  class="form-control message-input me-4 shadow-none"
+            <div class="chat-history-footer">
+              <div class="status-banner form-control me-4 alert alert-info"></div>
+              <div class="form-send-message d-flex justify-content-between align-items-center">
+                <textarea style="form-sizing: normal;"
+                  class="message-input form-control me-4 shadow-none"
                   placeholder="Type your message here..."
                 ></textarea>
                 <form class="message-actions d-flex align-items-center">
@@ -76,25 +74,16 @@
 
 {% block page_js %}
 {{ block.super }}
-{{ interview.pk|json_script:"interview-code" }}
 {{ interview.content|json_script:"initial-messages"}}
 <script src="{% static 'vendor/js/interview.js' %}?v={{ CACHE_BUSTER }}"></script>
+<script src="{% static 'vendor/libs/marked/marked.min.js' %}"></script>
+<script src="{% static 'vendor/libs/dompurify/purify.min.js' %}"></script>
 <script>
-  const interview_code = JSON.parse(document.getElementById('interview-code').textContent);
-  const initial_messages = JSON.parse(document.getElementById('initial-messages').textContent);
-  const interview_element = document.getElementById('interview')
-  function interviewComplete() {
-    document.querySelector('#interview-complete').style.visibility = 'visible';
-  }
-  function interviewStart() {
-    document.querySelector('#interview-complete').style.visibility = 'hidden';
-  }
-  const iv_app = new Interview(
-    interview_element,
-    interview_code,
-    initial_messages,
-    interviewComplete,
-    interviewStart,
-    "{% static '' %}");
+  const iv_el = document.getElementById('interview'),
+    iv_code = "{{ interview.pk }}",
+    init_msgs = JSON.parse(document.getElementById('initial-messages').textContent),
+    status = "{{ interview.status }}",
+    static_url = "{% static '' %}";
+  const iv_app = new Interview(iv_el, iv_code, init_msgs, status, static_url)
 </script>
 {% endblock page_js %}

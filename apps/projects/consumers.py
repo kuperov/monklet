@@ -17,6 +17,14 @@ class InterviewConsumer(AsyncWebsocketConsumer):
         if interview is None:
             await self.close(code=3000, reason='Not found')
             return
+        # enable the client
+        await self.send(
+            text_data=json.dumps({
+                    "message": "connected",
+                    "sender": "system",
+                    "sent_at": str(now()),
+            })
+        )
         if interview.status == "invited":  # uninitialized
             first = await interview.start_async()  # calls llm api, so takes a while
             await self.channel_layer.group_send(
@@ -31,6 +39,7 @@ class InterviewConsumer(AsyncWebsocketConsumer):
             )
 
     async def disconnect(self, close_code):
+        # disconnect should not trigger discard
         await self.channel_layer.group_discard(self.channel_ident, self.channel_name)
 
     async def receive(self, text_data):
@@ -73,12 +82,10 @@ class InterviewConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         await self.send(
-            text_data=json.dumps(
-                {
-                    "message": event["message"],
-                    "sender": event["sender"],
-                    "sent_at": event["sent_at"],
-                    "uuid": event["uuid"],
-                }
-            )
+            text_data=json.dumps({
+                "message": event["message"],
+                "sender": event["sender"],
+                "sent_at": event["sent_at"],
+                "uuid": event["uuid"],
+            })
         )

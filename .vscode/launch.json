@@ -8,15 +8,20 @@
       "name": "Debug Django",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/manage.py",
+      "program": "${workspaceFolder}/.venv/bin/gunicorn",
       "console": "integratedTerminal",
       "args": [
-        "runserver",
-        "--noreload",
-        "--nothreading",
-        "0.0.0.0:8765"
+        "--reload",
+        "-b",
+        "0.0.0.0:8765",
+        "-k",
+        "uvicorn.workers.UvicornWorker",
+        "config.asgi:application",
       ],
-      "django": true
+      "django": true,
+      "env": {
+        "DEBUG": "true"
+      }
     },
     {
       "name": "Debug tests",

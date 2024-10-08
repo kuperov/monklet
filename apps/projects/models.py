@@ -411,7 +411,7 @@ class Interview(models.Model):
                 bot.opening_user_statement or "Hello"
             )
             response_dict = {
-                "uuid": str(uuid.uuid4),
+                "uuid": str(uuid.uuid4()),
                 "sender": "model",
                 "message": response.text.strip(),
                 "sent_at": datetime_str(now()),
