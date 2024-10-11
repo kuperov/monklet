@@ -13,3 +13,9 @@ gunicorn:
 .PHONY: run
 run:
 	.venv/bin/python3 manage.py runserver 0.0.0.0:8765
+
+.PHONY: build
+build:
+	rm -rf staticfiles
+	npm --prefix src run build:prod
+	.venv/bin/python3 manage.py collectstatic
