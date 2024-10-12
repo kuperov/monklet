@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% with is_group=item.submenu|filter_by_url:request  %}
-  {% if not item.permission or request.user|has_permission:item.permission %}
+  {# if not item.permission or request.user|has_permission:item.permission #}
   <li class="menu-item {% if is_group %}active open{% endif %}">
     <a href="javascript:void(0);" class="menu-link menu-toggle">
       <i class="{{ item.icon }}"></i>
@@ -16,5 +16,5 @@
       {% endfor %}
     </ul>
   </li>
-  {% endif %}
+  {# endif #}
 {% endwith %}

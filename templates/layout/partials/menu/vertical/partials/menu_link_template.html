@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if item %}
-  {% if not item.permission or request.user|has_permission:item.permission %}
+  {# if not item.permission or request.user|has_permission:item.permission #}
   <li class="menu-item {% if item.url == request.resolver_match.url_name or item.url == request.path %}active{% endif %}">
     <a href="{{ item.url }}" class="menu-link">
       <i class="{{ item.icon }}"></i>
@@ -11,5 +11,5 @@
       {% endif %}
     </a>
   </li>
-  {% endif %}
+  {# endif #}
 {% endif %}

@@ -111,12 +111,12 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "config.context_processors.cache_buster",
             ],
-            "libraries": {
-                "theme": "web_project.template_tags.theme",
-            },
+            # "libraries": {
+            #     "theme": "web_project.template_tags.theme",
+            # },
             "builtins": [
                 "django.templatetags.static",
-                "web_project.template_tags.theme",
+                # "web_project.template_tags.theme",
             ],
         },
     },
