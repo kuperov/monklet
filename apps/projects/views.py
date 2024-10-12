@@ -316,7 +316,13 @@ def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project), "bots": project.bots.filter(deleted_at=None)})
+    ctx = backend_context(
+        {
+            "project": project,
+            "menu_data": menu(project),
+            "bots": project.bots.filter(deleted_at=None),
+        }
+    )
     return render(request, "bots/list.html", ctx)
 
 
@@ -414,19 +420,21 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
     )
     return render(request, "interviews/public.html", ctx)
 
+
 @login_required
 def bot_duplicate(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     if not bot.project.can_edit(request.user):
-        return redirect('users:profile')
+        return redirect("users:profile")
     bot.pk = None
-    prefix = 'Copy of '
+    prefix = "Copy of "
     for i in range(100):
-        if Bot.objects.filter(name=prefix+bot.name).exists():
-            prefix = prefix + 'copy of '
+        if Bot.objects.filter(name=prefix + bot.name).exists():
+            prefix = prefix + "copy of "
     bot.name = prefix + bot.name
     bot.save()
-    return redirect('project-bots', pk=bot.project.pk)
+    return redirect("project-bots", pk=bot.project.pk)
+
 
 def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
     interview = get_object_or_404(Interview, pk=pk)

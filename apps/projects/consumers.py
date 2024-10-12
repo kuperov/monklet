@@ -15,19 +15,21 @@ class InterviewConsumer(AsyncWebsocketConsumer):
             # initialize interview if required
             interview = await Interview.objects.aget(pk=self.interview_code)
         except ValueError:
-            await self.close(code=3000, reason='Invalid')
+            await self.close(code=3000, reason="Invalid")
             return  # invalid uuid
         if interview is None:
-            await self.close(code=3000, reason='Not found')
+            await self.close(code=3000, reason="Not found")
             return
         await self.accept()
         # enable the client
         await self.send(
-            text_data=json.dumps({
+            text_data=json.dumps(
+                {
                     "message": "connected",
                     "sender": "system",
                     "sent_at": str(now()),
-            })
+                }
+            )
         )
         if interview.status == "invited":  # uninitialized
             first = await interview.start_async()  # calls llm api, so takes a while
@@ -86,10 +88,12 @@ class InterviewConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         await self.send(
-            text_data=json.dumps({
-                "message": event["message"],
-                "sender": event["sender"],
-                "sent_at": event["sent_at"],
-                "uuid": event["uuid"],
-            })
+            text_data=json.dumps(
+                {
+                    "message": event["message"],
+                    "sender": event["sender"],
+                    "sent_at": event["sent_at"],
+                    "uuid": event["uuid"],
+                }
+            )
         )

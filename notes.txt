@@ -46,28 +46,40 @@
   [ ] simulator add/remove chats
   [ ] chat should wait for lull in conversation
   [ ] configurable thresholds for waiting before responding
-  [ ] sanitize chat text
+  [x] sanitize chat text
   [ ] export handles markdown
   [ ] automated tests for chat
-  [ ] implement dompurify, marked
-  [ ] frontend script implementation
+  [x] implement dompurify, marked
+  [x] frontend script implementation
   [x] favicon.ico
   [ ] error reporting service
   [x] hacky survey dimensions for lund chatbot
   [ ] automatically pseudonymize
-  [ ] cache-control header in nginx - at a safe time of zero load
+  [x] cache-control header in nginx - at a safe time of zero load
   [ ] beta test landing page
   [ ] pricing
   [ ] language choice
-  [ ] duplicate bot
+  [x] duplicate bot
   [ ] track credits
   [ ] payment page
   [ ] subscription page
-  [1] replace daphne with gunicorn & uvicorn worker
-  [ ] add question re phd student
-  [ ] pausing things
-  [ ] prompt reduce verboseness etc
+  [x] replace daphne with gunicorn & uvicorn worker
+  [x] add question re phd student
+  [ ] pausing things (what is this??)
+  [x] prompt reduce verboseness etc
   [ ] gender?
+  [ ] popups for delete
+  [x] timeout
+  [x] filter/clean chat
+  [x] use css to add mb-0 to .chat-message-text > p
+  [ ] bug: missing hamburger
+  [ ] prompt generator page
+  [ ] email template, nice cta button
+  [ ] extract conversation themes from text
+  [ ] words, duration histogram, etc dashboard
+  [ ] deferred tasks
+  [ ] scripted deployment
+  [ ] model choice
 
 ## context variables for layout
 

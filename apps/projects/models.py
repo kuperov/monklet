@@ -331,7 +331,9 @@ class Interview(models.Model):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="interviews"
     )
-    bot = models.ForeignKey(Bot, on_delete=models.SET_NULL, related_name="interviews", null=True)
+    bot = models.ForeignKey(
+        Bot, on_delete=models.SET_NULL, related_name="interviews", null=True
+    )
     subject_email = models.EmailField("Recipient email", blank=True, null=False)
     subject_name = models.CharField(
         "Recipient name", max_length=50, blank=False, null=False

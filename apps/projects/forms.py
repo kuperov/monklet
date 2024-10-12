@@ -225,9 +225,9 @@ class LundSurveyForm(forms.Form):
         ("no", "No, I am not an academic"),
     ]
     STUDENT_CHOICES = [
-        ('no', "No, I'm not a student"),
-        ('masters', "Yes, I'm a masters student"),
-        ('phd', "Yes, I'm a PhD student"),
+        ("no", "No, I'm not a student"),
+        ("masters", "Yes, I'm a masters student"),
+        ("phd", "Yes, I'm a PhD student"),
     ]
     is_academic = forms.ChoiceField(
         label="Are you an academic?",
@@ -235,7 +235,9 @@ class LundSurveyForm(forms.Form):
         choices=ACADEMIC_CHOICES,
         widget=forms.Select(),
     )
-    is_student = forms.ChoiceField(label="Are you a student?", choices=STUDENT_CHOICES, required=True)
+    is_student = forms.ChoiceField(
+        label="Are you a student?", choices=STUDENT_CHOICES, required=True
+    )
     academic_age = forms.IntegerField(
         label="Your academic age",
         required=False,
@@ -246,7 +248,9 @@ class LundSurveyForm(forms.Form):
     discipline = forms.CharField(
         label="Main academic discipline",
         required=False,
-        widget=forms.TextInput(attrs={"placeholder": "e.g. Sociology or Political Science"}),
+        widget=forms.TextInput(
+            attrs={"placeholder": "e.g. Sociology or Political Science"}
+        ),
     )
 
     def __init__(self, *args, **kwargs):

@@ -21,7 +21,7 @@ from .template import TEMPLATE_CONFIG, THEME_LAYOUT_DIR
 
 load_dotenv()  # take environment variables from .env.
 
-TESTING = hasattr(sys, 'argv') and 'test' in sys.argv
+TESTING = hasattr(sys, "argv") and "test" in sys.argv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -154,7 +154,7 @@ else:
             # "PORT": os.environ.get("DB_PORT"),
             "OPTIONS": {
                 "server_side_binding": True,
-            }
+            },
         }
     }
 
@@ -177,10 +177,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 ACCOUNT_FORMS = {
-    'login': 'apps.users.forms.LoginForm',
-    'signup': 'apps.users.forms.SignupForm',
-    'reset_password': 'apps.users.forms.ResetPasswordForm',
-    'reset_password_from_key': 'apps.users.forms.ResetPasswordKeyForm'
+    "login": "apps.users.forms.LoginForm",
+    "signup": "apps.users.forms.SignupForm",
+    "reset_password": "apps.users.forms.ResetPasswordForm",
+    "reset_password_from_key": "apps.users.forms.ResetPasswordKeyForm",
 }
 
 # Internationalization
