@@ -1,9 +1,7 @@
 from django import forms
+from django.conf import settings
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
-from django_recaptcha.fields import ReCaptchaField
-from django_recaptcha.widgets import ReCaptchaV3
-from django.conf import settings
 
 from .models import (
     Project,
@@ -162,6 +160,8 @@ class PublicConsentForm(forms.ModelForm):
         label="The investigators may contact me for follow-up", required=False
     )
     if not (settings.DEBUG or settings.TESTING):
+        from django_recaptcha.fields import ReCaptchaField
+        from django_recaptcha.widgets import ReCaptchaV3
         # https://pypi.org/project/django-recaptcha/
         captcha = ReCaptchaField(widget=ReCaptchaV3)
 

@@ -74,9 +74,13 @@ INSTALLED_APPS = [
     "apps.users",
     "crispy_forms",
     "crispy_bootstrap5",
-    "django_recaptcha",
     "channels",
 ]
+
+if not (DEBUG or TESTING):
+    INSTALLED_APPS += [
+        "django_recaptcha",
+    ]
 
 if DEBUG:
     INSTALLED_APPS += [
