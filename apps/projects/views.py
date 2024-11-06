@@ -10,9 +10,10 @@ from django.utils.timezone import now
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
-from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvitation
+from .models import Project, Interview, Question, Bot, ConsentLetter, MemberInvitation, Transcript
 from .forms import (
     ExportInterviewsForm,
+    ImportChatFormSetHelper,
     LundSurveyForm,
     ProjectForm,
     MemberInvitationForm,
@@ -24,6 +25,7 @@ from .forms import (
     ManualTranscriptForm,
     InvitationResponseForm,
     InterviewConsentForm,
+    ImportChatFormSet
 )
 from apps.context_helpers import backend_context, blank_context
 from apps.projects.util import datetime_str
@@ -55,7 +57,7 @@ def menu(project: Project):
                 "icon": "menu-icon tf-icons ri-group-3-line",
                 "name": "Members",
             },
-            {"menu_header": "Interview design"},
+            {"menu_header": "Interviews"},
             {
                 "url": project.questions_url,
                 "icon": "menu-icon tf-icons ri-question-line",
@@ -71,18 +73,18 @@ def menu(project: Project):
                 "icon": "menu-icon tf-icons ri-heart-3-line",
                 "name": "Consent letters",
             },
-            {"menu_header": "Analysis"},
-            {
-                "url": reverse_lazy("project-responses", kwargs={"pk": project.pk}),
-                "icon": "menu-icon tf-icons ri-message-line",
-                "name": "Data",
-            },
             {
                 "url": reverse_lazy(
                     "project-interviews-list", kwargs={"pk": project.pk}
                 ),
                 "icon": "menu-icon tf-icons ri-chat-2-line",
-                "name": "Interviews",
+                "name": "Chats",
+            },
+            {"menu_header": "Analysis"},
+            {
+                "url": reverse_lazy("project-responses", kwargs={"pk": project.pk}),
+                "icon": "menu-icon tf-icons ri-message-line",
+                "name": "Data",
             },
             {
                 "url": project.analysis_url,
@@ -91,6 +93,40 @@ def menu(project: Project):
             },
         ]
     return {"menu": menu}
+
+
+def get_editable_project(request: HttpRequest, pk: str) -> Project:
+    """Get project identified by pk
+
+    Args:
+        request: current request
+        pk: id of project
+
+    Raises:
+        PermissionDenied: if request.user can't edit this project
+        Http404: if project is not found
+    """
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    return project
+
+
+def get_viewable_project(request: HttpRequest, pk: str) -> Project:
+    """Get project identified by pk
+
+    Args:
+        request: current request
+        pk: id of project
+
+    Raises:
+        PermissionDenied: if request.user can't view this project
+        Http404: if project is not found
+    """
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    return project
 
 
 @login_required
@@ -549,17 +585,25 @@ def interview(request, interview_code):
 
 
 @login_required
-def interview_delete(request, pk):
+def interview_delete(request: HttpRequest, pk: str) -> HttpResponse:
     iv = get_object_or_404(Interview, pk=pk)
     if not iv.project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
     iv.deleted_at = now()
     iv.save()
     next = request.GET.get(
-        "next", reverse_lazy("project-responses", kwargs={"pk": iv.project.id})
+        "next", reverse_lazy("project-interviews-list", kwargs={"pk": iv.project.id})
     )
     return redirect(next)
 
+@login_required
+def transcript_delete(request: HttpRequest, pk: str) -> HttpResponse:
+    ts = get_object_or_404(Transcript, pk=pk)
+    if not ts.project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted")
+    ts.deleted_at = now()
+    ts.save()
+    return redirect('project-responses', pk=ts.project.pk)
 
 # unauthenticated view
 def interview_landing(request, pk):
@@ -620,9 +664,7 @@ def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
 
 @login_required
 def project_consent_letters_new(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_edit(request.user):
-        raise PermissionDenied("User action not permitted.")
+    project = get_editable_project(request, pk)
     if request.method == "POST":
         form = ConsentLetterForm(request.POST)
         if form.is_valid:
@@ -761,18 +803,14 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
 
 @login_required
 def project_transcripts(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
+    project = get_viewable_project(request, pk=pk)
     ctx = backend_context({"project": project, "menu_data": menu(project)})
     return render(request, "transcripts/list.html", ctx)
 
 
 @login_required
 def project_transcripts_upload(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_edit(request.user):
-        raise PermissionDenied("User action not permitted.")
+    project = get_editable_project(request, pk)
     if request.method == "POST":
         form = ManualTranscriptForm(request.POST)
         if form.is_valid:
@@ -785,6 +823,43 @@ def project_transcripts_upload(request: HttpRequest, pk: str) -> HttpResponse:
         form = ManualTranscriptForm()
     ctx = backend_context({"form": form, "menu_data": menu(project)})
     return render(request, "transcripts/upload.html", ctx)
+
+
+@login_required
+def project_import_chats(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_editable_project(request, pk)
+    already_imported = set([t.interview_id for t in project.transcripts.all()])
+    ivs = {iv.pk: iv for iv in project.started_completed_interviews() if iv.pk not in already_imported}
+    if request.method == "POST":
+        formset = ImportChatFormSet(request.POST)
+        if formset.is_valid():
+            num_imported = sum([iv.cleaned_data["selected"] for iv in formset])
+            if num_imported == 0:
+                formset.errors.append("Please select at least one interview")
+            else:
+                for iv in formset:
+                    if iv.cleaned_data["selected"]:
+                        chat = Interview.objects.get(pk=iv.cleaned_data["id"])
+                        if chat.project.id != project.id:
+                            raise PermissionDenied("Invalid project")
+                        ts = Transcript.from_chat(chat, pseudonym=iv.cleaned_data["pseudonym"])
+                        ts.save()
+                messages.success(request, f"Created {num_imported} transcripts")
+                return redirect('project-responses', pk=project.pk)
+    else:
+        # list unimported interviews, come up with pseudonyms
+        initial = [{"id": k, "pseudonym": iv.subject_name, "selected": False}
+                   for k, iv in ivs.items()]
+        formset = ImportChatFormSet(initial=initial)
+
+    # read-only fields not passed through in GET data
+    for form, iv in zip(formset, ivs.values()):
+        # ordering not guaranteed stable
+        if 'id' in form.initial and form.initial['id'] in ivs:
+            iv = ivs[form.initial['id']]
+        form.extra_info = {'updated_at': iv.updated_at, 'subject_name': iv.subject_name}
+    ctx = {"formset": formset, "formsethelper": ImportChatFormSetHelper()}
+    return render(request, 'transcripts/import.html', ctx)
 
 
 # at this point users are possibly unauthenticated

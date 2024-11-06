@@ -42,6 +42,8 @@ from .views import (
     test_interviews_json,
     interview_messages,
     projects_export_interviews,
+    project_import_chats,
+    transcript_delete
 )
 
 
@@ -138,9 +140,17 @@ urlpatterns = [
         "projects/<str:pk>/transcripts", project_transcripts, name="project-responses"
     ),
     path(
+        "transcripts/<str:pk>/delete", transcript_delete, name="transcript-delete"
+    ),
+    path(
         "projects/<str:pk>/transcripts/upload",
         project_transcripts_upload,
         name="project-transcripts-upload",
+    ),
+    path(
+        "projects/<str:pk>/transcripts/import_chats",
+        project_import_chats,
+        name="project-import-chats",
     ),
     path(
         "collaborate/landing/<str:code>", invitation_landing, name="invitation-landing"

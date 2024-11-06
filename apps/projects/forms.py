@@ -257,3 +257,21 @@ class LundSurveyForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("Continue", "continue"))
+
+
+class ImportChatForm(forms.Form):
+    """Row of the import chat screen
+    """
+    id = forms.CharField(widget=forms.HiddenInput(), required=False)
+    selected = forms.BooleanField(required=False)
+    pseudonym = forms.CharField(min_length=1)
+
+
+class ImportChatFormSetHelper(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super(ImportChatFormSetHelper, self).__init__(*args, **kwargs)
+        self.template = 'transcripts/table_inline_formset.html'
+        self.add_input(Submit("Import", "import"))
+        self.add_input(cancel())
+
+ImportChatFormSet = forms.formset_factory(ImportChatForm, extra=0)

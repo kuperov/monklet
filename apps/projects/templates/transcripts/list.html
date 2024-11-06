@@ -31,7 +31,7 @@
         <table class="table">
           <thead class="table-light">
             <tr class="text-nowrap">
-                <th>Description</th>
+                <th>Subject</th>
                 <th>Updated</th>
                 <th>Type</th>
                 <th>Inclusion</th>
@@ -41,7 +41,7 @@
           <tbody>
             {% for ts in project.transcripts.all %}
             <tr>
-            <td>{{ ts.description }}</td>
+            <td>{{ ts.subject_name }}</td>
             <td>{{ ts.updated_at | naturaltime }}</td>
             <td>{{ ts.transcript_type }}</td>
             <td>{% if ts.is_excluded %}
@@ -49,14 +49,14 @@
               {% else %}
               <span class="badge rounded-pill bg-label-danger me-1">Excluded</span>
               {% endif %}
+            </td>
+            <td>
             <div class="dropdown">
-              {#% if project %#}
               <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
               <div class="dropdown-menu">
-                <a class="dropdown-item" href="{% url 'interview-delete' pk=bot.pk %}">
-                  <i class="ri-delete-line me-1"></i> Delete</a>
+                <a class="dropdown-item" href="{% url 'transcript-delete' pk=ts.pk %}">
+                  <i class="ri-delete-line me-1 text-danger"></i> Delete</a>
                 </div>
-              {#% endif %#}
             </div>
             </td>
             </tr>
@@ -64,7 +64,8 @@
           </tbody>
         </table>
         <div class="px-0 pt-0 d-flex justify-content-end">
-          <a class="m-4 btn btn-primary" href="{% url 'project-transcripts-upload' pk=project.pk %}">Manual upload</a>
+          <a class="m-4 btn btn-primary" href="{% url 'project-import-chats' pk=project.pk %}">Import chats</a>
+          <a class="m-4 btn btn-secondary" href="{% url 'project-transcripts-upload' pk=project.pk %}">Manual upload</a>
         </div>
       </div>
       <div class="tab-pane fade" id="navs-attributes" role="tabpanel">

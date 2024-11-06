@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, Optional
+from typing import Dict, Optional, Iterable
 import datetime
 
 from django.db import models
@@ -81,7 +81,7 @@ class Project(models.Model):
     def invited_interviews(self):
         return self.interviews.filter(deleted_at=None, status="invited", is_test=False)
 
-    def started_completed_interviews(self):
+    def started_completed_interviews(self) -> Iterable["Interview"]:
         return self.interviews.filter(deleted_at=None, is_test=False).exclude(
             status="invited"
         )
@@ -661,7 +661,7 @@ class Transcript(models.Model):
         "Exclude from analysis", default=False, null=False
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    last_modified_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def transcript_type(self):
@@ -669,6 +669,20 @@ class Transcript(models.Model):
 
     def __str__(self):
         return self.description
+
+    @classmethod
+    def from_chat(_class, interview: Interview, pseudonym: str=None) -> 'Transcript':
+        full_text='\n'.join([f"{msg['sender']}: {msg['message']}"
+            for msg in (interview.content or [])
+            if msg['sender'] in ['user', 'model']
+        ])
+        return Transcript(
+            project=interview.project,
+            interview=interview,
+            subject_name=pseudonym or interview.subject_name,
+            full_text=full_text,
+            is_excluded=False
+        )
 
 
 class MemberInvitation(models.Model):
