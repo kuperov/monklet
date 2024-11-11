@@ -14,11 +14,9 @@
 {% endblock page_js %}
 
 {% block content %}
-<h4>Interviews</h4>
+<h4>AI Chats</h4>
+<p>AI interviews captured by bots. Export these chats to transcripts to analyze them.</p>
 <div class="card">
-  <!-- div class="card-header">
-    Interviews
-  </div -->
   <div class="card-body">
     <div>
       <form class="row g-3 align-items-center" method="POST" action="{% url 'project-interviews-list' pk=project.pk %}">
