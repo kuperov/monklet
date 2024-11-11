@@ -686,17 +686,29 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
+    interviews = project.started_completed_interviews()
+    template = "interviews/list.html"
+    if request.method == 'POST':
+        # nb default status is started/completed
+        if request.POST.get('status') == 'invited':
+            interviews = project.invited_interviews()
+        elif request.POST.get('status') == 'test':
+            interviews = project.test_interviews()
+        if request.POST.get('followup') == 'ok_only':
+            interviews = interviews.filter(followup_consented=True)
+        elif request.POST.get('followup') == 'no_only':
+            interviews = interviews.filter(followup_consented=False)
+        if request.headers.get("HX-Request") == "true":
+            template = 'interviews/_interview_table.html'
     ctx = backend_context(
         {
             "project": project,
             "menu_data": menu(project),
-            "invited_interviews": project.invited_interviews(),
-            "interviews": project.started_completed_interviews(),
-            "test_interviews": project.test_interviews(),
+            "interviews": interviews,
             "is_editor": project.can_edit(request.user),
         }
     )
-    return render(request, "interviews/list.html", ctx)
+    return render(request, template, ctx)
 
 
 @login_required
