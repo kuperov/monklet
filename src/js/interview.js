@@ -272,8 +272,8 @@ class Interview {
 
   _submitFormHandler(e) {
     e.preventDefault();
-    if (this.messageInput.value) {
-      const message = this.messageInput.value;
+    const message = this.messageInput.value.trim();
+    if (message) {
       const uuid = crypto.randomUUID();
       this.add_user_message(message, new Date(), uuid, false);
       this.chatSocket.send(JSON.stringify({'message': message, 'sender': 'user', 'uuid': uuid}));
