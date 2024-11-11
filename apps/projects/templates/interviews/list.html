@@ -15,32 +15,34 @@
 
 {% block content %}
 <h4>AI Chats</h4>
-<p>AI interviews captured by bots. Export these chats to transcripts to analyze them.</p>
+<p>AI interviews captured by bots. Create transcripts from these chats to transcripts to analyze them.</p>
 <div class="card">
   <div class="card-body">
     <div>
       <form class="row g-3 align-items-center" method="POST" action="{% url 'project-interviews-list' pk=project.pk %}">
-        <!-- Dropdown menu -->
-        <div class="col-2 align-content-end">
-            <label for="status" class="form-label me-2">Status</label>
-        </div>
         <div class="col-3">
             <select class="form-select" id="status" name="status"
               hx-target='#interview_list' hx-post="{% url 'project-interviews-list' pk=project.pk %}" hx-trigger="change">
-              <option value="interview" selected>Interviews</option>
-              <option value="invited">Invited</option>
-              <option value="test">Tests</option>
+              <option value="interview" selected>Show interviews</option>
+              <option value="invited">Show invitations</option>
+              <option value="test">Show test interviews</option>
             </select>
-        </div>
-        <div class="col-2 align-content-end">
-          <label for="followup"class="form-label me-2">Follow-up</label>
         </div>
         <div class="col-3">
           <select class="form-select" id="followup" name="followup"
               hx-target='#interview_list' hx-post="{% url 'project-interviews-list' pk=project.pk %}" hx-trigger="change">
-              <option value="all" selected>All</option>
-              <option value="ok_only">Permitted only</option>
-              <option value="no_only">Not permitted only</option>
+              <option value="all" selected>Show all</option>
+              <option value="ok_only">Followup permitted</option>
+              <option value="no_only">Followup not permitted</option>
+          </select>
+        </div>
+        <div class="col-3">
+          <select class="form-select" id="bot" name="bot"
+              hx-target='#interview_list' hx-post="{% url 'project-interviews-list' pk=project.pk %}" hx-trigger="change">
+              <option value="all" selected>All bots</option>
+              {% for bot in project.bots.all %}
+              <option value="{{ bot.pk }}">{{ bot.name }} {% if bot.deleted_at %}(deleted){%else%}({{bot.status}}){%endif%}</option>
+              {% endfor %}
           </select>
         </div>
         {% csrf_token %}

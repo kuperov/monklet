@@ -15,10 +15,14 @@
   <tbody>
     {% for iv in interviews %}
     <tr>
-    <td>{{ iv.subject_name }}</td>
+    <td>
+      <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}">
+      {{ iv.subject_name }}
+      </a>
+    </td>
     <td>{{ iv.subject_email }}</td>
     <td>{{ iv.bot.name }}</td>
-    <td>{{ iv.followup_ok | yesno:"Yes,No" }}
+    <td>{{ iv.followup_consented | yesno:"Permitted,No" }}
     <td>{{ iv.updated_at | naturaltime }}</td>
     <td>{% if iv.status == 'invited' %}
       <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>

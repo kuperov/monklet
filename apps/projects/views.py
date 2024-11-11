@@ -698,6 +698,8 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
             interviews = interviews.filter(followup_consented=True)
         elif request.POST.get('followup') == 'no_only':
             interviews = interviews.filter(followup_consented=False)
+        if request.POST.get('bot', 'all') != 'all':
+            interviews = interviews.filter(bot_id=request.POST.get('bot'))
         if request.headers.get("HX-Request") == "true":
             template = 'interviews/_interview_table.html'
     ctx = backend_context(
