@@ -4,22 +4,22 @@ from apps.projects.views import interviews, analysis, projects, members, questio
 
 
 urlpatterns = [
-    path("projects/<str:pk>/", projects.project, name="project"),
-    path("projects/<str:pk>/settings", projects.project_settings, name="project-settings"),
-    path("projects/new", projects.project_new, name="project-new"),
-    path("projects/<str:pk>/delete", projects.project_delete, name="project-delete"),
-    path("projects/<str:pk>/leave", projects.project_leave, name="project-leave"),
+    path("projects/<str:pk>/", projects.dashboard, name="project"),
+    path("projects/<str:pk>/settings", projects.settings, name="project-settings"),
+    path("projects/new", projects.new, name="project-new"),
+    path("projects/<str:pk>/delete", projects.delete, name="project-delete"),
+    path("projects/<str:pk>/leave", projects.leave, name="project-leave"),
 
-    path("projects/<str:pk>/members", members.project_members, name="project-members"),
-    path("projects/<str:pk>/invite", members.project_invite, name="project-invite"),
+    path("projects/<str:pk>/members", members.list, name="project-members"),
+    path("projects/<str:pk>/invite", members.invite, name="project-invite"),
     path(
         "invitations/<str:pk>/resend",
-        members.project_resend_invitation,
+        members.resend_invitation,
         name="invitation-resend",
     ),
     path(
         "invitations/<str:pk>/cancel",
-        members.project_cancel_invitation,
+        members.cancel_invitation,
         name="invitation-cancel",
     ),
     path(
@@ -29,85 +29,85 @@ urlpatterns = [
         "collaborate/respond/<str:code>", members.invitation_respond, name="invitation-respond"
     ),
 
-    path("projects/<str:pk>/questions", questions.project_questions, name="project-questions"),
+    path("projects/<str:pk>/questions", questions.list, name="project-questions"),
     path(
         "projects/<str:pk>/questions/new",
-        questions.project_questions_new,
+        questions.new,
         name="project-questions-new",
     ),
-    path("question/<str:pk>/edit", questions.question_edit, name="question-edit"),
-    path("question/<str:pk>/delete", questions.question_delete, name="question-delete"),
+    path("question/<str:pk>/edit", questions.edit, name="question-edit"),
+    path("question/<str:pk>/delete", questions.delete, name="question-delete"),
 
-    path("projects/<str:pk>/simulate", bots.project_simulate, name="projects-simulate"),
-    path("projects/<str:pk>/bots", bots.project_bots, name="project-bots"),
-    path("projects/<str:pk>/bots/new", bots.project_bots_new, name="project-bots-new"),
-    path("bots/<str:pk>/edit", bots.bot_edit, name="bot-edit"),
-    path("bots/<str:pk>/delete", bots.bot_delete, name="bot-delete"),
-    path("bots/<str:pk>/duplicate", bots.bot_duplicate, name="bot-duplicate"),
-    path("bots/<str:pk>/public", bots.bot_public, name="bot-public"),
+    path("projects/<str:pk>/simulate", bots.simulate, name="projects-simulate"),
+    path("projects/<str:pk>/bots", bots.list, name="project-bots"),
+    path("projects/<str:pk>/bots/new", bots.new, name="project-bots-new"),
+    path("bots/<str:pk>/edit", bots.edit, name="bot-edit"),
+    path("bots/<str:pk>/delete", bots.delete, name="bot-delete"),
+    path("bots/<str:pk>/duplicate", bots.duplicate, name="bot-duplicate"),
+    path("bots/<str:pk>/public", bots.landing_public, name="bot-public"),
 
     path(
         "projects/<str:pk>/consent-letters",
-        letters.project_consent_letters,
+        letters.list,
         name="project-consent-letters",
     ),
     path(
         "projects/<str:pk>/consent-letters/new",
-        letters.project_consent_letters_new,
+        letters.new,
         name="project-consent-letters-new",
     ),
     path(
-        "consent-letters/<str:pk>/edit", letters.consent_letter_edit, name="consent-letter-edit"
+        "consent-letters/<str:pk>/edit", letters.edit, name="consent-letter-edit"
     ),
     path(
-        "consent-letter/<str:pk>", letters.consent_letter_public, name="consent-letter-public"
+        "consent-letter/<str:pk>", letters.public, name="consent-letter-public"
     ),
     path(
         "consent-letters/<str:pk>/delete",
-        letters.consent_letter_delete,
+        letters.delete,
         name="consent-letter-delete",
     ),
 
-    path("interviews/<str:interview_code>", interviews.interview, name="interview"),
-    path("interviews/<str:pk>/delete", interviews.interview_delete, name="interview-delete"),
-    path("interviews/<str:pk>/landing", interviews.interview_landing, name="interview-landing"),
+    path("interviews/<str:interview_code>", interviews.landing_invited, name="interview"),
+    path("interviews/<str:pk>/delete", interviews.delete, name="interview-delete"),
+    path("interviews/<str:pk>/landing", interviews.uninvited_landing, name="interview-landing"),
     path("interviews/<str:pk>/lund", interviews.lund_questions, name="lund-questions"),
     path(
         "interviews/<str:pk>/conversation",
-        interviews.interview_conversation,
+        interviews.conversation,
         name="interview-conversation",
     ),
-    path("interviews/<str:pk>/messages", interviews.interview_messages, name="interview-messages"),
+    path("interviews/<str:pk>/messages", interviews.messages_json, name="interview-messages"),
     path(
-        "projects/<str:pk>/export", interviews.projects_export_interviews, name="export-interviews"
+        "projects/<str:pk>/export", interviews.export, name="export-interviews"
     ),
     path(
         "projects/<str:pk>/invitations",
-        interviews.project_interviews_invited,
+        interviews.list_invited,
         name="project-invitations",
     ),
     path(
         "projects/<str:pk>/invitations/invite",
-        interviews.project_interviews_invite,
+        interviews.invite,
         name="project-interviews-invite",
     ),
     path(
         "projects/<str:pk>/interviews",
-        interviews.project_interviews_list,
+        interviews.list,
         name="project-interviews-list",
     ),
     path(
         "projects/<str:pk>/test_interviews",
-        interviews.test_interviews_json,
+        interviews.list_json,
         name="project-interviews-test-json",
     ),
 
     path(
-        "projects/<str:pk>/transcripts", transcripts.project_transcripts, name="project-responses"
+        "projects/<str:pk>/transcripts", transcripts.list, name="project-responses"
     ),
     path(
         "projects/<str:pk>/transcripts/upload",
-        transcripts.project_transcripts_upload,
+        transcripts.new,
         name="project-transcripts-upload",
     ),
 

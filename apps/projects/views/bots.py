@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 
 @login_required
-def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
+def list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -28,7 +28,7 @@ def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_bots_new(request: HttpRequest, pk: str) -> HttpResponse:
+def new(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -49,11 +49,10 @@ def project_bots_new(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def bot_edit(request: HttpRequest, pk: str) -> HttpResponse:
+def edit(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     if request.method == "POST":
         form = BotForm(request.POST, instance=bot)
-        print(form.fields)
         if form.is_valid():
             form.save()
             messages.success(request, "Updated bot")
@@ -65,7 +64,7 @@ def bot_edit(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def bot_delete(request: HttpRequest, pk: str) -> HttpResponse:
+def delete(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     project_id = bot.project.pk
     bot.deleted_at = now()
@@ -75,7 +74,7 @@ def bot_delete(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 # note no login required
-def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
+def landing_public(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     if not bot.allow_public:
         raise PermissionDenied("Use of this bot is by invitation only.")
@@ -123,7 +122,7 @@ def bot_public(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def bot_duplicate(request: HttpRequest, pk: str) -> HttpResponse:
+def duplicate(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     if not bot.project.can_edit(request.user):
         return redirect("users:profile")
@@ -138,7 +137,7 @@ def bot_duplicate(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
+def simulate(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")

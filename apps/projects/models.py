@@ -430,7 +430,6 @@ class Interview(models.Model):
             }
             self.content.append(response_dict)
             import traceback
-
             traceback.print_exception(ex)
         await self.asave()
         return response_dict

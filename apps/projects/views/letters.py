@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 
 @login_required
-def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
+def list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -20,7 +20,7 @@ def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_consent_letters_new(request: HttpRequest, pk: str) -> HttpResponse:
+def new(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -41,11 +41,10 @@ def project_consent_letters_new(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def consent_letter_edit(request: HttpRequest, pk: str) -> HttpResponse:
+def edit(request: HttpRequest, pk: str) -> HttpResponse:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
     if request.method == "POST":
         form = ConsentLetterForm(request.POST, instance=consent_letter)
-        print(form.fields)
         if form.is_valid():
             form.save()
             messages.success(request, "Updated consent_letter")
@@ -56,14 +55,14 @@ def consent_letter_edit(request: HttpRequest, pk: str) -> HttpResponse:
     return render(request, "consent_letters/detail.html", ctx)
 
 
-def consent_letter_public(request: HttpRequest, pk: str) -> HttpRequest:
+def public(request: HttpRequest, pk: str) -> HttpRequest:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
     ctx = blank_context({"project": consent_letter.project, "letter": consent_letter})
     return render(request, "consent_letters/public.html", ctx)
 
 
 @login_required
-def consent_letter_delete(_request: HttpRequest, pk: str) -> HttpResponse:
+def delete(_request: HttpRequest, pk: str) -> HttpResponse:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
     project_id = consent_letter.project.pk
     consent_letter.delete()

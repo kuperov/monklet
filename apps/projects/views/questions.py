@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 
 @login_required
-def project_questions(request: HttpRequest, pk: str) -> HttpResponse:
+def list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -20,7 +20,7 @@ def project_questions(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_questions_new(request: HttpRequest, pk: str) -> HttpResponse:
+def new(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -42,11 +42,10 @@ def project_questions_new(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def question_edit(request: HttpRequest, pk: str) -> HttpResponse:
+def edit(request: HttpRequest, pk: str) -> HttpResponse:
     question = get_object_or_404(Question, pk=pk)
     if request.method == "POST":
         form = QuestionForm(request.POST, instance=question)
-        print(form.fields)
         if form.is_valid():
             form.save()
             messages.success(request, "Updated question")
@@ -58,7 +57,7 @@ def question_edit(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def question_delete(_request: HttpRequest, pk: str) -> HttpResponse:
+def delete(_request: HttpRequest, pk: str) -> HttpResponse:
     question = get_object_or_404(Question, pk=pk)
     project_id = question.project.pk
     question.delete()

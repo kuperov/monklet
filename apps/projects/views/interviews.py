@@ -18,29 +18,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from apps.projects.util import datetime_str
 
 
-@login_required
-def test_interviews_json(request: HttpRequest, pk: str) -> JsonResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
-
-    def format(iv: Interview):
-        return {
-            "interview": iv.pk,
-            "names": f"{iv.bot.name} & {iv.subject_name}",
-            "bot_name": iv.bot.name,
-            "bot_version": iv.bot.version,
-            "last_text": iv.last_message_text(),
-            "updated_at": naturaltime(iv.updated_at),
-            "status": iv.status,
-        }
-
-    data = [format(iv) for iv in project.test_interviews()]
-    return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
-
-
 # note: unauthenticated view - interview_code provides security
-def interview(request, interview_code):
+def landing_invited(request, interview_code):
     iv = get_object_or_404(Interview, pk=interview_code)
     ctx = blank_context({"project": iv.project, "interview": iv})
     return render(
@@ -50,21 +29,8 @@ def interview(request, interview_code):
     )
 
 
-@login_required
-def interview_delete(request, pk):
-    iv = get_object_or_404(Interview, pk=pk)
-    if not iv.project.can_edit(request.user):
-        raise PermissionDenied("User action not permitted.")
-    iv.deleted_at = now()
-    iv.save()
-    next = request.GET.get(
-        "next", reverse_lazy("project-responses", kwargs={"pk": iv.project.id})
-    )
-    return redirect(next)
-
-
 # unauthenticated view
-def interview_landing(request, pk):
+def uninvited_landing(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
     project = iv.project
     interview_url = reverse_lazy("interview", kwargs={"interview_code": iv.pk})
@@ -93,7 +59,41 @@ def interview_landing(request, pk):
 
 
 @login_required
-def interview_conversation(request, pk):
+def list_json(request: HttpRequest, pk: str) -> JsonResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+
+    def format(iv: Interview):
+        return {
+            "interview": iv.pk,
+            "names": f"{iv.bot.name} & {iv.subject_name}",
+            "bot_name": iv.bot.name,
+            "bot_version": iv.bot.version,
+            "last_text": iv.last_message_text(),
+            "updated_at": naturaltime(iv.updated_at),
+            "status": iv.status,
+        }
+
+    data = [format(iv) for iv in project.test_interviews()]
+    return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
+
+
+@login_required
+def delete(request, pk):
+    iv = get_object_or_404(Interview, pk=pk)
+    if not iv.project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    iv.deleted_at = now()
+    iv.save()
+    next = request.GET.get(
+        "next", reverse_lazy("project-responses", kwargs={"pk": iv.project.id})
+    )
+    return redirect(next)
+
+
+@login_required
+def conversation(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
     msg_list = iv.messages_list()
     prompt_tokens, gen_tokens, total_tokens = iv.total_token_usage()
@@ -111,7 +111,7 @@ def interview_conversation(request, pk):
 
 
 @login_required
-def project_interviews_invited(request: HttpRequest, pk: str) -> HttpResponse:
+def list_invited(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -123,7 +123,7 @@ def project_interviews_invited(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
+def list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -154,7 +154,7 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
+def export(request: HttpRequest, pk: str) -> HttpResponse:
     proj = get_object_or_404(Project, pk=pk)
     if not proj.can_edit(request.user):
         raise PermissionDenied(
@@ -189,7 +189,7 @@ def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
+def invite(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -244,7 +244,7 @@ def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def interview_messages(request: HttpRequest, pk: str) -> JsonResponse:
+def messages_json(request: HttpRequest, pk: str) -> JsonResponse:
     interview = get_object_or_404(Interview, pk=pk)
     project = interview.project
     if not project.can_view(request.user):

@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 
 
 @login_required
-def project_members(request: HttpRequest, pk: str) -> HttpResponse:
+def list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -21,7 +21,7 @@ def project_members(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_invite(request: HttpRequest, pk: str) -> HttpResponse:
+def invite(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -42,7 +42,7 @@ def project_invite(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
+def resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
     inv = get_object_or_404(MemberInvitation, pk=pk)
     project = inv.project
     if not project.can_edit(request.user) or inv.accepted_email:
@@ -52,7 +52,7 @@ def project_resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_cancel_invitation(request: HttpRequest, pk: str) -> HttpResponse:
+def cancel_invitation(request: HttpRequest, pk: str) -> HttpResponse:
     inv = get_object_or_404(MemberInvitation, pk=pk)
     project = inv.project
     if not project.can_edit(request.user) or inv.accepted_email:

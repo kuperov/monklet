@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 @login_required
 # @permission_required('projects.view', raise_exception=True)
-def project(request: HttpRequest, pk: str) -> HttpResponse:
+def dashboard(request: HttpRequest, pk: str) -> HttpResponse:
     proj = get_object_or_404(Project, pk=pk)
     if not proj.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
@@ -45,7 +45,7 @@ def project(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_settings(request: HttpRequest, pk: str) -> HttpResponse:
+def settings(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.owner == request.user:
         raise PermissionDenied("User action not permitted.")
@@ -64,7 +64,7 @@ def project_settings(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_new(request: HttpRequest) -> HttpResponse:
+def new(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = ProjectForm(request.POST)
         if form.is_valid():
@@ -74,17 +74,17 @@ def project_new(request: HttpRequest) -> HttpResponse:
     else:
         form = ProjectForm()
         form.helper.form_acount = reverse_lazy("project-new")
-    ctx = backend_context({"form": form, "project": project})
+    ctx = backend_context({"form": form, "project": dashboard})
     return render(request, "projects/detail.html", ctx)
 
 
 @login_required
-def project_delete(request: HttpRequest, pk: str) -> HttpResponse:
+def delete(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if project.owner != request.user:
         raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
-        project.deleted_at = now
+        project.deleted_at = now()
         project.save()
         messages.success(request, "Project {project.name} deleted.")
         return redirect("profile")
@@ -93,7 +93,7 @@ def project_delete(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def project_leave(request: HttpRequest, pk: str) -> HttpResponse:
+def leave(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user) or project.owner == request.user:
         raise PermissionDenied("User action not permitted.")
