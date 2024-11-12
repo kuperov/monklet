@@ -29,70 +29,6 @@ from apps.context_helpers import backend_context, blank_context
 from apps.projects.util import datetime_str
 
 
-def menu(project: Project):
-    menu = [
-        {
-            "url": reverse_lazy("users:profile"),
-            "icon": "menu-icon tf-icons ri-home-line",
-            "name": "Home",
-        }
-    ]
-    if project:
-        menu += [
-            {"menu_header": "Current project"},
-            {
-                "url": project.url,
-                "icon": "menu-icon tf-icons ri-dashboard-line",
-                "name": "Dashboard",
-            },
-            {
-                "url": project.settings_url,
-                "icon": "menu-icon tf-icons ri-settings-2-line",
-                "name": "Project settings",
-            },
-            {
-                "url": project.members_url,
-                "icon": "menu-icon tf-icons ri-group-3-line",
-                "name": "Members",
-            },
-            {"menu_header": "AI Chatbots"},
-            {
-                "url": project.questions_url,
-                "icon": "menu-icon tf-icons ri-question-line",
-                "name": "Questions",
-            },
-            {
-                "url": project.bots_url,
-                "icon": "menu-icon tf-icons ri-robot-2-line",
-                "name": "Bots",
-            },
-            {
-                "url": project.consent_letters_url,
-                "icon": "menu-icon tf-icons ri-heart-3-line",
-                "name": "Consent letters",
-            },
-            {
-                "url": reverse_lazy(
-                    "project-interviews-list", kwargs={"pk": project.pk}
-                ),
-                "icon": "menu-icon tf-icons ri-chat-2-line",
-                "name": "AI chats",
-            },
-            {"menu_header": "Analysis"},
-            # {
-            #     "url": reverse_lazy("project-responses", kwargs={"pk": project.pk}),
-            #     "icon": "menu-icon tf-icons ri-message-line",
-            #     "name": "Data",
-            # },
-            {
-                "url": project.analysis_url,
-                "icon": "menu-icon tf-icons ri-bar-chart-box-line",
-                "name": "Harmonized analysis",
-            },
-        ]
-    return {"menu": menu}
-
-
 @login_required
 # @permission_required('projects.view', raise_exception=True)
 def project(request: HttpRequest, pk: str) -> HttpResponse:
@@ -115,7 +51,6 @@ def project(request: HttpRequest, pk: str) -> HttpResponse:
     ctx = backend_context(
         {
             "project": proj,
-            "menu_data": menu(proj),
             "inv_only": inv_only,
             "started": started,
             "complete": complete,
@@ -140,7 +75,7 @@ def project_settings(request: HttpRequest, pk: str) -> HttpResponse:
     else:
         form = ProjectForm(instance=project)
     ctx = backend_context(
-        {"form": form, "project": project, "menu_data": menu(project=project)}
+        {"form": form, "project": project}
     )
     return render(request, "projects/detail.html", ctx)
 
@@ -156,7 +91,7 @@ def project_new(request: HttpRequest) -> HttpResponse:
     else:
         form = ProjectForm()
         form.helper.form_acount = reverse_lazy("project-new")
-    ctx = backend_context({"form": form, "menu_data": menu(project=None)})
+    ctx = backend_context({"form": form, "project": project})
     return render(request, "projects/detail.html", ctx)
 
 
@@ -170,7 +105,7 @@ def project_delete(request: HttpRequest, pk: str) -> HttpResponse:
         project.save()
         messages.success(request, "Project {project.name} deleted.")
         return redirect("profile")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "projects/delete.html", ctx)
 
 
@@ -184,7 +119,7 @@ def project_leave(request: HttpRequest, pk: str) -> HttpResponse:
         project.save()
         messages.success(request, f"You have been removed from {project.name}.")
         return redirect("profile")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "projects/leave.html", ctx)
 
 
@@ -193,7 +128,7 @@ def project_members(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "members/list.html", ctx)
 
 
@@ -202,7 +137,7 @@ def project_analysis(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "analysis/summary.html", ctx)
 
 
@@ -211,7 +146,7 @@ def project_questions(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "questions/list.html", ctx)
 
 
@@ -232,7 +167,7 @@ def project_questions_new(request: HttpRequest, pk: str) -> HttpResponse:
     else:
         form = QuestionForm()
     ctx = backend_context(
-        {"form": form, "project": project, "menu_data": menu(project)}
+        {"form": form, "project": project}
     )
     return render(request, "questions/detail.html", ctx)
 
@@ -249,7 +184,7 @@ def question_edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-questions", pk=question.project.pk)
     else:
         form = QuestionForm(instance=question)
-    ctx = backend_context({"form": form, "menu_data": menu(question.project)})
+    ctx = backend_context({"form": form, "project": question.project})
     return render(request, "questions/detail.html", ctx)
 
 
@@ -266,7 +201,7 @@ def project_files(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "projects/files.html", ctx)
 
 
@@ -286,7 +221,7 @@ def project_invite(request: HttpRequest, pk: str) -> HttpResponse:
     else:
         form = MemberInvitationForm()
     ctx = backend_context(
-        {"form": form, "project": project, "menu_data": menu(project)}
+        {"form": form, "project": project}
     )
     return render(request, "members/invite.html", ctx)
 
@@ -319,7 +254,6 @@ def project_bots(request: HttpRequest, pk: str) -> HttpResponse:
     ctx = backend_context(
         {
             "project": project,
-            "menu_data": menu(project),
             "bots": project.bots.filter(deleted_at=None),
         }
     )
@@ -342,7 +276,7 @@ def project_bots_new(request: HttpRequest, pk: str) -> HttpResponse:
     else:
         form = BotForm()
     ctx = backend_context(
-        {"form": form, "project": project, "menu_data": menu(project)}
+        {"form": form, "project": project}
     )
     return render(request, "bots/detail.html", ctx)
 
@@ -359,7 +293,7 @@ def bot_edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-bots", pk=bot.project.pk)
     else:
         form = BotForm(instance=bot)
-    ctx = backend_context({"form": form, "menu_data": menu(bot.project)})
+    ctx = backend_context({"form": form, "project": bot.project})
     return render(request, "bots/detail.html", ctx)
 
 
@@ -489,7 +423,6 @@ def project_simulate(request: HttpRequest, pk: str) -> HttpResponse:
             "project": project,
             "bots": project.enabled_bots(),
             "test_interviews": project.test_interviews(),
-            "menu_data": menu(project),
         }
     )
     if interview:
@@ -600,7 +533,6 @@ def interview_conversation(request, pk):
             "interview": iv,
             "project": iv.project,
             "msg_list": msg_list,
-            "menu_data": menu(iv.project),
             "prompt_tokens": prompt_tokens,
             "gen_tokens": gen_tokens,
             "total_tokens": total_tokens,
@@ -614,7 +546,7 @@ def project_consent_letters(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "consent_letters/list.html", ctx)
 
 
@@ -634,7 +566,7 @@ def project_consent_letters_new(request: HttpRequest, pk: str) -> HttpResponse:
     else:
         form = ConsentLetterForm()
     ctx = backend_context(
-        {"form": form, "project": project, "menu_data": menu(project)}
+        {"form": form, "project": project}
     )
     return render(request, "consent_letters/detail.html", ctx)
 
@@ -651,7 +583,7 @@ def consent_letter_edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-consent-letters", pk=consent_letter.project.pk)
     else:
         form = ConsentLetterForm(instance=consent_letter)
-    ctx = backend_context({"form": form, "menu_data": menu(consent_letter.project)})
+    ctx = backend_context({"form": form, "project": consent_letter.project})
     return render(request, "consent_letters/detail.html", ctx)
 
 
@@ -676,7 +608,7 @@ def project_interviews_invited(request: HttpRequest, pk: str) -> HttpResponse:
         raise PermissionDenied("User action not permitted.")
     interviews = project.interviews.filter(deleted_at=None, status="invited")
     ctx = backend_context(
-        {"project": project, "interviews": interviews, "menu_data": menu(project)}
+        {"project": project, "interviews": interviews}
     )
     return render(request, "interviews/invited.html", ctx)
 
@@ -705,7 +637,6 @@ def project_interviews_list(request: HttpRequest, pk: str) -> HttpResponse:
     ctx = backend_context(
         {
             "project": project,
-            "menu_data": menu(project),
             "interviews": interviews,
             "is_editor": project.can_edit(request.user),
         }
@@ -744,7 +675,7 @@ def projects_export_interviews(request: HttpRequest, pk: str) -> HttpResponse:
             return response
     else:
         form = ExportInterviewsForm()
-    ctx = backend_context({"form": form, "menu_data": menu(proj)})
+    ctx = backend_context({"form": form, "project": proj})
     return render(request, "interviews/export.html", ctx)
 
 
@@ -768,7 +699,7 @@ def project_interviews_invite(request: HttpRequest, pk: str) -> HttpResponse:
         if "bot" in request.GET:
             form.initial["bot"] = request.GET["bot"]
     ctx = backend_context(
-        {"form": form, "project": project, "menu_data": menu(project)}
+        {"form": form, "project": project}
     )
     return render(request, "interviews/new.html", ctx)
 
@@ -778,7 +709,7 @@ def project_transcripts(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project, "menu_data": menu(project)})
+    ctx = backend_context({"project": project})
     return render(request, "transcripts/list.html", ctx)
 
 
@@ -797,7 +728,7 @@ def project_transcripts_upload(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-transcripts", pk=project.pk)
     else:
         form = ManualTranscriptForm()
-    ctx = backend_context({"form": form, "menu_data": menu(project)})
+    ctx = backend_context({"form": form, "project": project})
     return render(request, "transcripts/upload.html", ctx)
 
 
