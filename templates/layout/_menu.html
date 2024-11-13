@@ -1,0 +1,46 @@
+{% load menu_tags %}
+
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+  <div class="app-brand demo">
+    <a href="{% url 'index' %}" class="app-brand-link">
+      <span class="app-brand-logo demo me-1">
+        {% include 'partials/logo.html' %}
+      </span>
+      <span class="app-brand-text demo menu-text fw-semibold ms-2">monklet</span>
+    </a>
+
+    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+      <i class="menu-toggle-icon d-xl-block align-middle"></i>
+    </a>
+  </div>
+
+  <div class="menu-inner-shadow"></div>
+
+  <ul class="menu-inner py-1">
+
+    <li class="menu-item {% active 'users:profile' %}">
+      <a href="{% url 'users:profile' %}" class="menu-link">
+        <i class="menu-icon tf-icons ri-home-line"></i>
+        <div>Home</div>
+      </a>
+    </li>
+
+  {% if project %}
+    {% include '../layout/_project_menu.html' %}
+  {% else %}
+    <li class="menu-header mt-7">
+      <span class="menu-header-text">Projects</span>
+    </li>
+
+    {% for project in profile.all_projects %}
+    <li class="menu-item">
+      <a href="{{ project.url }}" class="menu-link">
+        <i class="menu-icon tf-icons ri-folders-line"></i>
+        <div>{{ project.name }}</div>
+      </a>
+    </li>
+    {% endfor %}
+
+  {% endif %}
+  </ul>
+</aside>
