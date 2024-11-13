@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+import os
+import re
+import sys
+import json
+import django
+import click
+
+sys.path.append('.')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from apps.projects.models import Project
+
+@click.group
+def dump():
+    """Tool for dumping data"""
+
+UUID = re.compile('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+
+@dump.command
+@click.argument('project')
+@click.argument('file')
+def project(project: str, file: str):
+    field = 'pk' if UUID.match(project) else 'name'
+    p = Project.objects.get(**dict([(field,project)]))
+    print(f"Dumping project '{p.name}' ({p.pk}) to {file}")
+
+    data = []
+    for iv in p.started_completed_interviews():
+        data.append({
+            'bot': iv.bot.name,
+            'subject': iv.subject,
+            'messages': iv.messages_list()
+        })
+
+    with open(file, 'w') as f:
+        json.dump(data, f)
+    print(f'Wrote {len(data)} interviews to {file}')
+
+@dump.command
+def listprojects():
+    for p in Project.objects.all():
+        print(f"{p.pk} {p.name}")
+
+
+if __name__=='__main__':
+    dump()
