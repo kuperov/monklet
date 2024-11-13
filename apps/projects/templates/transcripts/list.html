@@ -42,7 +42,7 @@
             {% for ts in project.transcripts.all %}
             <tr>
             <td>{{ ts.subject_name }}</td>
-            <td>{{ ts.updated_at | naturaltime }}</td>
+            <td>{{ ts.last_modified_at | naturaltime }}</td>
             <td>{{ ts.transcript_type }}</td>
             <td>{% if ts.is_excluded %}
               <span class="badge rounded-pill bg-label-success me-1">Included</span>

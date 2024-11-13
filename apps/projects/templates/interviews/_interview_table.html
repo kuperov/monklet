@@ -1,0 +1,52 @@
+{% load static i18n humanize %}
+
+<table class="table">
+  <thead class="table-light">
+    <tr class="text-nowrap">
+        <th>Name</th>
+        <th>Email</th>
+        <th>Bot</th>
+        <th>Followup?</th>
+        <th>Updated</th>
+        <th>Status</th>
+        <th />
+    </tr>
+  </thead>
+  <tbody>
+    {% for iv in interviews %}
+    <tr>
+    <td>
+      <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}">
+      {{ iv.subject_name }}
+      </a>
+    </td>
+    <td>{{ iv.subject_email }}</td>
+    <td>{{ iv.bot.name }}</td>
+    <td>{{ iv.followup_consented | yesno:"Permitted,No" }}
+    <td>{{ iv.updated_at | naturaltime }}</td>
+    <td>{% if iv.status == 'invited' %}
+      <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
+      {% elif iv.status == 'started' %}
+      <span class="badge rounded-pill bg-label-warning me-1">Started</span>
+      {% else %}
+      <span class="badge rounded-pill bg-label-success me-1">Complete</span>
+      {% endif %}
+    </td>
+    <td>
+    <div class="dropdown">
+      <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
+        <a class="dropdown-item text-danger" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
+      </div>
+    </div>
+    </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if not interviews %}
+<div class="d-flex justify-content-center m-5">
+  No records found.
+</div>
+{% endif %}

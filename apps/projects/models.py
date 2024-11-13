@@ -430,7 +430,6 @@ class Interview(models.Model):
             }
             self.content.append(response_dict)
             import traceback
-
             traceback.print_exception(ex)
         await self.asave()
         return response_dict
@@ -661,7 +660,7 @@ class Transcript(models.Model):
         "Exclude from analysis", default=False, null=False
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    last_modified_at = models.DateTimeField(auto_now=True)
 
     @property
     def transcript_type(self):

@@ -9,187 +9,59 @@
 <link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
 {% endblock page_css %}
 
+{% block page_js %}
+<script src="{% static 'vendor/libs/htmx/htmx.min.js' %}"></script>
+{% endblock page_js %}
+
 {% block content %}
+<h4>AI Chats</h4>
+<p>AI interviews captured by bots. Create transcripts from these chats to transcripts to analyze them.</p>
 <div class="card">
-  <div class="card-header px-0 pt-0">
-    <div class="nav-align-top">
-      <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#interview-tab" aria-controls="interview-tab" aria-selected="false">
-            Interviews
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#invited-tab" aria-controls="invited-tab" aria-selected="true">
-            Invited
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#test-tab" aria-controls="test-tab" aria-selected="false">
-            Test interviews
-          </button>
-        </li>
-      </ul>
+  <div class="card-body">
+    <div>
+      <form class="row g-3 align-items-center" method="POST" action="{% url 'project-interviews-list' pk=project.pk %}">
+        <div class="col-3">
+            <select class="form-select" id="status" name="status"
+              hx-target='#interview_list' hx-post="{% url 'project-interviews-list' pk=project.pk %}" hx-trigger="change">
+              <option value="interview" selected>Show interviews</option>
+              <option value="invited">Show invitations</option>
+              <option value="test">Show test interviews</option>
+            </select>
+        </div>
+        <div class="col-3">
+          <select class="form-select" id="followup" name="followup"
+              hx-target='#interview_list' hx-post="{% url 'project-interviews-list' pk=project.pk %}" hx-trigger="change">
+              <option value="all" selected>Show all</option>
+              <option value="ok_only">Followup permitted</option>
+              <option value="no_only">Followup not permitted</option>
+          </select>
+        </div>
+        <div class="col-3">
+          <select class="form-select" id="bot" name="bot"
+              hx-target='#interview_list' hx-post="{% url 'project-interviews-list' pk=project.pk %}" hx-trigger="change">
+              <option value="all" selected>All bots</option>
+              {% for bot in project.bots.all %}
+              <option value="{{ bot.pk }}">{{ bot.name }} {% if bot.deleted_at %}(deleted){%else%}({{bot.status}}){%endif%}</option>
+              {% endfor %}
+          </select>
+        </div>
+        {% csrf_token %}
+        <div class="col-2">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
     </div>
+    <div id="interview_list">
+    {% include 'interviews/_interview_table.html' with interviews=interviews %}
+    </div>
+    <div class="px-0 pt-0 d-flex justify-content-end">
+    {% if is_editor %}
+    <a class="m-4 btn btn-secondary" href="{% url 'export-interviews' pk=project.pk %}">Export all interviews</a>
+    {% endif %}
+    <a class="m-4 btn btn-primary" href="{% url 'project-interviews-invite' pk=project.pk %}">Send invitation</a>    </div>
   </div>
-  <div class="tab-content p-0">
-    <div class="tab-pane fade show active table-responsive text-nowrap" id="interview-tab" role="tabpanel">
-      <table class="table">
-        <thead class="table-light">
-          <tr class="text-nowrap">
-              <th>Name</th>
-              <th>Email</th>
-              <th>Bot</th>
-              <th>Updated</th>
-              <th>Status</th>
-              <th />
-          </tr>
-        </thead>
-        <tbody>
-          {% for iv in interviews %}
-          <tr>
-          <td>{{ iv.subject_name }}</td>
-          <td>{{ iv.subject_email }}</td>
-          <td>{{ iv.bot.name }}</td>
-          <td>{{ iv.updated_at | naturaltime }}</td>
-          <td>{% if iv.status == 'invited' %}
-            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
-            {% elif iv.status == 'started' %}
-            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
-            {% else %}
-            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
-            {% endif %}
-          </td>
-          <td>
-          <div class="dropdown">
-            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
-              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
-            </div>
-          </div>
-          </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% if not interviews %}
-      <div class="d-flex justify-content-center m-5">
-        No interviews found.
-      </div>
-      {% endif %}
-      {% if is_editor %}
-      <div class="px-0 pt-0 d-flex justify-content-end">
-        <a class="m-4 btn btn-secondary" href="{% url 'export-interviews' pk=project.pk %}">Export interviews</a>
-      </div>
-      {% endif %}
-    </div>
-    <div class="tab-pane fade table-responsive text-nowrap" id="invited-tab" role="tabpanel">
-      <table class="table">
-        <thead class="table-light">
-          <tr class="text-nowrap">
-              <th>Name</th>
-              <th>Email</th>
-              <th>Bot</th>
-              <th>Created</th>
-              <th>Status</th>
-              <th />
-          </tr>
-        </thead>
-        <tbody>
-          {% for iv in invited_interviews %}
-          <tr>
-          <td>{{ iv.subject_name }}</td>
-          <td>{{ iv.subject_email }}</td>
-          <td>{{ iv.bot.name }}</td>
-          <td>{{ iv.created_at | naturaltime }}</td>
-          <td>{% if iv.status == 'invited' %}
-            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
-            {% elif iv.status == 'started' %}
-            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
-            {% else %}
-            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
-            {% endif %}
-          </td>
-          <td>
-          <div class="dropdown">
-            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
-              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
-            </div>
-          </div>
-          </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% if not invited_interviews %}
-      <div class="d-flex justify-content-center m-5">
-        No invitations found.
-      </div>
-      {% endif %}
-      <div class="px-0 pt-0 d-flex justify-content-end">
-        <a class="m-4 btn btn-primary" href="{% url 'project-interviews-invite' pk=project.pk %}">Send invitation</a>
-      </div>
-    </div>
-    <div class="tab-pane fade table-responsive text-nowrap" id="test-tab" role="tabpanel">
-      <table class="table">
-        <thead class="table-light">
-          <tr class="text-nowrap">
-              <th>Name</th>
-              <th>Email</th>
-              <th>Bot</th>
-              <th>Updated</th>
-              <th>Status</th>
-              <th />
-          </tr>
-        </thead>
-        <tbody>
-          {% for iv in test_interviews %}
-          <tr>
-          <td>{{ iv.subject_name }}</td>
-          <td>{{ iv.subject_email }}</td>
-          <td>{{ iv.bot.name }}</td>
-          <td>{{ iv.updated_at | naturaltime }}</td>
-          <td>{% if iv.status == 'invited' %}
-            <span class="badge rounded-pill bg-label-secondary me-1">Invited</span>
-            {% elif iv.status == 'started' %}
-            <span class="badge rounded-pill bg-label-warning me-1">Started</span>
-            {% else %}
-            <span class="badge rounded-pill bg-label-success me-1">Complete</span>
-            {% endif %}
-          </td>
-          <td>
-          <div class="dropdown">
-            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'interview-delete' pk=iv.pk %}?next={% url 'project-interviews-list' pk=project.pk%}"><i class="ri-delete-bin-line me-1"></i> Delete</a>
-              <a class="dropdown-item" href="{% url 'interview-conversation' pk=iv.pk %}"><i class="ri-chat-2-line me-1"></i> Conversation</a>
-            </div>
-          </div>
-          </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% if not test_interviews %}
-      <div class="d-flex justify-content-center m-5">
-        No test interviews found.
-      </div>
-      {% endif %}
-    </div>
-  </div>
-  <div class="tab-footer">
+  <div class="card-footer">
   </div>
 </div>
 
 {% endblock content %}
-
-{% block page_js %}
-{% comment %} <script>
-  document
-  const active_tab = location.hash.slice(1);
-
-</script> {% endcomment %}
-{% endblock %}
