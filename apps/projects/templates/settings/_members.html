@@ -1,0 +1,75 @@
+<table class="datatables-transaction table">
+  <thead class="table-light">
+    <tr class="text-nowrap">
+        <th></th>
+        <th>Member name</th>
+        <th>Email address</th>
+        <th>Role</th>
+        <th>Updated</th>
+        <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <td>
+      <div class="avatar avatar-sm">
+        <img class="rounded-circle" src="{{ project.owner.profile.avatar_url }}"/>
+      </div>
+    </td>
+    <td>{{ project.owner.name }}</td>
+    <td><a href="mailto:{{ project.owner.email }}">{{ project.owner.email }}</a></td>
+    <td>
+        <span class="badge rounded-pill bg-label-primary me-1">Owner</span>
+    </td>
+    <td>{# no updated field #}</td>
+    <td>{# no actions for owner #}</td>
+    </tr>
+    {% for member in project.members.all %}
+    <tr>
+    <td>
+      <div class="avatar avatar-sm">
+        <img class="rounded-circle" src="{{ member.avatar_url }}"/>
+      </div>
+    </td>
+    <td>{{ member.name }}</td>
+    <td><a href="mailto:{{ member.email }}">{{ member.email }}</a></td>
+    <td>
+      {% if member.role == 'editor' %}
+      <span class="badge rounded-pill bg-label-success me-1">Editor</span>
+      {% else %}
+      <span class="badge rounded-pill bg-label-info me-1">Viewer</span>
+      {% endif %}
+    </td>
+    <td>{{ member.last_modified_at }}</td>
+    <td>
+    <div class="dropdown">
+      {% if member.status != 'declined' %}
+        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+        <div class="dropdown-menu">
+        {% if request.user == project.owner %}
+            {# project owner can manage users #}
+            {% if member.role == 'editor' %}
+            <a class="dropdown-item" href="javascript:void(0);">
+              <i class="ri-arrow-down-line me-1"></i> Demote to viewer</a>
+            {% elif member.role == 'viewer' %}
+            <a class="dropdown-item" href="javascript:void(0);">
+              <i class="ri-arrow-up-line me-1"></i> Promote to editor</a>
+            {% endif %}
+            <a class="dropdown-item" href="javascript:void(0);">
+              <i class="ri-close-line me-1"></i> Remove</a>
+        {% elif member.user.id == request.user.id %}
+            {# members can remove themselves #}
+            <a class="dropdown-item" href="javascript:void(0);">
+              <i class="ri-door-arrow-r-line me-1"></i> Leave</a>
+        {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="px-0 pt-0 d-flex justify-content-end">
+  <a class="m-4 btn btn-primary" href="{% url 'project-invite' pk=project.pk %}">Invite new collaborator</a>
+</div>

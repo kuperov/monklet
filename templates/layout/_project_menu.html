@@ -14,15 +14,7 @@
 <li class="menu-item {% project_active "project-settings" project.pk %}">
   <a href="{% url 'project-settings' pk=project.pk %}" class="menu-link">
     <i class="menu-icon tf-icons ri-settings-2-line"></i>
-    <div>Project settings</div>
-  </a>
-</li>
-
-
-<li class="menu-item {% project_active "project-members" project.pk %}">
-  <a href="{% url 'project-members' pk=project.pk %}" class="menu-link">
-    <i class="menu-icon tf-icons ri-group-3-line"></i>
-    <div>Members</div>
+    <div>Settings</div>
   </a>
 </li>
 
@@ -36,7 +28,6 @@
     <div>Questions</div>
   </a>
 </li>
-
 
 <li class="menu-item {% project_active "project-bots" project.pk %}">
   <a href="{% url 'project-bots' pk=project.pk %}" class="menu-link">

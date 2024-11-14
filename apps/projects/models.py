@@ -104,53 +104,9 @@ class Project(models.Model):
             .order_by("week_start")
         )
 
-    @property
-    def url(self):
+    def get_absolute_url(self):
         return reverse_lazy("project", kwargs={"pk": self.id})
 
-    @property
-    def settings_url(self):
-        return reverse_lazy("project-settings", kwargs={"pk": self.id})
-
-    @property
-    def delete_url(self):
-        return reverse_lazy("project-delete", kwargs={"pk": self.id})
-
-    @property
-    def leave_url(self):
-        return reverse_lazy("project-leave", kwargs={"pk": self.id})
-
-    @property
-    def members_url(self):
-        return reverse_lazy("project-members", kwargs={"pk": self.id})
-
-    @property
-    def analysis_url(self):
-        return reverse_lazy("project-analysis", kwargs={"pk": self.id})
-
-    @property
-    def questions_url(self):
-        return reverse_lazy("project-questions", kwargs={"pk": self.id})
-
-    @property
-    def bots_url(self):
-        return reverse_lazy("project-bots", kwargs={"pk": self.id})
-
-    @property
-    def invitations_url(self):
-        return reverse_lazy("project-invitations", kwargs={"pk": self.id})
-
-    @property
-    def data_url(self):
-        return reverse_lazy("project-responses", kwargs={"pk": self.id})
-
-    @property
-    def files_url(self):
-        return reverse_lazy("project-files", kwargs={"pk": self.id})
-
-    @property
-    def consent_letters_url(self):
-        return reverse_lazy("project-consent-letters", kwargs={"pk": self.id})
 
 
 MEMBER_ROLES = [("viewer", "Viewer"), ("editor", "Editor")]
@@ -357,7 +313,7 @@ class Interview(models.Model):
         max_length=10, choices=INTERVIEW_STATUS, blank=False, null=False
     )
     attributes = models.JSONField(
-        "Additional attributes", null=False, blank=False, default=dict
+        "Additional attributes", null=False, blank=True, default=dict
     )
     ip_address = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -653,34 +609,36 @@ class Transcript(models.Model):
     interview = models.ForeignKey(
         Interview, on_delete=models.SET_NULL, null=True, default=None
     )
-    subject_name = models.CharField(max_length=100, blank=None)
-    full_text = models.TextField()
-    description = models.TextField()
-    is_excluded = models.BooleanField(
-        "Exclude from analysis", default=False, null=False
-    )
+    name = models.CharField(max_length=100, blank=None)
+    content = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
-    last_modified_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def transcript_type(self):
         return "Bot" if self.interview else "Manual"
 
     def __str__(self):
-        return self.description
+        return f"Transcript: {self.name}"
 
     @classmethod
     def from_chat(_class, interview: Interview, pseudonym: str=None) -> 'Transcript':
-        full_text='\n'.join([f"{msg['sender']}: {msg['message']}"
+        if not interview.content:
+            raise Exception("Can't import empty interview")
+        start_at = parse_datetime(interview.content[0]['sent_at'])
+        content=[{
+                'who': msg.get('sender'),
+                'text': msg.get('message'),
+                'reference': format_timedelta(parse_datetime(msg.get('sent_at')) - start_at)
+            }
             for msg in (interview.content or [])
             if msg['sender'] in ['user', 'model']
-        ])
+        ]
         return Transcript(
             project=interview.project,
             interview=interview,
-            subject_name=pseudonym or interview.subject_name,
-            full_text=full_text,
-            is_excluded=False
+            name=pseudonym or interview.subject_name,
+            content=content
         )
 
 

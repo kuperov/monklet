@@ -59,7 +59,7 @@
       <tbody class="table-border-bottom-0">
         {% for proj in profile.all_projects %}
         <tr>
-          <td><a href="{{proj.url}}">{{ proj.name }}</a></td>
+          <td><a href="{{ proj.url }}">{{ proj.name }}</a></td>
           <td>{{ proj.owner_name }}</td>
           <td>{{ proj.last_modified_at | naturaltime }}</td>
           <td>
@@ -76,10 +76,10 @@
               <button type="button" class="btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" aria-expanded="false"><i class="ri-more-2-line ri-22px text-muted"></i></button>
               <ul class="dropdown-menu dropdown-menu-end">
               {% if proj.owner.id == request.user.id %}
-              <li><a class="dropdown-item" href="{{ proj.settings_url }}">Project settings</a></li>
-              <li><a class="dropdown-item text-danger" href="{{ proj.delete_url }}">Delete project</a></li>
+              <li><a class="dropdown-item" href="{% url 'project-settings' pk=proj.pk %}">Project settings</a></li>
+              <li><a class="dropdown-item text-danger" href="{% url 'project-delete' pk=proj.pk %}">Delete project</a></li>
               {% else %}
-              <li><a class="dropdown-item text-warning" href="{{ proj.leave_url }}">Leave project</a></li>
+              <li><a class="dropdown-item text-warning" href="{% url 'project-leave' pk=proj.pk %}">Leave project</a></li>
               {% endif %}
               </ul>
           </div>

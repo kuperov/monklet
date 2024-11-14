@@ -1,0 +1,29 @@
+{% load markdown_filters %}
+
+<div id='settings-container'>
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-warning{% endif %}" role="alert">
+    {{ message }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <h6>Project title</h6>
+  <p><strong>{{ project.name }}</strong></p>
+
+  <h6>Description</h6>
+  {{ project.description | markdown }}
+
+  <h6>Research aims</h6>
+  {{ project.research_aims | markdown  }}
+
+  <h6>Funding</h6>
+  {{ project.funding | markdown  }}
+
+  <a class="btn btn-link btn-primary m-4" href="#" hx-get="{% url 'project-settings-tab' pk=project.pk %}" hx-target='#settings-container' hx-swap="outerHTML">
+    Edit
+  </a>
+
+</div>

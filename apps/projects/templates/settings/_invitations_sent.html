@@ -1,0 +1,54 @@
+<table class="datatables-transaction table">
+  <thead class="table-light">
+    <tr class="text-nowrap">
+        <th>Recipient</th>
+        <th>Email address</th>
+        <th>Invitation expiry</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if not project.member_invitations.exists %}
+    <tr>
+      <td colspan='6'>
+        <p>No invitations</p>
+      </td>
+    </tr>
+    {% endif %}
+    {% for inv in project.member_invitations.all %}
+    <tr>
+    <td>{{ inv.name }}</td>
+    <td><a href="mailto:{{ inv.email }}">{{ inv.email }}</a></td>
+    <td>{{ inv.expires_at }}</td>
+    <td>
+      {% if inv.role == 'editor' %}
+      <span class="badge rounded-pill bg-label-success me-1">Editor</span>
+      {% else %}
+      <span class="badge rounded-pill bg-label-info me-1">Viewer</span>
+      {% endif %}
+    </td>
+    <td>{{ inv.status }}
+    <td>
+    <div class="dropdown">
+      {% if request.user == project.owner %}
+        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+        <div class="dropdown-menu">
+          {% if inv.is_valid %}
+          <a class="dropdown-item" href="{% url 'invitation-cancel' pk=inv.pk %}">
+            <i class="ri-close-line me-1"></i> Cancel</a>
+          {% endif %}
+          <a class="dropdown-item" href="{% url 'invitation-resend' pk=inv.pk %}">
+            <i class="ri-mail-send-line me-1"></i> Re-send</a>
+        </div>
+      {% endif %}
+    </div>
+    </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="px-0 pt-0 d-flex justify-content-end">
+  <a class="m-4 btn btn-primary" href="{% url 'project-invite' pk=project.pk %}">Invite new collaborator</a>
+</div>

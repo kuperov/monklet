@@ -1,5 +1,7 @@
 from django import forms
 from django.conf import settings
+from django.urls import reverse_lazy
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
 
@@ -9,7 +11,6 @@ from .models import (
     Bot,
     ConsentLetter,
     Interview,
-    Transcript,
     MemberInvitation,
 )
 
@@ -37,7 +38,16 @@ class ProjectForm(forms.ModelForm):
         self.fields["research_aims"].widget.attrs["rows"] = 3
         self.fields["funding"].widget.attrs["rows"] = 2
         self.helper = FormHelper()
-        self.helper.add_input(save())
+        self.helper.form_action = '#'
+        self.helper.form_method = 'post'
+        ppk = self.instance.pk
+        save = Submit(
+            "Save", "save",
+            hx_post=reverse_lazy('project-settings-tab', kwargs={'pk': ppk}),
+            hx_target='#settings-container',
+            hx_swap='outerHTML'
+        )
+        self.helper.add_input(save)
         self.helper.add_input(cancel())
 
 
@@ -120,10 +130,10 @@ class InterviewForm(forms.ModelForm):
         self.helper.add_input(cancel())
 
 
-class ManualTranscriptForm(forms.ModelForm):
-    class Meta:
-        model = Transcript
-        fields = ["subject_name", "description", "full_text"]
+class ManualTranscriptForm(forms.Form):
+    name = forms.CharField()
+    description = forms.CharField(widget=forms.Textarea)
+    text = forms.CharField(widget=forms.Textarea)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,21 +1,21 @@
 from django.urls import path
 
-from apps.projects.views import interviews, analysis, projects, members, questions, bots, transcripts, letters
+from apps.projects.views import interviews, analysis, projects, questions, bots, settings, transcripts, letters
 
 
 urlpatterns = [
     path("projects/<str:pk>/", projects.dashboard, name="project"),
-    path("projects/<str:pk>/settings", projects.settings, name="project-settings"),
     path("projects/new", projects.new, name="project-new"),
     path("projects/<str:pk>/delete", projects.delete, name="project-delete"),
     path("projects/<str:pk>/leave", projects.leave, name="project-leave"),
 
-    path("projects/<str:pk>/members", members.list, name="project-members"),
-    path("projects/<str:pk>/invite", members.invite, name="project-invite"),
-    path("invitations/<str:pk>/resend", members.resend_invitation, name="invitation-resend"),
-    path("invitations/<str:pk>/cancel", members.cancel_invitation, name="invitation-cancel"),
-    path("collaborate/landing/<str:code>", members.invitation_landing, name="invitation-landing"),
-    path("collaborate/respond/<str:code>", members.invitation_respond, name="invitation-respond"),
+    path("projects/<str:pk>/settings", settings.view, name="project-settings"),
+    path("projects/<str:pk>/settings-tab", settings.settings_tab, name="project-settings-tab"),
+    path("projects/<str:pk>/invite", settings.invite, name="project-invite"),
+    path("invitations/<str:pk>/resend", settings.resend_invitation, name="invitation-resend"),
+    path("invitations/<str:pk>/cancel", settings.cancel_invitation, name="invitation-cancel"),
+    path("collaborate/landing/<str:code>", settings.invitation_landing, name="invitation-landing"),
+    path("collaborate/respond/<str:code>", settings.invitation_respond, name="invitation-respond"),
 
     path("projects/<str:pk>/questions", questions.list, name="project-questions"),
     path("projects/<str:pk>/questions/new", questions.new, name="project-questions-new"),

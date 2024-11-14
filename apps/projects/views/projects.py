@@ -45,25 +45,6 @@ def dashboard(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def settings(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.owner == request.user:
-        raise PermissionDenied("User action not permitted.")
-    if request.method == "POST":
-        form = ProjectForm(request.POST, instance=project)
-        if form.is_valid():
-            project = form.save()
-            messages.success(request, "Project updated successfully")
-            return redirect(project.url)
-    else:
-        form = ProjectForm(instance=project)
-    ctx = backend_context(
-        {"form": form, "project": project}
-    )
-    return render(request, "projects/detail.html", ctx)
-
-
-@login_required
 def new(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = ProjectForm(request.POST)

@@ -34,7 +34,6 @@
                 <th>Subject</th>
                 <th>Updated</th>
                 <th>Type</th>
-                <th>Inclusion</th>
                 <th />
             </tr>
           </thead>
@@ -44,12 +43,6 @@
             <td>{{ ts.subject_name }}</td>
             <td>{{ ts.last_modified_at | naturaltime }}</td>
             <td>{{ ts.transcript_type }}</td>
-            <td>{% if ts.is_excluded %}
-              <span class="badge rounded-pill bg-label-success me-1">Included</span>
-              {% else %}
-              <span class="badge rounded-pill bg-label-danger me-1">Excluded</span>
-              {% endif %}
-            </td>
             <td>
             <div class="dropdown">
               <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>

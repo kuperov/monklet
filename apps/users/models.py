@@ -73,7 +73,8 @@ class Profile(models.Model):
             for m in proj.members.all():
                 members.append({"name": m.name, "avatar_url": m.avatar_url})
             return {
-                "url": proj.url,
+                "pk": proj.pk,
+                "url": proj.get_absolute_url(),
                 "name": proj.name,
                 "owner_name": proj.owner.name or str(proj.owner),
                 "last_modified_at": proj.last_modified_at,
