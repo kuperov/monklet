@@ -4,11 +4,6 @@
 
 {% block title %}{{ project.name }}{% endblock %}
 
-{% block vendor_js %}
-{{ block.super }}
-<script src="{% static 'vendor/libs/htmx/htmx.min.js' %}"></script>
-{% endblock vendor_js %}
-
 {% block page_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
@@ -21,7 +16,7 @@
       <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item">
           <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#settings-tab" aria-controls="settings-tab" aria-selected="true">
-            Settings
+            General
           </button>
         </li>
         <li class="nav-item">
@@ -30,7 +25,7 @@
           </button>
         </li>
         <li class="nav-item">
-          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#invitations-tab" aria-controls="invitations-tab" aria-selected="false">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#invitations-tab" aria-controls="invitations-tab">
             Invitations sent
           </button>
         </li>

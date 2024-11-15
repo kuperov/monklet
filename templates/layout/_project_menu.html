@@ -29,19 +29,20 @@
   </a>
 </li>
 
-<li class="menu-item {% project_active "project-bots" project.pk %}">
-  <a href="{% url 'project-bots' pk=project.pk %}" class="menu-link">
+<li class="menu-item {% project_active "project-bots" project.pk "active open" %}">
+  <a href="{% url 'project-bots' pk=project.pk %}" class="menu-link menu-toggle">
     <i class="menu-icon tf-icons ri-robot-2-line"></i>
     <div>Bots</div>
   </a>
-</li>
-
-
-<li class="menu-item {% project_active "project-consent-letters" project.pk %}">
-  <a href="{% url 'project-consent-letters' pk=project.pk %}" class="menu-link">
-    <i class="menu-icon tf-icons ri-heart-3-line"></i>
-    <div>Consent letters</div>
-  </a>
+  <ul class="menu-sub">
+    {% for bot in project.get_active_bots %}
+    <li class="menu-item {% active bot.get_absolute_url %}">
+      <a href="{{ bot.get_absolute_url }}" class="menu-link" target="_blank">
+        <div>{{ bot.name }}</div>&nbsp;<i class="ri-external-link-line"></i>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
 </li>
 
 

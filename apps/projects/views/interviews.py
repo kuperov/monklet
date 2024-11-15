@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from apps.context_helpers import backend_context, blank_context
-from apps.projects.forms import ExportInterviewsForm, InterviewConsentForm, InterviewForm, LundSurveyForm
-from apps.projects.models import Interview, Project
+from apps.projects.forms import ExportInterviewsForm, InterviewConsentForm, InterviewForm, LundSurveyForm, PublicConsentForm
+from apps.projects.models import Bot, Interview, Project
 
 
 from django.contrib.auth.decorators import login_required
@@ -261,3 +261,50 @@ def messages_json(request: HttpRequest, pk: str) -> JsonResponse:
 
     data = [format(msg) for msg in interview.content]
     return JsonResponse(data, safe=False)  # safe=False serializes uuid and date
+
+
+def landing_public(request: HttpRequest, pk: str) -> HttpResponse:
+    bot = get_object_or_404(Bot, pk=pk)
+    if not bot.allow_public:
+        raise PermissionDenied("Use of this bot is by invitation only.")
+    project = bot.project
+    is_collaborator = project.can_view(request.user)
+    if request.method == "POST":
+        form = PublicConsentForm(request.POST)
+        form.is_valid()
+        if (
+            not form.cleaned_data["subject_email"]
+            and form.cleaned_data["followup_consented"]
+        ):
+            form.add_error(
+                "subject_email", "Please provide your email address for follow-up."
+            )
+        if form.is_valid():
+            interview = form.save(commit=False)
+            interview.project = project
+            interview.bot = bot
+            interview.ip_address = request.headers.get("X-Real-IP")
+            interview.status = "invited"
+            interview.is_test = is_collaborator  # user is logged in as a collaborator
+            interview.save()
+            # hack hack hack
+            if bot.config.get("show_lund_questions"):
+                return redirect(
+                    reverse_lazy("lund-questions", kwargs=dict(pk=interview.pk))
+                )
+            interview_url = reverse_lazy(
+                "interview", kwargs={"interview_code": interview.pk}
+            )
+            return redirect(interview_url)
+    else:
+        form = PublicConsentForm()
+    ctx = blank_context(
+        {
+            "bot": bot,
+            "project": project,
+            "form": form,
+            "ip_address": request.headers.get("X-Real-IP"),
+            "is_collaborator": is_collaborator,
+        }
+    )
+    return render(request, "interviews/public.html", ctx)

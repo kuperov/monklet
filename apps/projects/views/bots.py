@@ -1,125 +1,74 @@
-from django.contrib import messages
-from django.urls import reverse_lazy
-from django.utils.timezone import now
-from apps.context_helpers import backend_context, blank_context
-from apps.projects.forms import BotForm, PublicConsentForm
-from apps.projects.models import Bot, Interview, Project
-
-
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from django.contrib import messages
+from django.urls import reverse
+from django.utils.timezone import now
+from apps.context_helpers import backend_context, blank_context
+from apps.projects import forms
+from apps.projects.models import Bot, ConsentLetter, Interview, Project
+from apps.projects.views.util import get_editable_project, get_viewable_project
+
 
 
 @login_required
-def list(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
+def index(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_viewable_project(request, pk)
     ctx = backend_context(
         {
-            "project": project,
-            "bots": project.bots.filter(deleted_at=None),
+            "project": project
         }
     )
-    return render(request, "bots/list.html", ctx)
+    return render(request, "bots/index.html", ctx)
 
 
 @login_required
 def new(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_edit(request.user):
-        raise PermissionDenied("User action not permitted.")
+    project = get_editable_project(request, pk=pk)
+    endpoint = reverse("project-bots-new", kwargs={'pk': project.pk})
     if request.method == "POST":
-        form = BotForm(request.POST)
+        form = forms.BotForm(endpoint, request.POST)
         if form.is_valid():
             b = form.save(commit=False)
             b.project = project
             b.save()
-            messages.add_message(request, messages.SUCCESS, "Bot added")
-            return redirect("project-bots", pk=project.pk)
+            messages.success(request, "Bot added")
+            return render(request, "bots/_bots.html", {"project": project})
     else:
-        form = BotForm()
+        form = forms.BotForm(endpoint)
     ctx = backend_context(
         {"form": form, "project": project}
     )
-    return render(request, "bots/detail.html", ctx)
+    return render(request, "bots/_bot_detail.html", ctx)
 
 
 @login_required
 def edit(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
+    endpoint = reverse("bot-edit", kwargs={'pk': bot.pk})
+    if not bot.project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
-        form = BotForm(request.POST, instance=bot)
+        form = forms.BotForm(endpoint, request.POST, instance=bot)
         if form.is_valid():
             form.save()
             messages.success(request, "Updated bot")
-            return redirect("project-bots", pk=bot.project.pk)
+            return render(request, "bots/_bots.html", {"project": bot.project})
     else:
-        form = BotForm(instance=bot)
+        form = forms.BotForm(endpoint, instance=bot)
     ctx = backend_context({"form": form, "project": bot.project})
-    return render(request, "bots/detail.html", ctx)
+    return render(request, "bots/_bot_detail.html", ctx)
 
 
 @login_required
 def delete(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
-    project_id = bot.project.pk
     bot.deleted_at = now()
     bot.save()
     messages.success(request, "Bot deleted")
-    return redirect("project-bots", pk=project_id)
-
-
-# note no login required
-def landing_public(request: HttpRequest, pk: str) -> HttpResponse:
-    bot = get_object_or_404(Bot, pk=pk)
-    if not bot.allow_public:
-        raise PermissionDenied("Use of this bot is by invitation only.")
-    project = bot.project
-    is_collaborator = project.can_view(request.user)
-    if request.method == "POST":
-        form = PublicConsentForm(request.POST)
-        form.is_valid()
-        if (
-            not form.cleaned_data["subject_email"]
-            and form.cleaned_data["followup_consented"]
-        ):
-            form.add_error(
-                "subject_email", "Please provide your email address for follow-up."
-            )
-        if form.is_valid():
-            interview = form.save(commit=False)
-            interview.project = project
-            interview.bot = bot
-            interview.ip_address = request.headers.get("X-Real-IP")
-            interview.status = "invited"
-            interview.is_test = is_collaborator  # user is logged in as a collaborator
-            interview.save()
-            # hack hack hack
-            if bot.config.get("show_lund_questions"):
-                return redirect(
-                    reverse_lazy("lund-questions", kwargs=dict(pk=interview.pk))
-                )
-            interview_url = reverse_lazy(
-                "interview", kwargs={"interview_code": interview.pk}
-            )
-            return redirect(interview_url)
-    else:
-        form = PublicConsentForm()
-    ctx = blank_context(
-        {
-            "bot": bot,
-            "project": project,
-            "form": form,
-            "ip_address": request.headers.get("X-Real-IP"),
-            "is_collaborator": is_collaborator,
-        }
-    )
-    return render(request, "interviews/public.html", ctx)
-
+    return render(request, "bots/_bots.html", {"project": bot.project})
 
 @login_required
 def duplicate(request: HttpRequest, pk: str) -> HttpResponse:
@@ -164,3 +113,54 @@ def simulate(request: HttpRequest, pk: str) -> HttpResponse:
     if interview:
         ctx["initial_interview"] = interview.pk
     return render(request, "bots/simulator.html", ctx)
+
+
+@login_required
+def delete_letter(request: HttpRequest, pk: str) -> HttpResponse:
+    consent_letter = get_object_or_404(ConsentLetter, pk=pk)
+    consent_letter.delete()
+    return render(request, "bots/_letters.html", {"project": consent_letter.project})
+
+
+@login_required
+def edit_letter(request: HttpRequest, pk: str) -> HttpResponse:
+    consent_letter = get_object_or_404(ConsentLetter, pk=pk)
+    endpoint = reverse("consent-letter-edit", kwargs={'pk': consent_letter.pk})
+    if request.method == "POST":
+        form = forms.ConsentLetterForm(endpoint, request.POST, instance=consent_letter)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Updated consent_letter")
+            return render(request, "bots/_letters.html", {"project": consent_letter.project})
+    else:
+        form = forms.ConsentLetterForm(endpoint, instance=consent_letter)
+    ctx = backend_context({"form": form, "project": consent_letter.project})
+    return render(request, "bots/_letter_detail.html", ctx)
+
+
+@login_required
+def new_letter(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    endpoint = reverse("project-consent-letters-new", kwargs={'pk': project.pk})
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted.")
+    if request.method == "POST":
+        form = forms.ConsentLetterForm(endpoint, request.POST)
+        if form.is_valid:
+            let = form.save(commit=False)
+            let.project = project
+            let.save()
+            messages.add_message(request, messages.SUCCESS, "Consent letter added")
+            return render(request, "bots/_letters.html", {"project": project})
+    else:
+        form = forms.ConsentLetterForm(endpoint)
+    ctx = backend_context(
+        {"form": form, "project": project}
+    )
+    return render(request, "bots/_letter_detail.html", ctx)
+
+
+def view_letter(request: HttpRequest, pk: str) -> HttpRequest:
+    consent_letter = get_object_or_404(ConsentLetter, pk=pk)
+    ctx = blank_context({"project": consent_letter.project, "letter": consent_letter})
+    return render(request, "bots/public_letter.html", ctx)

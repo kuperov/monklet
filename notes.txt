@@ -67,30 +67,11 @@
   [x] add question re phd student
   [ ] pausing things (what is this??)
   [x] prompt reduce verboseness etc
-  [ ] gender?
-  [ ] popups for delete
   [x] timeout
   [x] filter/clean chat
   [x] use css to add mb-0 to .chat-message-text > p
-  [ ] bug: missing hamburger
-  [ ] prompt generator page
-  [ ] email template, nice cta button
-  [ ] extract conversation themes from text
-  [ ] words, duration histogram, etc dashboard
-  [ ] deferred tasks
-  [ ] scripted deployment (kamal?)
-  [ ] model choice
-  [ ] export chat to transcript
-  [ ] pseudonymize chat
-  [ ] edit transcript
-  [ ] get rid of menu item in context
-  [ ] get rid of special context
-  [ ] design emails - https://designmodo.com/postcards/app/folder/templates
-  [ ] deferred operations - celery
+  [x] bug: missing hamburger
   [x] double enter
-
-I want to move on from this project and interest is fading. I have learned a lot.
-However, the job is far from done. So, it's time to knuckle down and finish up.
 
 ## context variables for layout
 

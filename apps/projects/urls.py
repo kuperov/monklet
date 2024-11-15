@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.projects.views import interviews, analysis, projects, questions, bots, settings, transcripts, letters
+from apps.projects.views import interviews, analysis, projects, questions, bots, settings, transcripts
 
 
 urlpatterns = [
@@ -23,19 +23,17 @@ urlpatterns = [
     path("question/<str:pk>/delete", questions.delete, name="question-delete"),
 
     path("projects/<str:pk>/simulate", bots.simulate, name="projects-simulate"),
-    path("projects/<str:pk>/bots", bots.list, name="project-bots"),
+    path("projects/<str:pk>/bots", bots.index, name="project-bots"),
     path("projects/<str:pk>/bots/new", bots.new, name="project-bots-new"),
     path("bots/<str:pk>/edit", bots.edit, name="bot-edit"),
     path("bots/<str:pk>/delete", bots.delete, name="bot-delete"),
     path("bots/<str:pk>/duplicate", bots.duplicate, name="bot-duplicate"),
-    path("bots/<str:pk>/public", bots.landing_public, name="bot-public"),
+    path("projects/<str:pk>/consent-letters/new", bots.new_letter, name="project-consent-letters-new"),
+    path("consent-letters/<str:pk>/edit", bots.edit_letter, name="consent-letter-edit"),
+    path("consent-letter/<str:pk>", bots.view_letter, name="consent-letter-public"),
+    path("consent-letters/<str:pk>/delete", bots.delete_letter, name="consent-letter-delete"),
 
-    path("projects/<str:pk>/consent-letters", letters.list, name="project-consent-letters"),
-    path("projects/<str:pk>/consent-letters/new", letters.new, name="project-consent-letters-new"),
-    path("consent-letters/<str:pk>/edit", letters.edit, name="consent-letter-edit"),
-    path("consent-letter/<str:pk>", letters.public, name="consent-letter-public"),
-    path("consent-letters/<str:pk>/delete", letters.delete, name="consent-letter-delete"),
-
+    path("bots/<str:pk>/public", interviews.landing_public, name="bot-public"),
     path("interviews/<str:interview_code>", interviews.landing_invited, name="interview"),
     path("interviews/<str:pk>/delete", interviews.delete, name="interview-delete"),
     path("interviews/<str:pk>/landing", interviews.uninvited_landing, name="interview-landing"),
@@ -44,21 +42,9 @@ urlpatterns = [
     path("interviews/<str:pk>/messages", interviews.messages_json, name="interview-messages"),
     path("projects/<str:pk>/export", interviews.export, name="export-interviews"),
     path("projects/<str:pk>/invitations", interviews.list_invited, name="project-invitations"),
-    path(
-        "projects/<str:pk>/invitations/invite",
-        interviews.invite,
-        name="project-interviews-invite",
-    ),
-    path(
-        "projects/<str:pk>/interviews",
-        interviews.list,
-        name="project-interviews-list",
-    ),
-    path(
-        "projects/<str:pk>/test_interviews",
-        interviews.list_json,
-        name="project-interviews-test-json",
-    ),
+    path("projects/<str:pk>/invitations/invite", interviews.invite, name="project-interviews-invite"),
+    path("projects/<str:pk>/interviews", interviews.list, name="project-interviews-list"),
+    path("projects/<str:pk>/test_interviews", interviews.list_json, name="project-interviews-test-json"),
 
     path("projects/<str:pk>/transcripts", transcripts.list, name="project-responses"),
     path("transcripts/<str:pk>/delete", transcripts.delete, name="transcript-delete"),

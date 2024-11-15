@@ -107,6 +107,8 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse_lazy("project", kwargs={"pk": self.id})
 
+    def get_active_bots(self):
+        return self.bots.filter(deleted_at=None)
 
 
 MEMBER_ROLES = [("viewer", "Viewer"), ("editor", "Editor")]
@@ -271,6 +273,9 @@ class Bot(models.Model):
 
     def actual_interviews(self):
         return self.interviews.filter(is_test=False, deleted_at=None)
+
+    def get_absolute_url(self):
+        return reverse_lazy("bot-public", kwargs={"pk": self.pk})
 
 
 INTERVIEW_STATUS = [

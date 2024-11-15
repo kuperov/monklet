@@ -1,0 +1,43 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<h5>Interview bots</h5>
+<div class="card">
+  <div class="card-header px-0 pt-0">
+    <div class="nav-align-top">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#bots-tab" aria-controls="bots-tab" aria-selected="true">
+            <i class="tf-icons ri-robot-2-line"></i>&nbsp;Bots
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#letters-tab" aria-controls="letters-tab">
+            <i class="tf-icons ri-heart-3-line"></i>&nbsp;Consent letters
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-content p-0">
+    <div class="tab-pane fade show active table-responsive card-datatable p-5" id="bots-tab" role="tabpanel">
+      {% include 'bots/_bots.html' %}
+    </div>
+    <div class="tab-pane fade show table-responsive card-datatable p-5" id="letters-tab" role="tabpanel">
+      {% include 'bots/_letters.html' %}
+    </div>
+  </div>
+  <div class="card-footer">
+  </div>
+</div>
+
+{% endblock content %}

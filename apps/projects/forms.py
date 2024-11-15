@@ -48,7 +48,14 @@ class ProjectForm(forms.ModelForm):
             hx_swap='outerHTML'
         )
         self.helper.add_input(save)
-        self.helper.add_input(cancel())
+        cancel = Button(
+            "Cancel", "Cancel",
+            css_class="btn",
+            hx_get=reverse_lazy("project-settings-tab", kwargs={"pk": ppk}),
+            hx_target='#settings-container',
+            hx_swap='outerHTML'
+        )
+        self.helper.add_input(cancel)
 
 
 class MemberInvitationForm(forms.ModelForm):
@@ -93,13 +100,17 @@ class BotForm(forms.ModelForm):
             "allow_public",
         ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, endpoint, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["description"].widget.attrs["rows"] = 3
         self.fields["prompt"].widget.attrs["rows"] = 20
         self.fields["config"].widget.attrs["rows"] = 2
         self.helper = FormHelper()
-        self.helper.add_input(save())
+        save = Submit("Save", "save",
+            hx_get=endpoint,
+            hx_target="#bots-tab",
+            hx_swap="innerHTML")
+        self.helper.add_input(save)
         self.helper.add_input(cancel())
 
 
@@ -108,11 +119,15 @@ class ConsentLetterForm(forms.ModelForm):
         model = ConsentLetter
         fields = ["name", "short_md", "letter_md"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, endpoint, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["short_md"].widget.attrs["rows"] = 4
         self.helper = FormHelper()
-        self.helper.add_input(save())
+        save = Submit("Save", "save",
+            hx_get=endpoint,
+            hx_target="#letters-tab",
+            hx_swap="innerHTML")
+        self.helper.add_input(save)
         self.helper.add_input(cancel())
 
 
