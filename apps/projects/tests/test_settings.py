@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.core import mail
 from apps.projects.tests.test_util import (
     create_interview_fixture,
     playwright_login,
@@ -42,7 +43,8 @@ class ProjectViewTests(StaticLiveServerTestCase):
 
     def test_invite_members(self):
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=False)
+            mail.outbox.clear()
+            browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             playwright_login(self.live_server_url, page)
             settings_url = self.live_server_url + reverse(
@@ -66,7 +68,12 @@ class ProjectViewTests(StaticLiveServerTestCase):
             self.assertEqual(
                 page.text_content("role=alert"), "Invitation sent to bob@example.com"
             )
-            # should show up in sent invitations tab
+            # appears in sent invitations tab
             page.get_by_role("tab").get_by_text("Invitations sent").click()
             page.click("text=Refresh")
             self.assertTrue("Bob Smith" in page.content())
+            # accept invitation flow (recipient)
+            msg = mail.outbox.pop()
+            # get link from msg
+            collab_page = browser.new_page()
+            # follow link in new browser
