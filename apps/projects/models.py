@@ -391,6 +391,7 @@ class Interview(models.Model):
             }
             self.content.append(response_dict)
             import traceback
+
             traceback.print_exception(ex)
         await self.asave()
         return response_dict
@@ -627,23 +628,26 @@ class Transcript(models.Model):
         return f"Transcript: {self.name}"
 
     @classmethod
-    def from_chat(_class, interview: Interview, pseudonym: str=None) -> 'Transcript':
+    def from_chat(_class, interview: Interview, pseudonym: str = None) -> "Transcript":
         if not interview.content:
             raise Exception("Can't import empty interview")
-        start_at = parse_datetime(interview.content[0]['sent_at'])
-        content=[{
-                'who': msg.get('sender'),
-                'text': msg.get('message'),
-                'reference': format_timedelta(parse_datetime(msg.get('sent_at')) - start_at)
+        start_at = parse_datetime(interview.content[0]["sent_at"])
+        content = [
+            {
+                "who": msg.get("sender"),
+                "text": msg.get("message"),
+                "reference": format_timedelta(
+                    parse_datetime(msg.get("sent_at")) - start_at
+                ),
             }
             for msg in (interview.content or [])
-            if msg['sender'] in ['user', 'model']
+            if msg["sender"] in ["user", "model"]
         ]
         return Transcript(
             project=interview.project,
             interview=interview,
             name=pseudonym or interview.subject_name,
-            content=content
+            content=content,
         )
 
 

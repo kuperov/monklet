@@ -4,6 +4,7 @@ import markdown
 
 register = template.Library()
 
-@register.filter(name='markdown')
+
+@register.filter(name="markdown")
 def markdown_to_html(text):
     return mark_safe(markdown.markdown(text))

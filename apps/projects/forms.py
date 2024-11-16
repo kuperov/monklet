@@ -1,6 +1,5 @@
 from django import forms
 from django.conf import settings
-from django.urls import reverse_lazy
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
@@ -13,8 +12,6 @@ from .models import (
     Interview,
     MemberInvitation,
 )
-
-# another possibility: https://stackoverflow.com/a/56719980
 
 
 def cancel():
@@ -37,25 +34,6 @@ class ProjectForm(forms.ModelForm):
         self.fields["description"].widget.attrs["rows"] = 3
         self.fields["research_aims"].widget.attrs["rows"] = 3
         self.fields["funding"].widget.attrs["rows"] = 2
-        self.helper = FormHelper()
-        self.helper.form_action = '#'
-        self.helper.form_method = 'post'
-        ppk = self.instance.pk
-        save = Submit(
-            "Save", "save",
-            hx_post=reverse_lazy('project-settings-tab', kwargs={'pk': ppk}),
-            hx_target='#settings-container',
-            hx_swap='outerHTML'
-        )
-        self.helper.add_input(save)
-        cancel = Button(
-            "Cancel", "Cancel",
-            css_class="btn",
-            hx_get=reverse_lazy("project-settings-tab", kwargs={"pk": ppk}),
-            hx_target='#settings-container',
-            hx_swap='outerHTML'
-        )
-        self.helper.add_input(cancel)
 
 
 class MemberInvitationForm(forms.ModelForm):
@@ -106,10 +84,9 @@ class BotForm(forms.ModelForm):
         self.fields["prompt"].widget.attrs["rows"] = 20
         self.fields["config"].widget.attrs["rows"] = 2
         self.helper = FormHelper()
-        save = Submit("Save", "save",
-            hx_get=endpoint,
-            hx_target="#bots-tab",
-            hx_swap="innerHTML")
+        save = Submit(
+            "Save", "save", hx_get=endpoint, hx_target="#bots-tab", hx_swap="innerHTML"
+        )
         self.helper.add_input(save)
         self.helper.add_input(cancel())
 
@@ -123,10 +100,13 @@ class ConsentLetterForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["short_md"].widget.attrs["rows"] = 4
         self.helper = FormHelper()
-        save = Submit("Save", "save",
+        save = Submit(
+            "Save",
+            "save",
             hx_get=endpoint,
             hx_target="#letters-tab",
-            hx_swap="innerHTML")
+            hx_swap="innerHTML",
+        )
         self.helper.add_input(save)
         self.helper.add_input(cancel())
 
@@ -187,6 +167,7 @@ class PublicConsentForm(forms.ModelForm):
     if not (settings.DEBUG or settings.TESTING):
         from django_recaptcha.fields import ReCaptchaField
         from django_recaptcha.widgets import ReCaptchaV3
+
         # https://pypi.org/project/django-recaptcha/
         captcha = ReCaptchaField(widget=ReCaptchaV3)
 
@@ -285,8 +266,8 @@ class LundSurveyForm(forms.Form):
 
 
 class ImportChatForm(forms.Form):
-    """Row of the import chat screen
-    """
+    """Row of the import chat screen"""
+
     id = forms.CharField(widget=forms.HiddenInput(), required=False)
     selected = forms.BooleanField(required=False)
     pseudonym = forms.CharField(min_length=1)
@@ -295,8 +276,9 @@ class ImportChatForm(forms.Form):
 class ImportChatFormSetHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(ImportChatFormSetHelper, self).__init__(*args, **kwargs)
-        self.template = 'transcripts/table_inline_formset.html'
+        self.template = "transcripts/table_inline_formset.html"
         self.add_input(Submit("Import", "import"))
         self.add_input(cancel())
+
 
 ImportChatFormSet = forms.formset_factory(ImportChatForm, extra=0)

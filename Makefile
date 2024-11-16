@@ -1,6 +1,10 @@
 .PHONY: test
 test:
-	./manage.py test apps
+	DJANGO_ALLOW_ASYNC_UNSAFE=true ./manage.py test apps
+
+.PHONY: pw
+pw:
+	DJANGO_ALLOW_ASYNC_UNSAFE=true ./manage.py test apps.projects.tests.test_projects
 
 .PHONY: dev
 dev:
@@ -22,7 +26,7 @@ build:
 
 .PHONY: .venv
 .venv: requirements.txt
-  python3 -m venv .venv
-  .venv/bin/python -m pip install -r requirements.txt
-  sudo apt install libatk-bridge2.0-0 libxkbcommon0 libgbm1 libatspi2.0-0
-  python -m playwright install
+	python3 -m venv .venv
+	.venv/bin/python -m pip install -r requirements.txt
+	sudo apt install libatk-bridge2.0-0 libxkbcommon0 libgbm1 libatspi2.0-0
+	python -m playwright install

@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.urls import reverse_lazy
 from django.utils.timezone import now
 from apps.context_helpers import backend_context
 from apps.projects.forms import ProjectForm
@@ -51,12 +50,10 @@ def new(request: HttpRequest) -> HttpResponse:
         if form.is_valid():
             form.instance.owner = request.user
             proj = form.save()
-            return redirect(reverse_lazy("project-members", kwargs={"pk": proj.id}))
+            return redirect(proj)
     else:
         form = ProjectForm()
-        form.helper.form_acount = reverse_lazy("project-new")
-    ctx = backend_context({"form": form, "project": dashboard})
-    return render(request, "projects/detail.html", ctx)
+    return render(request, "projects/new.html", {"form": form})
 
 
 @login_required
@@ -67,8 +64,8 @@ def delete(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == "POST":
         project.deleted_at = now()
         project.save()
-        messages.success(request, "Project {project.name} deleted.")
-        return redirect("profile")
+        messages.success(request, f"Project {project.name} deleted.")
+        return redirect("users:profile")
     ctx = backend_context({"project": project})
     return render(request, "projects/delete.html", ctx)
 
@@ -81,7 +78,7 @@ def leave(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == "POST":
         project.members.remove(request.user)
         project.save()
-        messages.success(request, f"You have been removed from {project.name}.")
-        return redirect("profile")
+        messages.success(request, f"You have left {project.name}.")
+        return redirect("users:profile")
     ctx = backend_context({"project": project})
     return render(request, "projects/leave.html", ctx)

@@ -35,9 +35,7 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-questions", pk=project.pk)
     else:
         form = QuestionForm()
-    ctx = backend_context(
-        {"form": form, "project": project}
-    )
+    ctx = backend_context({"form": form, "project": project})
     return render(request, "questions/detail.html", ctx)
 
 

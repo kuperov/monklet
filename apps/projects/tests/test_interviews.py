@@ -101,7 +101,9 @@ class InterviewTest(TestCase):
 
     def test_invite(self):
         self.assertTrue(self.client.login(email=_e, password=_pw))
-        resp = self.client.get(self.project.bots_url)
+        resp = self.client.get(
+            reverse_lazy("project-bots", kwargs={"pk": self.project.pk})
+        )
         self.assertContains(resp, "BBB", status_code=200)
         public_page = reverse_lazy("bot-public", kwargs={"pk": self.bot_let.pk})
         self.assertContains(resp, public_page, status_code=200)  # as menu item link

@@ -37,12 +37,15 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
     return render(request, "transcripts/upload.html", ctx)
 
 
-
 @login_required
 def project_import_chats(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk)
     already_imported = set([t.interview_id for t in project.transcripts.all()])
-    ivs = {iv.pk: iv for iv in project.started_completed_interviews() if iv.pk not in already_imported}
+    ivs = {
+        iv.pk: iv
+        for iv in project.started_completed_interviews()
+        if iv.pk not in already_imported
+    }
     if request.method == "POST":
         formset = forms.ImportChatFormSet(request.POST)
         if formset.is_valid():
@@ -55,24 +58,28 @@ def project_import_chats(request: HttpRequest, pk: str) -> HttpResponse:
                         chat = models.Interview.objects.get(pk=iv.cleaned_data["id"])
                         if chat.project.id != project.id:
                             raise PermissionDenied("Invalid project")
-                        ts = models.Transcript.from_chat(chat, pseudonym=iv.cleaned_data["pseudonym"])
+                        ts = models.Transcript.from_chat(
+                            chat, pseudonym=iv.cleaned_data["pseudonym"]
+                        )
                         ts.save()
                 messages.success(request, f"Created {num_imported} transcripts")
-                return redirect('project-responses', pk=project.pk)
+                return redirect("project-responses", pk=project.pk)
     else:
         # list unimported interviews, come up with pseudonyms
-        initial = [{"id": k, "pseudonym": iv.subject_name, "selected": False}
-                   for k, iv in ivs.items()]
+        initial = [
+            {"id": k, "pseudonym": iv.subject_name, "selected": False}
+            for k, iv in ivs.items()
+        ]
         formset = forms.ImportChatFormSet(initial=initial)
 
     # read-only fields not passed through in GET data
     for form, iv in zip(formset, ivs.values()):
         # ordering not guaranteed stable
-        if 'id' in form.initial and form.initial['id'] in ivs:
-            iv = ivs[form.initial['id']]
-        form.extra_info = {'updated_at': iv.updated_at, 'subject_name': iv.subject_name}
+        if "id" in form.initial and form.initial["id"] in ivs:
+            iv = ivs[form.initial["id"]]
+        form.extra_info = {"updated_at": iv.updated_at, "subject_name": iv.subject_name}
     ctx = {"formset": formset, "formsethelper": forms.ImportChatFormSetHelper()}
-    return render(request, 'transcripts/import.html', ctx)
+    return render(request, "transcripts/import.html", ctx)
 
 
 @login_required
@@ -82,4 +89,4 @@ def delete(request: HttpRequest, pk: str) -> HttpResponse:
         raise PermissionDenied("User action not permitted")
     ts.deleted_at = now()
     ts.save()
-    return redirect('project-responses', pk=ts.project.pk)
+    return redirect("project-responses", pk=ts.project.pk)

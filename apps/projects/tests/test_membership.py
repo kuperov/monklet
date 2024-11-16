@@ -119,14 +119,14 @@ class InvitationTestCase(TestCase):
         # owner can't accept own
         self.client.login(email=o_e, password=o_pw)
         resp = self.client.get(self.invitation.landing_url, follow=False)
-        self.assertRedirects(resp, self.project.get_absolute_url)
+        self.assertRedirects(resp, self.project.get_absolute_url())
         accept_action = reverse_lazy(
             "invitation-respond", kwargs={"code": self.invitation.pk}
         )
         resp = self.client.post(
             accept_action, data={"yes": "Yes, accept"}, follow=False
         )
-        self.assertRedirects(resp, self.project.get_absolute_url)
+        self.assertRedirects(resp, self.project.get_absolute_url())
 
     def test_accept_invitation(self):
         self.assertEqual(self.project.member_count, 1)
@@ -146,7 +146,7 @@ class InvitationTestCase(TestCase):
             "invitation-respond", kwargs={"code": self.invitation.pk}
         )
         resp = self.client.post(accept_action, {"yes": "Yes, accept"}, follow=False)
-        self.assertRedirects(resp, self.project.get_absolute_url)
+        self.assertRedirects(resp, self.project.get_absolute_url())
         proj = Project.objects.get(pk=self.project.pk)
         self.assertEqual(proj.member_count, 2)
         self.assertTrue(self.project.is_member(recip))

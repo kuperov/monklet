@@ -5,7 +5,13 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 from apps.context_helpers import backend_context, blank_context
-from apps.projects.forms import ExportInterviewsForm, InterviewConsentForm, InterviewForm, LundSurveyForm, PublicConsentForm
+from apps.projects.forms import (
+    ExportInterviewsForm,
+    InterviewConsentForm,
+    InterviewForm,
+    LundSurveyForm,
+    PublicConsentForm,
+)
 from apps.projects.models import Bot, Interview, Project
 
 
@@ -92,7 +98,6 @@ def delete(request, pk):
     return redirect(next)
 
 
-
 @login_required
 def conversation(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
@@ -117,9 +122,7 @@ def list_invited(request: HttpRequest, pk: str) -> HttpResponse:
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
     interviews = project.interviews.filter(deleted_at=None, status="invited")
-    ctx = backend_context(
-        {"project": project, "interviews": interviews}
-    )
+    ctx = backend_context({"project": project, "interviews": interviews})
     return render(request, "interviews/invited.html", ctx)
 
 
@@ -130,20 +133,20 @@ def list(request: HttpRequest, pk: str) -> HttpResponse:
         raise PermissionDenied("User action not permitted.")
     interviews = project.started_completed_interviews()
     template = "interviews/list.html"
-    if request.method == 'POST':
+    if request.method == "POST":
         # nb default status is started/completed
-        if request.POST.get('status') == 'invited':
+        if request.POST.get("status") == "invited":
             interviews = project.invited_interviews()
-        elif request.POST.get('status') == 'test':
+        elif request.POST.get("status") == "test":
             interviews = project.test_interviews()
-        if request.POST.get('followup') == 'ok_only':
+        if request.POST.get("followup") == "ok_only":
             interviews = interviews.filter(followup_consented=True)
-        elif request.POST.get('followup') == 'no_only':
+        elif request.POST.get("followup") == "no_only":
             interviews = interviews.filter(followup_consented=False)
-        if request.POST.get('bot', 'all') != 'all':
-            interviews = interviews.filter(bot_id=request.POST.get('bot'))
+        if request.POST.get("bot", "all") != "all":
+            interviews = interviews.filter(bot_id=request.POST.get("bot"))
         if request.headers.get("HX-Request") == "true":
-            template = 'interviews/_interview_table.html'
+            template = "interviews/_interview_table.html"
     ctx = backend_context(
         {
             "project": project,
@@ -208,9 +211,7 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
         form = InterviewForm()
         if "bot" in request.GET:
             form.initial["bot"] = request.GET["bot"]
-    ctx = backend_context(
-        {"form": form, "project": project}
-    )
+    ctx = backend_context({"form": form, "project": project})
     return render(request, "interviews/new.html", ctx)
 
 

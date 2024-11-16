@@ -79,6 +79,7 @@ class Profile(models.Model):
                 "owner_name": proj.owner.name or str(proj.owner),
                 "last_modified_at": proj.last_modified_at,
                 "members": members,
+                "owner_pk": proj.owner.pk,
             }
 
         for p in self.user.owned_projects.all():

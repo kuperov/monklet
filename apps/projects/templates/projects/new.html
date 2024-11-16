@@ -1,0 +1,37 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}New project{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+    <h6>Project settings</h6>
+    </div>
+    <div class="card-body">
+    {# crispy form #}
+    <form method="post" action="{% url "project-new" %}">
+      {{ form | crispy }}
+      {% csrf_token %}
+      <div class="mb-3">
+        <input
+          type="submit"
+          name="Save"
+          value="save"
+          class="btn btn-primary">
+        <a
+          href="#"
+          onclick="javascript:history.back()"
+          class="btn">
+          Cancel
+        </a>
+      </div>
+    </form>
+</div>
+{% endblock content %}

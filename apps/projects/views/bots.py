@@ -12,22 +12,17 @@ from apps.projects.models import Bot, ConsentLetter, Interview, Project
 from apps.projects.views.util import get_editable_project, get_viewable_project
 
 
-
 @login_required
 def index(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk)
-    ctx = backend_context(
-        {
-            "project": project
-        }
-    )
+    ctx = backend_context({"project": project})
     return render(request, "bots/index.html", ctx)
 
 
 @login_required
 def new(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk=pk)
-    endpoint = reverse("project-bots-new", kwargs={'pk': project.pk})
+    endpoint = reverse("project-bots-new", kwargs={"pk": project.pk})
     if request.method == "POST":
         form = forms.BotForm(endpoint, request.POST)
         if form.is_valid():
@@ -38,16 +33,14 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "bots/_bots.html", {"project": project})
     else:
         form = forms.BotForm(endpoint)
-    ctx = backend_context(
-        {"form": form, "project": project}
-    )
+    ctx = backend_context({"form": form, "project": project})
     return render(request, "bots/_bot_detail.html", ctx)
 
 
 @login_required
 def edit(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
-    endpoint = reverse("bot-edit", kwargs={'pk': bot.pk})
+    endpoint = reverse("bot-edit", kwargs={"pk": bot.pk})
     if not bot.project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
@@ -69,6 +62,7 @@ def delete(request: HttpRequest, pk: str) -> HttpResponse:
     bot.save()
     messages.success(request, "Bot deleted")
     return render(request, "bots/_bots.html", {"project": bot.project})
+
 
 @login_required
 def duplicate(request: HttpRequest, pk: str) -> HttpResponse:
@@ -125,13 +119,15 @@ def delete_letter(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def edit_letter(request: HttpRequest, pk: str) -> HttpResponse:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
-    endpoint = reverse("consent-letter-edit", kwargs={'pk': consent_letter.pk})
+    endpoint = reverse("consent-letter-edit", kwargs={"pk": consent_letter.pk})
     if request.method == "POST":
         form = forms.ConsentLetterForm(endpoint, request.POST, instance=consent_letter)
         if form.is_valid():
             form.save()
             messages.success(request, "Updated consent_letter")
-            return render(request, "bots/_letters.html", {"project": consent_letter.project})
+            return render(
+                request, "bots/_letters.html", {"project": consent_letter.project}
+            )
     else:
         form = forms.ConsentLetterForm(endpoint, instance=consent_letter)
     ctx = backend_context({"form": form, "project": consent_letter.project})
@@ -141,7 +137,7 @@ def edit_letter(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def new_letter(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
-    endpoint = reverse("project-consent-letters-new", kwargs={'pk': project.pk})
+    endpoint = reverse("project-consent-letters-new", kwargs={"pk": project.pk})
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
@@ -154,9 +150,7 @@ def new_letter(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "bots/_letters.html", {"project": project})
     else:
         form = forms.ConsentLetterForm(endpoint)
-    ctx = backend_context(
-        {"form": form, "project": project}
-    )
+    ctx = backend_context({"form": form, "project": project})
     return render(request, "bots/_letter_detail.html", ctx)
 
 

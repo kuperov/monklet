@@ -3,13 +3,7 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Error - Pages{% endblock %}
-
-{% block page_css %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static 'vendor/css/pages/page-misc.css' %}" />
-{% endblock page_css %}
-
+{% block title %}{{title}} - {{ message }}{% endblock %}
 
 {% block content %}
 <div class="misc-wrapper">
@@ -24,5 +18,4 @@
     </div>
   </div>
 </div>
-<!-- /Error -->
 {% endblock %}

@@ -26,7 +26,7 @@ def view(request: HttpRequest, pk: str) -> HttpResponse:
 def settings_tab(request: HttpRequest, pk: str) -> HttpResponse:
     # always called by HTMX
     project = get_editable_project(request, pk=pk)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = forms.ProjectForm(request.POST, instance=project)
         if form.is_valid():
             project = form.save()
@@ -34,8 +34,9 @@ def settings_tab(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "settings/_settings.html", {"project": project})
     else:
         form = forms.ProjectForm(instance=project)
-    return render(request, "settings/_edit_settings.html",
-                  {"form": form, "project": project})
+    return render(
+        request, "settings/_edit_settings.html", {"form": form, "project": project}
+    )
 
 
 @login_required
@@ -51,9 +52,7 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect(project.members_url)
     else:
         form = forms.MemberInvitationForm()
-    ctx = backend_context(
-        {"form": form, "project": project}
-    )
+    ctx = backend_context({"form": form, "project": project})
     return render(request, "settings/invite.html", ctx)
 
 
@@ -82,13 +81,13 @@ def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
     if not inv.is_valid:
         return render(request, "invitations/not_available.html")
     if request.user == inv.project.owner:  # owner clicked own link
-        return redirect(inv.project.get_absolute_url)
+        return redirect(inv.project.get_absolute_url())
     if not request.user.is_authenticated:
         return redirect(inv.landing_url)
     if request.method == "POST" and request.POST.get("yes"):
         inv.accept(request.user)
         inv.save()
-        return redirect(inv.project.get_absolute_url)
+        return redirect(inv.project.get_absolute_url())
     else:
         raise PermissionDenied("User action not permitted.")
 
@@ -97,7 +96,7 @@ def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
 def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
     inv = get_object_or_404(MemberInvitation, pk=code)
     if request.user == inv.project.owner:  # owner clicked own link
-        return redirect(inv.project.get_absolute_url)
+        return redirect(inv.project.get_absolute_url())
     if not inv.is_valid:
         ctx = blank_context({"unavailable": True})
     elif not request.user.is_authenticated:

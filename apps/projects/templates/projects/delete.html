@@ -14,7 +14,7 @@
     <div class="col-xl-10">
         <div class="card">
             <div class="card-header pb-4">
-            <h4>Delete project {{ project.name }}?</h4>
+            <h6>Delete project {{ project.name }}?</h6>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -22,7 +22,7 @@
                 <form action="{{ project.delete_url }}" method="POST">
                     {% csrf_token %}
                     <input type="submit" class="btn btn-danger" value="Yes, delete" />
-                    <a href="{% url 'profile' %}">Don't delete</a>
+                    <a href="{% url 'users:profile' %}">Don't delete</a>
                 </form>
                 </div>
             </div>

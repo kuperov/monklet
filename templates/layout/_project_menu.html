@@ -29,11 +29,12 @@
   </a>
 </li>
 
-<li class="menu-item {% project_active "project-bots" project.pk "active open" %}">
-  <a href="{% url 'project-bots' pk=project.pk %}" class="menu-link menu-toggle">
+<li class="menu-item {% project_active "project-bots" project.pk "active" %}">
+  <a href="{% url 'project-bots' pk=project.pk %}" class="menu-link {# menu-toggle #}">
     <i class="menu-icon tf-icons ri-robot-2-line"></i>
     <div>Bots</div>
   </a>
+  {% comment %}
   <ul class="menu-sub">
     {% for bot in project.get_active_bots %}
     <li class="menu-item {% active bot.get_absolute_url %}">
@@ -43,6 +44,7 @@
     </li>
     {% endfor %}
   </ul>
+  {% endcomment %}
 </li>
 
 
@@ -61,7 +63,14 @@
 <li class="menu-item {% project_active "project-responses" project.pk %}">
   <a href="{% url 'project-responses' pk=project.pk %}" class="menu-link">
     <i class="menu-icon tf-icons ri-message-line"></i>
-    <div>Transcripts</div>
+    <div>Data</div>
+  </a>
+</li>
+
+<li class="menu-item {% project_active "project-responses" project.pk %}">
+  <a href="{% url 'project-responses' pk=project.pk %}" class="menu-link">
+    <i class="menu-icon tf-icons ri-message-line"></i>
+    <div>Themes</div>
   </a>
 </li>
 
@@ -78,28 +87,3 @@
     <div>Harmonized analysis</div>
   </a>
 </li>
-
-{% comment %}
-<!-- collapsible template -->
-{% load i18n %}
-
-{% with is_group=item.submenu|filter_by_url:request  %}
-  {# if not item.permission or request.user|has_permission:item.permission #}
-  <li class="menu-item {% if is_group %}active open{% endif %}">
-    <a href="javascript:void(0);" class="menu-link menu-toggle">
-      <i class="{{ item.icon }}"></i>
-      <div>{% trans item.name %}</div>
-      {% if item.badge %}
-        <div class="badge bg-{{ item.badge.0 }} rounded-pill ms-auto">{{ item.badge.1 }}</div>
-      {% endif %}
-    </a>
-    <ul class="menu-sub">
-      {% for sub_item in item.submenu %}
-        {% include './menu_item_template.html' with item=sub_item %}
-      {% endfor %}
-    </ul>
-  </li>
-  {# endif #}
-{% endwith %}
-
-{% endcomment %}
