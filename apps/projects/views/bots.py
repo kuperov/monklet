@@ -4,7 +4,6 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from django.contrib import messages
-from django.urls import reverse
 from django.utils.timezone import now
 from apps.projects import forms
 from apps.projects.models import Bot, ConsentLetter, Interview, Project
@@ -18,8 +17,10 @@ def index(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def new(request: HttpRequest, pk: str) -> HttpResponse:
+def new_bot(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk=pk)
+    if request.GET.get("cancel") == "true":
+        return render(request, "bots/_bots.html", {"project": project})
     if request.method == "POST":
         form = forms.BotForm(request.POST)
         if form.is_valid():
@@ -30,18 +31,17 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "bots/_bots.html", {"project": project})
     else:
         form = forms.BotForm()
-    if request.GET.get("cancel") == "true":
-        return render(request, "bots/_bots.html", {"project": project})
-    else:
-        ctx = {"form": form, "project": project}
-        return render(request, "bots/_new_bot.html", ctx)
+    ctx = {"form": form, "project": project}
+    return render(request, "bots/_new_bot.html", ctx)
 
 
 @login_required
-def edit(request: HttpRequest, pk: str) -> HttpResponse:
+def edit_bot(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     if not bot.project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
+    if request.GET.get("cancel") == "true":
+        return render(request, "bots/_bots.html", {"project": bot.project})
     if request.method == "POST":
         form = forms.BotForm(request.POST, instance=bot)
         if form.is_valid():
@@ -50,15 +50,12 @@ def edit(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "bots/_bots.html", {"project": bot.project})
     else:
         form = forms.BotForm(instance=bot)
-    if request.GET.get("cancel") == "true":
-        return render(request, "bots/_bots.html", {"project": bot.project})
-    else:
-        ctx = {"form": form, "project": bot.project}
-        return render(request, "bots/_edit_bot.html", ctx)
+    ctx = {"form": form, "project": bot.project}
+    return render(request, "bots/_edit_bot.html", ctx)
 
 
 @login_required
-def delete(request: HttpRequest, pk: str) -> HttpResponse:
+def delete_bot(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     bot.deleted_at = now()
     bot.save()
@@ -67,7 +64,7 @@ def delete(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def duplicate(request: HttpRequest, pk: str) -> HttpResponse:
+def duplicate_bot(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
     if not bot.project.can_edit(request.user):
         return redirect("users:profile")
@@ -119,9 +116,12 @@ def delete_letter(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def edit_letter(request: HttpRequest, pk: str) -> HttpResponse:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
-    endpoint = reverse("consent-letter-edit", kwargs={"pk": consent_letter.pk})
+    if request.GET.get("cancel") == "true":
+        return render(
+            request, "bots/_letters.html", {"project": consent_letter.project}
+        )
     if request.method == "POST":
-        form = forms.ConsentLetterForm(endpoint, request.POST, instance=consent_letter)
+        form = forms.ConsentLetterForm(request.POST, instance=consent_letter)
         if form.is_valid():
             form.save()
             messages.success(request, "Updated consent_letter")
@@ -129,29 +129,30 @@ def edit_letter(request: HttpRequest, pk: str) -> HttpResponse:
                 request, "bots/_letters.html", {"project": consent_letter.project}
             )
     else:
-        form = forms.ConsentLetterForm(endpoint, instance=consent_letter)
+        form = forms.ConsentLetterForm(instance=consent_letter)
     ctx = {"form": form, "project": consent_letter.project}
-    return render(request, "bots/_letter_detail.html", ctx)
+    return render(request, "bots/_edit_letter.html", ctx)
 
 
 @login_required
 def new_letter(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
-    endpoint = reverse("project-consent-letters-new", kwargs={"pk": project.pk})
     if not project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
+    if request.GET.get("cancel") == "true":
+        return render(request, "bots/_letters.html", {"project": project})
     if request.method == "POST":
-        form = forms.ConsentLetterForm(endpoint, request.POST)
+        form = forms.ConsentLetterForm(request.POST)
         if form.is_valid:
             let = form.save(commit=False)
             let.project = project
             let.save()
-            messages.add_message(request, messages.SUCCESS, "Consent letter added")
+            messages.success(request, "Consent letter added")
             return render(request, "bots/_letters.html", {"project": project})
     else:
-        form = forms.ConsentLetterForm(endpoint)
+        form = forms.ConsentLetterForm()
     ctx = {"form": form, "project": project}
-    return render(request, "bots/_letter_detail.html", ctx)
+    return render(request, "bots/_new_letter.html", ctx)
 
 
 def view_letter(request: HttpRequest, pk: str) -> HttpRequest:

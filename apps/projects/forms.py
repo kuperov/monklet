@@ -84,19 +84,10 @@ class ConsentLetterForm(forms.ModelForm):
         model = ConsentLetter
         fields = ["name", "short_md", "letter_md"]
 
-    def __init__(self, endpoint, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["short_md"].widget.attrs["rows"] = 4
         self.helper = FormHelper()
-        save = Submit(
-            "Save",
-            "save",
-            hx_get=endpoint,
-            hx_target="#letters-tab",
-            hx_swap="innerHTML",
-        )
-        self.helper.add_input(save)
-        self.helper.add_input(cancel())
 
 
 class InterviewForm(forms.ModelForm):

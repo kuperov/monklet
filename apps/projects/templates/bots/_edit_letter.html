@@ -1,0 +1,26 @@
+{% load crispy_forms_tags %}
+
+<div class="p-5">
+  <form>
+  {{ form | crispy }}
+  {% csrf_token %}
+  <div class="mb-3">
+    <input
+      type="submit"
+      name="Save"
+      value="save"
+      class="btn btn-primary"
+      id="submit-id-save"
+      hx-post="{% url "consent-letter-edit" pk=form.instance.pk %}"
+      hx-swap="innerHTML"
+      hx-target="#letters-tab">
+    <a
+      class="btn"
+      hx-get="{% url "consent-letter-edit" pk=form.instance.pk %}?cancel=true"
+      hx-swap="innerHTML"
+      hx-target="#letters-tab">
+      Cancel
+    </a>
+  </div>
+  </form>
+</div>

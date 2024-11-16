@@ -13,7 +13,7 @@ class ProjectViewTests(StaticLiveServerTestCase):
     def setUp(self):
         create_project_fixture(self)
 
-    def test_settings(self):
+    def test_create_bot(self):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=False)
             page = browser.new_page()

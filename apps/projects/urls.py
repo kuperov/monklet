@@ -23,7 +23,11 @@ urlpatterns = [
         name="project-settings-tab",
     ),
     path("projects/<str:pk>/invite", settings.invite, name="project-invite"),
-    path("projects/<str:pk>/invitations", settings.invitations, name="project-invitations"),
+    path(
+        "projects/<str:pk>/invitations",
+        settings.invitations,
+        name="project-invitations",
+    ),
     path(
         "invitations/<str:pk>/resend",
         settings.resend_invitation,
@@ -52,10 +56,10 @@ urlpatterns = [
     path("question/<str:pk>/delete", questions.delete, name="question-delete"),
     path("projects/<str:pk>/simulate", bots.simulate, name="projects-simulate"),
     path("projects/<str:pk>/bots", bots.index, name="project-bots"),
-    path("projects/<str:pk>/bots/new", bots.new, name="project-bots-new"),
-    path("bots/<str:pk>/edit", bots.edit, name="bot-edit"),
-    path("bots/<str:pk>/delete", bots.delete, name="bot-delete"),
-    path("bots/<str:pk>/duplicate", bots.duplicate, name="bot-duplicate"),
+    path("projects/<str:pk>/bots/new", bots.new_bot, name="project-bots-new"),
+    path("bots/<str:pk>/edit", bots.edit_bot, name="bot-edit"),
+    path("bots/<str:pk>/delete", bots.delete_bot, name="bot-delete"),
+    path("bots/<str:pk>/duplicate", bots.duplicate_bot, name="bot-duplicate"),
     path(
         "projects/<str:pk>/consent-letters/new",
         bots.new_letter,
