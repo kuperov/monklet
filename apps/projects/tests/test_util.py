@@ -1,3 +1,5 @@
+from asgiref.sync import sync_to_async
+
 from playwright.sync_api import Page
 from apps.projects import models
 from apps.users.models import User
@@ -248,8 +250,31 @@ def create_project():
     }
 
 
-def create_interview(owner, project, proj_url, bot):
-    interview = models.Interview.objects.create(
+async def acreate_project():
+    owner = await sync_to_async(User.objects.create_user)(
+        email=OWNER_EMAIL, password=OWNER_PASSWORD, name="Max Goose"
+    )
+    project = await models.Project.objects.acreate(owner=owner, name="XYZ")
+    proj_url = resolve_url(project)
+    bot = await models.Bot.objects.acreate(
+        project=project,
+        name="BBB",
+        description="Big beautiful bot",
+        prompt="You are a silly bot. Make silly conversation. At the end of the conversation output ENDOFINTERVIEW",
+        aimodel="gemini-1.5-flash",
+        status="live",
+        allow_public=True,
+    )
+    return {
+        "owner": owner,
+        "project": project,
+        "proj_url": proj_url,
+        "bot": bot,
+    }
+
+
+async def acreate_interview(owner, project, proj_url, bot):
+    interview = await models.Interview.objects.acreate(
         project=project,
         bot=bot,
         subject_email="user@here.com",
@@ -270,9 +295,9 @@ def create_interview(owner, project, proj_url, bot):
     }
 
 
-def create_interview_fixture(test):
-    fields = create_project()
-    fields = create_interview(**fields)
+async def acreate_interview_fixture(test):
+    fields = await acreate_project()
+    fields = await acreate_interview(**fields)
     for name, val in fields.items():
         setattr(test, name, val)
 
@@ -283,8 +308,21 @@ def create_project_fixture(test):
         setattr(test, name, val)
 
 
+async def acreate_project_fixture(test):
+    fields = await acreate_project()
+    for name, val in fields.items():
+        setattr(test, name, val)
+
+
 def playwright_login(live_server_url, page: Page):
     page.goto(f"{live_server_url}/accounts/login/")
     page.fill("#id_login", "a@b.com")
     page.fill("#id_password", "secret")
     page.click("#submit-id-signin")
+
+
+async def aplaywright_login(live_server_url, page: Page):
+    await page.goto(f"{live_server_url}/accounts/login/")
+    await page.fill("#id_login", "a@b.com")
+    await page.fill("#id_password", "secret")
+    await page.click("#submit-id-signin")

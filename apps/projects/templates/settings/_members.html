@@ -81,4 +81,12 @@
     >
     Invite new collaborator
   </a>
+  <a class="m-4 btn btn-secondary"
+    href="#"
+    hx-get="{% url 'project-members' pk=project.pk %}"
+    hx-target="#members-tab"
+    hx-swap="innerHTML"
+    >
+    Refresh
+  </a>
 </div>

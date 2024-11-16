@@ -27,7 +27,7 @@ def new_bot(request: HttpRequest, pk: str) -> HttpResponse:
             b = form.save(commit=False)
             b.project = project
             b.save()
-            messages.success(request, "Bot added")
+            messages.success(request, "Bot created")
             return render(request, "bots/_bots.html", {"project": project})
     else:
         form = forms.BotForm()

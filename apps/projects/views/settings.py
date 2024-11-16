@@ -42,6 +42,12 @@ def settings_tab(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
+def members(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_viewable_project(request, pk=pk)
+    return render(request, "settings/_members.html", {"project": project})
+
+
+@login_required
 def invite(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk=pk)
     if request.method == "POST":
