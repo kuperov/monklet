@@ -47,10 +47,10 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == "POST":
         form = forms.MemberInvitationForm(request.POST)
         if form.is_valid():
-            inv = form.save(commit=False)
+            inv : MemberInvitation = form.save(commit=False)
             inv.project = project
             inv.send_email(request)  # saves
-            messages.success(request, "Invitation sent")
+            messages.success(request, f"Invitation sent to {inv.email}")
             return render(request, "settings/_members.html", {'project': project})
     else:
         form = forms.MemberInvitationForm()

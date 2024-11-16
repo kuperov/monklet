@@ -40,7 +40,7 @@ class ProjectViewTests(StaticLiveServerTestCase):
             self.assertTrue("lorem ipsum" in page.text_content("#settings-tab"))
             self.assertTrue("dolor sit" in page.text_content("#settings-tab"))
 
-    def test_members(self):
+    def test_invite_members(self):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=False)
             page = browser.new_page()
@@ -50,6 +50,17 @@ class ProjectViewTests(StaticLiveServerTestCase):
             )
             page.goto(settings_url)
             page.get_by_role("tab").get_by_text("Members").click()
-            self.assertTrue(self.owner.name in page.text_content("#members-tab"))
-            self.assertTrue(self.owner.email in page.text_content("#members-tab"))
+            tab_content = page.text_content("#members-tab")
+            self.assertTrue(self.owner.name in tab_content)
+            self.assertTrue(self.owner.email in tab_content)
+            self.assertTrue("Owner" in tab_content)
             page.click("text=Invite new collaborator")
+            self.assertTrue("Save" in page.text_content("#members-tab"))
+            page.click("text=Cancel")
+            self.assertTrue("Member name" in page.text_content("#members-tab"))
+            page.click("text=Invite new collaborator")
+            page.fill("#id_name", "Bob Smith")
+            page.fill("#id_email", "bob@example.com")
+            page.fill("#id_role", "editor")
+            page.click("text=Save")
+            self.assertEqual(page.text_content("role=alert"), "Invitation sent to bob@example.com")
