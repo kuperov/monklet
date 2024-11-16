@@ -3,7 +3,6 @@ import logging
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 
-from apps.context_helpers import blank_context, front_context
 from apps.pages.forms import EnquiryForm
 
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ def make_error_handler(status):
         500: ("Internal Server Error", "An unexpected error occurred on the server."),
     }
     code = http_status_codes.get(status, ("Error", "An error occurred"))
-    ctx = blank_context(dict(status=status, title=code[0], message=code[1]))
+    ctx = dict(status=status, title=code[0], message=code[1])
     if status == 500:
 
         def handler(request):
@@ -47,7 +46,7 @@ def index(request):
         return redirect(reverse_lazy("users:profile"))
     else:
         form = EnquiryForm()
-        ctx = front_context({"form": form})
+        ctx = {"form": form}
         return render(request, "index.html", ctx)
 
 

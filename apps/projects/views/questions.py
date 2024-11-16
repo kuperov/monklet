@@ -1,5 +1,4 @@
 from django.contrib import messages
-from apps.context_helpers import backend_context
 from apps.projects.forms import QuestionForm
 from apps.projects.models import Project, Question
 
@@ -15,8 +14,7 @@ def list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project})
-    return render(request, "questions/list.html", ctx)
+    return render(request, "questions/list.html", {"project": project})
 
 
 @login_required
@@ -35,7 +33,7 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-questions", pk=project.pk)
     else:
         form = QuestionForm()
-    ctx = backend_context({"form": form, "project": project})
+    ctx = {"form": form, "project": project}
     return render(request, "questions/detail.html", ctx)
 
 
@@ -50,7 +48,7 @@ def edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-questions", pk=question.project.pk)
     else:
         form = QuestionForm(instance=question)
-    ctx = backend_context({"form": form, "project": question.project})
+    ctx = {"form": form, "project": question.project}
     return render(request, "questions/detail.html", ctx)
 
 

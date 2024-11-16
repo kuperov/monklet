@@ -4,7 +4,6 @@ import zipfile
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.timezone import now
-from apps.context_helpers import backend_context, blank_context
 from apps.projects.forms import (
     ExportInterviewsForm,
     InterviewConsentForm,
@@ -27,11 +26,10 @@ from apps.projects.util import datetime_str
 # note: unauthenticated view - interview_code provides security
 def landing_invited(request, interview_code):
     iv = get_object_or_404(Interview, pk=interview_code)
-    ctx = blank_context({"project": iv.project, "interview": iv})
     return render(
         request,
         "interviews/interview.html",
-        ctx,
+        {"project": iv.project, "interview": iv},
     )
 
 
@@ -52,15 +50,13 @@ def uninvited_landing(request, pk):
                 return redirect(interview_url)
     else:
         form = InterviewConsentForm(instance=iv)
-    ctx = blank_context(
-        {
-            "form": form,
-            "project": project,
-            "bot": iv.bot,
-            "interview": iv,
-            "is_collaborator": project.can_view(request.user),
-        }
-    )
+    ctx = {
+        "form": form,
+        "project": project,
+        "bot": iv.bot,
+        "interview": iv,
+        "is_collaborator": project.can_view(request.user),
+    }
     return render(request, "interviews/landing.html", ctx)
 
 
@@ -103,16 +99,14 @@ def conversation(request, pk):
     iv = get_object_or_404(Interview, pk=pk)
     msg_list = iv.messages_list()
     prompt_tokens, gen_tokens, total_tokens = iv.total_token_usage()
-    ctx = backend_context(
-        {
-            "interview": iv,
-            "project": iv.project,
-            "msg_list": msg_list,
-            "prompt_tokens": prompt_tokens,
-            "gen_tokens": gen_tokens,
-            "total_tokens": total_tokens,
-        }
-    )
+    ctx = {
+        "interview": iv,
+        "project": iv.project,
+        "msg_list": msg_list,
+        "prompt_tokens": prompt_tokens,
+        "gen_tokens": gen_tokens,
+        "total_tokens": total_tokens,
+    }
     return render(request, "interviews/conversation.html", ctx)
 
 
@@ -122,7 +116,7 @@ def list_invited(request: HttpRequest, pk: str) -> HttpResponse:
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
     interviews = project.interviews.filter(deleted_at=None, status="invited")
-    ctx = backend_context({"project": project, "interviews": interviews})
+    ctx = {"project": project, "interviews": interviews}
     return render(request, "interviews/invited.html", ctx)
 
 
@@ -147,13 +141,11 @@ def list(request: HttpRequest, pk: str) -> HttpResponse:
             interviews = interviews.filter(bot_id=request.POST.get("bot"))
         if request.headers.get("HX-Request") == "true":
             template = "interviews/_interview_table.html"
-    ctx = backend_context(
-        {
-            "project": project,
-            "interviews": interviews,
-            "is_editor": project.can_edit(request.user),
-        }
-    )
+    ctx = {
+        "project": project,
+        "interviews": interviews,
+        "is_editor": project.can_edit(request.user),
+    }
     return render(request, template, ctx)
 
 
@@ -188,7 +180,7 @@ def export(request: HttpRequest, pk: str) -> HttpResponse:
             return response
     else:
         form = ExportInterviewsForm()
-    ctx = backend_context({"form": form, "project": proj})
+    ctx = {"form": form, "project": proj}
     return render(request, "interviews/export.html", ctx)
 
 
@@ -211,7 +203,7 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
         form = InterviewForm()
         if "bot" in request.GET:
             form.initial["bot"] = request.GET["bot"]
-    ctx = backend_context({"form": form, "project": project})
+    ctx = {"form": form, "project": project}
     return render(request, "interviews/new.html", ctx)
 
 
@@ -241,7 +233,7 @@ def lund_questions(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("interview", interview_code=interview.pk)
     else:
         form = LundSurveyForm()
-    ctx = blank_context({"interview": interview, "form": form})
+    ctx = {"interview": interview, "form": form}
     return render(request, "interviews/lund_questions.html", ctx)
 
 
@@ -299,13 +291,11 @@ def landing_public(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect(interview_url)
     else:
         form = PublicConsentForm()
-    ctx = blank_context(
-        {
-            "bot": bot,
-            "project": project,
-            "form": form,
-            "ip_address": request.headers.get("X-Real-IP"),
-            "is_collaborator": is_collaborator,
-        }
-    )
+    ctx = {
+        "bot": bot,
+        "project": project,
+        "form": form,
+        "ip_address": request.headers.get("X-Real-IP"),
+        "is_collaborator": is_collaborator,
+    }
     return render(request, "interviews/public.html", ctx)

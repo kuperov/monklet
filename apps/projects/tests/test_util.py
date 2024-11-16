@@ -231,7 +231,7 @@ INTERVIEW_CONTENT = [
 ]
 
 
-def create_interview():
+def create_project():
     owner = User.objects.create_user(
         email=OWNER_EMAIL, password=OWNER_PASSWORD, name="Max Goose"
     )
@@ -240,6 +240,15 @@ def create_interview():
     bot = models.Bot.objects.create(
         project=project, name="BBB", status="live", allow_public=True
     )
+    return {
+        "owner": owner,
+        "project": project,
+        "proj_url": proj_url,
+        "bot": bot,
+    }
+
+
+def create_interview(owner, project, proj_url, bot):
     interview = models.Interview.objects.create(
         project=project,
         bot=bot,
@@ -262,7 +271,8 @@ def create_interview():
 
 
 def create_interview_fixture(test):
-    fields = create_interview()
+    fields = create_project()
+    fields = create_interview(**fields)
     for name, val in fields.items():
         setattr(test, name, val)
 

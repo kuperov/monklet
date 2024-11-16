@@ -16,7 +16,6 @@ from django.views.generic import UpdateView
 
 from apps.users.models import Profile, User
 from apps.users.forms import ProfileForm
-from apps.context_helpers import backend_context
 
 
 def menu():
@@ -38,13 +37,11 @@ def profile(request: HttpRequest) -> HttpResponse:
     except ObjectDoesNotExist:
         profile = Profile(user=request.user)
         profile.save()
-    ctx = backend_context(
-        {
-            "profile": profile,
-            "menu_data": menu(),
-            "date_joined": request.user.date_joined.strftime("%d %b, %Y"),
-        }
-    )
+    ctx = {
+        "profile": profile,
+        "menu_data": menu(),
+        "date_joined": request.user.date_joined.strftime("%d %b, %Y"),
+    }
     return render(request, "profile/profile.html", ctx)
 
 
@@ -61,12 +58,10 @@ def profile_edit(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("users:profile")
     else:
         form = ProfileForm(instance=profile)
-    ctx = backend_context(
-        {
-            "form": form,
-            "menu_data": menu(),
-        }
-    )
+    ctx = {
+        "form": form,
+        "menu_data": menu(),
+    }
     return render(request, "profile/profile-edit.html", ctx)
 
 

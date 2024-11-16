@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.timezone import now
-from apps.context_helpers import backend_context, blank_context
 from apps.projects import forms
 from apps.projects.models import Bot, ConsentLetter, Interview, Project
 from apps.projects.views.util import get_editable_project, get_viewable_project
@@ -15,8 +14,7 @@ from apps.projects.views.util import get_editable_project, get_viewable_project
 @login_required
 def index(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk)
-    ctx = backend_context({"project": project})
-    return render(request, "bots/index.html", ctx)
+    return render(request, "bots/index.html", {"project": project})
 
 
 @login_required
@@ -33,7 +31,7 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "bots/_bots.html", {"project": project})
     else:
         form = forms.BotForm(endpoint)
-    ctx = backend_context({"form": form, "project": project})
+    ctx = {"form": form, "project": project}
     return render(request, "bots/_bot_detail.html", ctx)
 
 
@@ -51,7 +49,7 @@ def edit(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "bots/_bots.html", {"project": bot.project})
     else:
         form = forms.BotForm(endpoint, instance=bot)
-    ctx = backend_context({"form": form, "project": bot.project})
+    ctx = {"form": form, "project": bot.project}
     return render(request, "bots/_bot_detail.html", ctx)
 
 
@@ -97,13 +95,11 @@ def simulate(request: HttpRequest, pk: str) -> HttpResponse:
             is_test=True,
             status="invited",
         )
-    ctx = backend_context(
-        {
-            "project": project,
-            "bots": project.enabled_bots(),
-            "test_interviews": project.test_interviews(),
-        }
-    )
+    ctx = {
+        "project": project,
+        "bots": project.enabled_bots(),
+        "test_interviews": project.test_interviews(),
+    }
     if interview:
         ctx["initial_interview"] = interview.pk
     return render(request, "bots/simulator.html", ctx)
@@ -130,7 +126,7 @@ def edit_letter(request: HttpRequest, pk: str) -> HttpResponse:
             )
     else:
         form = forms.ConsentLetterForm(endpoint, instance=consent_letter)
-    ctx = backend_context({"form": form, "project": consent_letter.project})
+    ctx = {"form": form, "project": consent_letter.project}
     return render(request, "bots/_letter_detail.html", ctx)
 
 
@@ -150,11 +146,11 @@ def new_letter(request: HttpRequest, pk: str) -> HttpResponse:
             return render(request, "bots/_letters.html", {"project": project})
     else:
         form = forms.ConsentLetterForm(endpoint)
-    ctx = backend_context({"form": form, "project": project})
+    ctx = {"form": form, "project": project}
     return render(request, "bots/_letter_detail.html", ctx)
 
 
 def view_letter(request: HttpRequest, pk: str) -> HttpRequest:
     consent_letter = get_object_or_404(ConsentLetter, pk=pk)
-    ctx = blank_context({"project": consent_letter.project, "letter": consent_letter})
+    ctx = {"project": consent_letter.project, "letter": consent_letter}
     return render(request, "bots/public_letter.html", ctx)

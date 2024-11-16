@@ -1,5 +1,4 @@
 from django.contrib import messages
-from apps.context_helpers import backend_context
 from apps.projects import forms, models
 
 from django.contrib.auth.decorators import login_required
@@ -16,8 +15,7 @@ def list(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(models.Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
-    ctx = backend_context({"project": project})
-    return render(request, "transcripts/list.html", ctx)
+    return render(request, "transcripts/list.html", {"project": project})
 
 
 @login_required
@@ -33,7 +31,7 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
             return redirect("project-transcripts", pk=project.pk)
     else:
         form = forms.ManualTranscriptForm()
-    ctx = backend_context({"form": form, "project": project})
+    ctx = {"form": form, "project": project}
     return render(request, "transcripts/upload.html", ctx)
 
 

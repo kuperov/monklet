@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.utils.timezone import now
-from apps.context_helpers import backend_context
 from apps.projects.forms import ProjectForm
 from apps.projects.models import Project
 
@@ -30,16 +29,14 @@ def dashboard(request: HttpRequest, pk: str) -> HttpResponse:
         .count()
     )
     test = proj.interviews.filter(is_test=True).count()
-    ctx = backend_context(
-        {
-            "project": proj,
-            "inv_only": inv_only,
-            "started": started,
-            "complete": complete,
-            "followup_ok": followup_ok,
-            "test": test,
-        }
-    )
+    ctx = {
+        "project": proj,
+        "inv_only": inv_only,
+        "started": started,
+        "complete": complete,
+        "followup_ok": followup_ok,
+        "test": test,
+    }
     return render(request, "projects/project.html", ctx)
 
 
@@ -66,8 +63,7 @@ def delete(request: HttpRequest, pk: str) -> HttpResponse:
         project.save()
         messages.success(request, f"Project {project.name} deleted.")
         return redirect("users:profile")
-    ctx = backend_context({"project": project})
-    return render(request, "projects/delete.html", ctx)
+    return render(request, "projects/delete.html", {"project": project})
 
 
 @login_required
@@ -80,5 +76,4 @@ def leave(request: HttpRequest, pk: str) -> HttpResponse:
         project.save()
         messages.success(request, f"You have left {project.name}.")
         return redirect("users:profile")
-    ctx = backend_context({"project": project})
-    return render(request, "projects/leave.html", ctx)
+    return render(request, "projects/leave.html", {"project": project})

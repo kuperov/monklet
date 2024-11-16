@@ -2,13 +2,7 @@
 
 <div id='settings-container'>
 
-  {% if messages %}
-  {% for message in messages %}
-  <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-warning{% endif %}" role="alert">
-    {{ message }}
-  </div>
-  {% endfor %}
-  {% endif %}
+  {% include 'layout/_messages.html' %}
 
   <h6>Project title</h6>
   <p><strong>{{ project.name }}</strong></p>

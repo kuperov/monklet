@@ -46,7 +46,7 @@
       "console": "integratedTerminal",
       "args": [
         "test",
-        "apps.projects.tests.test_projects"
+        "apps.projects.tests.test_settings"
       ],
       "env": {
         "DJANGO_ALLOW_ASYNC_UNSAFE": "true"
