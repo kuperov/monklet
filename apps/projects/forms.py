@@ -41,12 +41,6 @@ class MemberInvitationForm(forms.ModelForm):
         model = MemberInvitation
         fields = ["name", "email", "role"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.add_input(save())
-        self.helper.add_input(cancel())
-
 
 class QuestionForm(forms.ModelForm):
     class Meta:

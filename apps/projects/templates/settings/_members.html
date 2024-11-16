@@ -1,3 +1,5 @@
+{% include 'layout/_messages.html' %}
+
 <table class="datatables-transaction table">
   <thead class="table-light">
     <tr class="text-nowrap">
@@ -71,5 +73,12 @@
   </tbody>
 </table>
 <div class="px-0 pt-0 d-flex justify-content-end">
-  <a class="m-4 btn btn-primary" href="{% url 'project-invite' pk=project.pk %}">Invite new collaborator</a>
+  <a class="m-4 btn btn-primary"
+    href="#"
+    hx-get="{% url 'project-invite' pk=project.pk %}"
+    hx-target="#members-tab"
+    hx-swap="innerHTML"
+    >
+    Invite new collaborator
+  </a>
 </div>

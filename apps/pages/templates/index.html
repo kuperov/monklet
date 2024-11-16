@@ -32,7 +32,7 @@
 {% block content %}
 <div data-bs-spy="scroll" class="scrollspy-example">
   <section id="landingHero" class="section-py landing-hero position-relative">
-    <img src="{% static 'img/front-pages/backgrounds/hero-bg-' %}{{ COOKIES.style|default:style }}.png" alt="hero background" class="position-absolute top-0 start-0 w-100 h-100 z-n1" data-speed="1" data-app-light-img="front-pages/backgrounds/hero-bg-light.png" data-app-dark-img="front-pages/backgrounds/hero-bg-dark.png" />
+    <img src="{% static 'img/front-pages/backgrounds/hero-bg-light.png' %}" alt="hero background" class="position-absolute top-0 start-0 w-100 h-100 z-n1" data-speed="1" data-app-light-img="front-pages/backgrounds/hero-bg-light.png" data-app-dark-img="front-pages/backgrounds/hero-bg-dark.png" />
     <div class="container">
       <div class="hero-text-box text-center">
         {% if messages %}

@@ -51,11 +51,20 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
             inv.project = project
             inv.send_email(request)  # saves
             messages.success(request, "Invitation sent")
-            return redirect(project.members_url)
+            return render(request, "settings/_members.html", {'project': project})
     else:
         form = forms.MemberInvitationForm()
-    ctx = {"form": form, "project": project}
-    return render(request, "settings/invite.html", ctx)
+    if request.GET.get('cancel') == 'true':
+        return render(request, "settings/_members.html", {'project': project})
+    else:
+        ctx = {"form": form, "project": project}
+        return render(request, "settings/_invite.html", ctx)
+
+
+@login_required
+def invitations(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_viewable_project(request, pk)
+    return render(request, "settings/_invitations.html", {"project": project})
 
 
 @login_required

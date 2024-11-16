@@ -2,7 +2,7 @@
 
 {% load static i18n crispy_forms_tags %}
 
-{% block title %}{{ project.name }}{% endblock %}
+{% block title %}Chatbots - {{ project.name }}{% endblock %}
 
 {% block page_css %}
 {{ block.super }}
@@ -10,7 +10,12 @@
 {% endblock page_css %}
 
 {% block content %}
-<h5>Interview bots</h5>
+<h5>Chatbots</h5>
+<p>
+  Chatbots define the structure of AI-driven interviews.
+  Consent letters provide information about the study so that prospective
+  respondents can decide whether to participate.
+</p>
 <div class="card">
   <div class="card-header px-0 pt-0">
     <div class="nav-align-top">
@@ -29,10 +34,10 @@
     </div>
   </div>
   <div class="tab-content p-0">
-    <div class="tab-pane fade show active table-responsive card-datatable p-5" id="bots-tab" role="tabpanel">
+    <div class="tab-pane fade show active table-responsive card-datatable" id="bots-tab" role="tabpanel">
       {% include 'bots/_bots.html' %}
     </div>
-    <div class="tab-pane fade show table-responsive card-datatable p-5" id="letters-tab" role="tabpanel">
+    <div class="tab-pane fade show table-responsive card-datatable" id="letters-tab" role="tabpanel">
       {% include 'bots/_letters.html' %}
     </div>
   </div>

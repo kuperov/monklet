@@ -23,6 +23,7 @@ urlpatterns = [
         name="project-settings-tab",
     ),
     path("projects/<str:pk>/invite", settings.invite, name="project-invite"),
+    path("projects/<str:pk>/invitations", settings.invitations, name="project-invitations"),
     path(
         "invitations/<str:pk>/resend",
         settings.resend_invitation,
