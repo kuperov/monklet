@@ -33,24 +33,18 @@
         "test",
         "apps"
       ],
-      "env": {
-        "DJANGO_ALLOW_ASYNC_UNSAFE": "true"
-      },
       "django": false
     },
     {
-      "name": "Test views",
+      "name": "Current test",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/manage.py",
       "console": "integratedTerminal",
       "args": [
         "test",
-        "apps.projects.tests.test_bots"
+        "apps.projects.tests.test_transcripts"
       ],
-      "env": {
-        "DJANGO_ALLOW_ASYNC_UNSAFE": "true"
-      },
       "django": false
     }
   ]

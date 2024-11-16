@@ -295,6 +295,35 @@ async def acreate_interview(owner, project, proj_url, bot):
     }
 
 
+def create_interview(owner, project, proj_url, bot):
+    interview = models.Interview.objects.create(
+        project=project,
+        bot=bot,
+        subject_email="user@here.com",
+        subject_name="Alex",
+        has_consented=True,
+        followup_consented=True,
+        # ignore a bunch of the fields copied from bot
+        status="complete",
+        attributes=[],
+        content=INTERVIEW_CONTENT,
+    )
+    return {
+        "owner": owner,
+        "project": project,
+        "proj_url": proj_url,
+        "bot": bot,
+        "interview": interview,
+    }
+
+
+def create_interview_fixture(test):
+    fields = create_project()
+    fields = create_interview(**fields)
+    for name, val in fields.items():
+        setattr(test, name, val)
+
+
 async def acreate_interview_fixture(test):
     fields = await acreate_project()
     fields = await acreate_interview(**fields)

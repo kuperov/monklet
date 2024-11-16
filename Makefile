@@ -1,10 +1,10 @@
 .PHONY: test
 test:
-	DJANGO_ALLOW_ASYNC_UNSAFE=true ./manage.py test apps
+	./manage.py test apps
 
 .PHONY: pw
 pw:
-	DJANGO_ALLOW_ASYNC_UNSAFE=true ./manage.py test apps.projects.tests.test_projects
+	./manage.py test apps.projects.tests.test_projects
 
 .PHONY: dev
 dev:

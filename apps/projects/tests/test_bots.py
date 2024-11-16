@@ -54,6 +54,7 @@ class ProjectViewTests(StaticLiveServerTestCase):
             await page.goto(bots_url)
             await page.locator("button").locator(".ri-more-2-line").click()
             await page.locator(".ri-edit-line").click()
+            await page.wait_for_load_state()
             self.assertTrue(await page.locator("#id_name").is_visible())
             await page.fill("#id_name", "qwerty")
             await page.click("text=Save")

@@ -5,12 +5,13 @@ from apps.projects.tests.test_util import (
     OWNER_EMAIL,
     OWNER_PASSWORD,
     create_interview_fixture,
-    playwright_login,
+    acreate_interview_fixture,
+    aplaywright_login,
 )
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
 
 class TestImport(TestCase):
@@ -29,15 +30,13 @@ class TestImport(TestCase):
 
 class TestImportViews(StaticLiveServerTestCase):
 
-    def setUp(self):
-        create_interview_fixture(self)
-
-    def test_import_transcript(self):
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            playwright_login(self.live_server_url, page)
-            page.click("text=XYZ")
+    async def test_import_transcript(self):
+        await acreate_interview_fixture(self)
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await aplaywright_login(self.live_server_url, page)
+            await page.click("text=XYZ")
             self.assertEqual(
                 page.url, f"{self.live_server_url}{self.project.get_absolute_url()}"
             )
