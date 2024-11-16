@@ -4,10 +4,10 @@
   <div class="layout-container">
     {% include "../layout/_menu.html" %}
     <div class="layout-page">
-      <nav class="layout-navbar {{container_class}} navbar navbar-expand-xl {{navbar_detached_class}} align-items-center bg-navbar-theme" id="layout-navbar">
+      <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
         <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
           {# hamburger #}
-          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 {{ menu_horizontal|yesno:'d-xl-none,' }} {{ content_navbar|yesno:'d-xl-none,' }}">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
             <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
               <i class="ri-menu-fill ri-24px"></i>
             </a>
