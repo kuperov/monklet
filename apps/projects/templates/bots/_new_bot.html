@@ -1,0 +1,24 @@
+{% load crispy_forms_tags %}
+
+<div class="p-5">
+  {{ form | crispy}}
+  {% csrf_token %}
+  <div class="mb-3">
+    <input
+      type="submit"
+      name="Save"
+      value="save"
+      class="btn btn-primary"
+      id="submit-id-save"
+      hx-post="{% url "project-bots-new" pk=project.pk %}"
+      hx-swap="innerHTML"
+      hx-target="#bots-tab">
+    <a
+      class="btn"
+      hx-get="{% url "project-bots-new" pk=project.pk %}?cancel=true"
+      hx-swap="innerHTML"
+      hx-target="#bots-tab">
+      Cancel
+    </a>
+  </div>
+</div>

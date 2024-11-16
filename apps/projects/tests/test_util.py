@@ -277,6 +277,12 @@ def create_interview_fixture(test):
         setattr(test, name, val)
 
 
+def create_project_fixture(test):
+    fields = create_project()
+    for name, val in fields.items():
+        setattr(test, name, val)
+
+
 def playwright_login(live_server_url, page: Page):
     page.goto(f"{live_server_url}/accounts/login/")
     page.fill("#id_login", "a@b.com")

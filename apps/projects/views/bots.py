@@ -20,9 +20,8 @@ def index(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def new(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk=pk)
-    endpoint = reverse("project-bots-new", kwargs={"pk": project.pk})
     if request.method == "POST":
-        form = forms.BotForm(endpoint, request.POST)
+        form = forms.BotForm(request.POST)
         if form.is_valid():
             b = form.save(commit=False)
             b.project = project
@@ -30,27 +29,32 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
             messages.success(request, "Bot added")
             return render(request, "bots/_bots.html", {"project": project})
     else:
-        form = forms.BotForm(endpoint)
-    ctx = {"form": form, "project": project}
-    return render(request, "bots/_bot_detail.html", ctx)
+        form = forms.BotForm()
+    if request.GET.get("cancel") == "true":
+        return render(request, "bots/_bots.html", {"project": project})
+    else:
+        ctx = {"form": form, "project": project}
+        return render(request, "bots/_new_bot.html", ctx)
 
 
 @login_required
 def edit(request: HttpRequest, pk: str) -> HttpResponse:
     bot = get_object_or_404(Bot, pk=pk)
-    endpoint = reverse("bot-edit", kwargs={"pk": bot.pk})
     if not bot.project.can_edit(request.user):
         raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
-        form = forms.BotForm(endpoint, request.POST, instance=bot)
+        form = forms.BotForm(request.POST, instance=bot)
         if form.is_valid():
             form.save()
             messages.success(request, "Updated bot")
             return render(request, "bots/_bots.html", {"project": bot.project})
     else:
-        form = forms.BotForm(endpoint, instance=bot)
-    ctx = {"form": form, "project": bot.project}
-    return render(request, "bots/_bot_detail.html", ctx)
+        form = forms.BotForm(instance=bot)
+    if request.GET.get("cancel") == "true":
+        return render(request, "bots/_bots.html", {"project": bot.project})
+    else:
+        ctx = {"form": form, "project": bot.project}
+        return render(request, "bots/_edit_bot.html", ctx)
 
 
 @login_required

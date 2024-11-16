@@ -18,7 +18,7 @@ def view(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk=pk)
     form = forms.ProjectForm(instance=project)
     ctx = {"project": project, "form": form}
-    return render(request, "settings/settings.html", ctx)
+    return render(request, "settings/index.html", ctx)
 
 
 @login_required

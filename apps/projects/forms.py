@@ -72,17 +72,11 @@ class BotForm(forms.ModelForm):
             "allow_public",
         ]
 
-    def __init__(self, endpoint, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["description"].widget.attrs["rows"] = 3
         self.fields["prompt"].widget.attrs["rows"] = 20
         self.fields["config"].widget.attrs["rows"] = 2
-        self.helper = FormHelper()
-        save = Submit(
-            "Save", "save", hx_get=endpoint, hx_target="#bots-tab", hx_swap="innerHTML"
-        )
-        self.helper.add_input(save)
-        self.helper.add_input(cancel())
 
 
 class ConsentLetterForm(forms.ModelForm):

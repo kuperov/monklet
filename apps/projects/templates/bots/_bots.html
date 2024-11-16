@@ -1,3 +1,5 @@
+{% include 'layout/_messages.html' %}
+
 <div class="table-responsive text-nowrap">
   <table class="table">
     <thead class="table-light">
@@ -32,21 +34,31 @@
           <!-- span class="dropdown-item text-muted"><i class="ri-chat-check-line me-1"></i> Simulate (disabled)</span -->
           {% endif %}
           {% if bot.status != 'disabled' and bot.allow_public %}
-          <a class="dropdown-item" target="_blank" href="{% url 'bot-public' pk=bot.pk %}"><i class="ri-external-link-line me-1"></i> Public page</a>
+          <a class="dropdown-item" target="_blank" href="{% url 'bot-public' pk=bot.pk %}">
+            <i class="ri-external-link-line me-1"></i> Public page
+          </a>
           {% else %}
           <span class="dropdown-item text-muted"><i class="ri-external-link-line me-1"></i> Public page (disabled)</span>
           {% endif %}
           {% if bot.status == 'live' %}
-          <a class="dropdown-item" href="{% url 'project-interviews-invite' pk=project.pk %}?bot={{bot.pk}}"><i class="ri-mail-send-line me-1"></i> Invite subject</a>
+          <a class="dropdown-item" href="{% url 'project-interviews-invite' pk=project.pk %}?bot={{bot.pk}}">
+            <i class="ri-mail-send-line me-1"></i> Invite subject
+          </a>
           {% else %}
           <span class="dropdown-item text-muted"><i class="ri-mail-send-line me-1"></i> Invite subject (disabled)</span>
           {% endif %}
-          <a class="dropdown-item" href="#" hx-get="{% url 'bot-edit' pk=bot.pk %}" hx-target="#bots-tab" hx-swap="innerHTML"><i class="ri-edit-line me-1"></i> Edit</a>
-          <a class="dropdown-item" href="#" hx-get="{% url 'bot-duplicate' pk=bot.pk %}" hx-target="#bots-tab" hx-swap="innerHTML"><i class="ri-file-copy-line me-1"></i> Duplicate</a>
+          <a class="dropdown-item" href="#" hx-get="{% url 'bot-edit' pk=bot.pk %}" hx-target="#bots-tab" hx-swap="innerHTML">
+            <i class="ri-edit-line me-1"></i> Edit
+          </a>
+          <a class="dropdown-item" href="#" hx-get="{% url 'bot-duplicate' pk=bot.pk %}" hx-target="#bots-tab" hx-swap="innerHTML">
+            <i class="ri-file-copy-line me-1"></i> Duplicate
+          </a>
           {% if bot.status == 'live' %}
           <span class="dropdown-item text-muted" href="#"><i class="ri-close-line me-1"></i> Delete (disabled)</span>
           {% else %}
-          <a class="dropdown-item text-danger" href="{% url 'bot-delete' pk=bot.pk %}"><i class="ri-close-line me-1"></i> Delete</a>
+          <a class="dropdown-item text-danger" href="#" hx-get="{% url 'bot-delete' pk=bot.pk %}" hx-target="#bots-tab" hx-swap="innerHTML">
+            <i class="ri-close-line me-1"></i> Delete
+          </a>
           {% endif %}
           </div>
       </div>
@@ -60,9 +72,9 @@
   <a class="m-4 btn btn-primary"
     href="#"
     hx-get="{% url 'project-bots-new' pk=project.pk %}"
-    hx-target="bots-panel"
+    hx-target="#bots-tab"
     hx-swap="innerHTML">
-    <i class="ri ri-robot-2-line me-2"></i> New bot
+    New bot
   </a>
   <!-- a class="m-4 btn btn-secondary" href="{% url 'projects-simulate' pk=project.pk %}">
     <i class="ri ri-tools-line me-2"></i>Simulator</! -->
