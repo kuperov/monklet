@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.utils.timezone import now
 from apps.projects import forms
-from apps.projects.models import Bot, ConsentLetter, Interview, Project
+from apps.projects.models import Bot, ConsentLetter, Project
 from apps.projects.views.util import get_editable_project, get_viewable_project
 
 
@@ -75,35 +75,35 @@ def duplicate_bot(request: HttpRequest, pk: str) -> HttpResponse:
             prefix = prefix + "copy of "
     bot.name = prefix + bot.name
     bot.save()
-    return redirect("project-bots", pk=bot.project.pk)
+    return render(request, "bots/_bots.html", {"project": bot.project})
 
 
-@login_required
-def simulate(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
-    interview = None
-    if request.GET.get("bot"):
-        bot = get_object_or_404(Bot, pk=request.GET["bot"])
-        if bot.project.pk != project.pk:
-            raise PermissionDenied("Invalid bot code")
-        interview = Interview.objects.create(
-            project=project,
-            bot=bot,
-            subject_name=request.user.name,
-            subject_email=request.user.email,
-            is_test=True,
-            status="invited",
-        )
-    ctx = {
-        "project": project,
-        "bots": project.enabled_bots(),
-        "test_interviews": project.test_interviews(),
-    }
-    if interview:
-        ctx["initial_interview"] = interview.pk
-    return render(request, "bots/simulator.html", ctx)
+# @login_required
+# def simulate(request: HttpRequest, pk: str) -> HttpResponse:
+#     project = get_object_or_404(Project, pk=pk)
+#     if not project.can_view(request.user):
+#         raise PermissionDenied("User action not permitted.")
+#     interview = None
+#     if request.GET.get("bot"):
+#         bot = get_object_or_404(Bot, pk=request.GET["bot"])
+#         if bot.project.pk != project.pk:
+#             raise PermissionDenied("Invalid bot code")
+#         interview = Interview.objects.create(
+#             project=project,
+#             bot=bot,
+#             subject_name=request.user.name,
+#             subject_email=request.user.email,
+#             is_test=True,
+#             status="invited",
+#         )
+#     ctx = {
+#         "project": project,
+#         "bots": project.enabled_bots(),
+#         "test_interviews": project.test_interviews(),
+#     }
+#     if interview:
+#         ctx["initial_interview"] = interview.pk
+#     return render(request, "bots/simulator.html", ctx)
 
 
 @login_required

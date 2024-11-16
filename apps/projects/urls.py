@@ -54,7 +54,7 @@ urlpatterns = [
     ),
     path("question/<str:pk>/edit", questions.edit, name="question-edit"),
     path("question/<str:pk>/delete", questions.delete, name="question-delete"),
-    path("projects/<str:pk>/simulate", bots.simulate, name="projects-simulate"),
+    # path("projects/<str:pk>/simulate", bots.simulate, name="projects-simulate"),
     path("projects/<str:pk>/bots", bots.index, name="project-bots"),
     path("projects/<str:pk>/bots/new", bots.new_bot, name="project-bots-new"),
     path("bots/<str:pk>/edit", bots.edit_bot, name="bot-edit"),

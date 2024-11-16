@@ -29,9 +29,9 @@
         <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
         <div class="dropdown-menu">
           {% if bot.status != 'disabled' %}
-          <!-- a class="dropdown-item" href="{% url 'projects-simulate' pk=project.pk %}?bot={{bot.pk}}"><i class="ri-chat-check-line me-1"></i> Simulate</a -->
+          {%comment%}<a class="dropdown-item" href="{% url 'projects-simulate' pk=project.pk %}?bot={{bot.pk}}"><i class="ri-chat-check-line me-1"></i> Simulate</a>{%endcomment%}
           {% else %}
-          <!-- span class="dropdown-item text-muted"><i class="ri-chat-check-line me-1"></i> Simulate (disabled)</span -->
+          {%comment%}<span class="dropdown-item text-muted"><i class="ri-chat-check-line me-1"></i> Simulate (disabled)</span>{%endcomment%}
           {% endif %}
           {% if bot.status != 'disabled' and bot.allow_public %}
           <a class="dropdown-item" target="_blank" href="{% url 'bot-public' pk=bot.pk %}">
@@ -76,6 +76,9 @@
     hx-swap="innerHTML">
     New bot
   </a>
-  <!-- a class="m-4 btn btn-secondary" href="{% url 'projects-simulate' pk=project.pk %}">
-    <i class="ri ri-tools-line me-2"></i>Simulator</! -->
+  {%comment%}
+  <a class="m-4 btn btn-secondary" href="{% url 'projects-simulate' pk=project.pk %}">
+    <i class="ri ri-tools-line me-2"></i>Simulator
+  </a>
+  {%endcomment%}
 </div>

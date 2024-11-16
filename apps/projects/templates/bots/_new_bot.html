@@ -1,6 +1,7 @@
 {% load crispy_forms_tags %}
 
 <div class="p-5">
+  <form>
   {{ form | crispy}}
   {% csrf_token %}
   <div class="mb-3">
@@ -21,4 +22,5 @@
       Cancel
     </a>
   </div>
+  </form>
 </div>
