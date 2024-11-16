@@ -1,3 +1,5 @@
+{% include 'layout/_messages.html' %}
+
 <table class="datatables-transaction table">
   <thead class="table-light">
     <tr class="text-nowrap">
@@ -36,10 +38,20 @@
         <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
         <div class="dropdown-menu">
           {% if inv.is_valid %}
-          <a class="dropdown-item" href="{% url 'invitation-cancel' pk=inv.pk %}">
+          <a class="dropdown-item"
+            href="#"
+            hx-get="{% url 'invitation-cancel' pk=inv.pk %}"
+            hx-target="#invitations-tab"
+            hx-swap="innerHTML"
+            >
             <i class="ri-close-line me-1"></i> Cancel</a>
           {% endif %}
-          <a class="dropdown-item" href="{% url 'invitation-resend' pk=inv.pk %}">
+          <a class="dropdown-item"
+            href="#"
+            hx-get="{% url 'invitation-resend' pk=inv.pk %}"
+            hx-target="#invitations-tab"
+            hx-swap="innerHTML"
+            >
             <i class="ri-mail-send-line me-1"></i> Re-send</a>
         </div>
       {% endif %}

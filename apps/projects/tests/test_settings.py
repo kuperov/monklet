@@ -54,13 +54,19 @@ class ProjectViewTests(StaticLiveServerTestCase):
             self.assertTrue(self.owner.name in tab_content)
             self.assertTrue(self.owner.email in tab_content)
             self.assertTrue("Owner" in tab_content)
-            page.click("text=Invite new collaborator")
+            page.get_by_text("Invite new collaborator").click()
             self.assertTrue("Save" in page.text_content("#members-tab"))
             page.click("text=Cancel")
             self.assertTrue("Member name" in page.text_content("#members-tab"))
-            page.click("text=Invite new collaborator")
+            page.get_by_text("Invite new collaborator").click()
             page.fill("#id_name", "Bob Smith")
             page.fill("#id_email", "bob@example.com")
             page.fill("#id_role", "editor")
             page.click("text=Save")
-            self.assertEqual(page.text_content("role=alert"), "Invitation sent to bob@example.com")
+            self.assertEqual(
+                page.text_content("role=alert"), "Invitation sent to bob@example.com"
+            )
+            # should show up in sent invitations tab
+            page.get_by_role("tab").get_by_text("Invitations sent").click()
+            page.click("text=Refresh")
+            self.assertTrue("Bob Smith" in page.content())

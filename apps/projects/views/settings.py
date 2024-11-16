@@ -47,15 +47,15 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == "POST":
         form = forms.MemberInvitationForm(request.POST)
         if form.is_valid():
-            inv : MemberInvitation = form.save(commit=False)
+            inv: MemberInvitation = form.save(commit=False)
             inv.project = project
             inv.send_email(request)  # saves
             messages.success(request, f"Invitation sent to {inv.email}")
-            return render(request, "settings/_members.html", {'project': project})
+            return render(request, "settings/_members.html", {"project": project})
     else:
         form = forms.MemberInvitationForm()
-    if request.GET.get('cancel') == 'true':
-        return render(request, "settings/_members.html", {'project': project})
+    if request.GET.get("cancel") == "true":
+        return render(request, "settings/_members.html", {"project": project})
     else:
         ctx = {"form": form, "project": project}
         return render(request, "settings/_invite.html", ctx)
@@ -64,7 +64,7 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def invitations(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk)
-    return render(request, "settings/_invitations.html", {"project": project})
+    return render(request, "settings/_invitations_sent.html", {"project": project})
 
 
 @login_required
@@ -74,7 +74,8 @@ def resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
     if not project.can_edit(request.user) or inv.accepted_email:
         raise PermissionDenied("User action not permitted.")
     inv.resend_email(request)
-    return redirect("project-settings", pk=project.pk)
+    messages.success(request, f"Sent invitation to {inv.email}")
+    return render(request, "settings/_invitations_sent.html", {"project": project})
 
 
 @login_required
