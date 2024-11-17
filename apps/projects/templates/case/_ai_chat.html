@@ -1,0 +1,30 @@
+<table class="table">
+  <thead class="table-light">
+    <tr class="text-nowrap">
+        <th>No</th>
+        <th>Sender</th>
+        <th>Text</th>
+        <th>Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for msg in record.content %}
+    <tr>
+      <td>{{ forloop.counter }}.</td>
+      <td>{{ msg.who }}</td>
+      <td>{{ msg.text }}</td>
+      <td>{{ msg.reference }}</td>
+      <td></td>
+    </tr>
+    {% empty %}
+    <tr colspan="4">
+      Empty conversation
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="mt-5">
+  <a href="{% url 'interview-conversation' pk=record.interview_id %}">
+    Original conversation
+  </a>
+<div>
