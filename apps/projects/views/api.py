@@ -8,6 +8,7 @@ from apps.users.models import User
 from apps.projects import models
 
 
+# authenticate by email and token
 def all_cases(request: HttpRequest, pk: str) -> HttpResponse:
     if not all(h in request.headers for h in ["email", "token"]):
         raise PermissionDenied("Not authorized")
@@ -15,14 +16,17 @@ def all_cases(request: HttpRequest, pk: str) -> HttpResponse:
     project = models.Project.objects.get(pk=pk)
     if not user or not project or not project.can_view(user):
         raise PermissionDenied("Not authorized")
-    # user authorized
-    data = []
+    # user is now authorized
+    data = {}
+    data_cases = []
     for case in project.current_cases():
         datum = []
         for record in case.current_records():
             datum.append({"record_type": record.record_type, "content": record.content})
-        data.append(datum)
-    return JsonResponse(data)
+        data_cases.append(datum)
+    data["cases"] = data_cases
+    data["name"] = project.name
+    return JsonResponse(data, safe=False)
 
 
 @login_required
