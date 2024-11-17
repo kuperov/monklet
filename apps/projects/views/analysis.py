@@ -8,9 +8,27 @@ from django.shortcuts import get_object_or_404, render
 
 
 @login_required
-def project_analysis(request: HttpRequest, pk: str) -> HttpResponse:
+def themes(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_object_or_404(Project, pk=pk)
     if not project.can_view(request.user):
         raise PermissionDenied("User action not permitted.")
     ctx = {"project": project}
-    return render(request, "analysis/summary.html", ctx)
+    return render(request, "analysis/themes.html", ctx)
+
+
+@login_required
+def query(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    ctx = {"project": project}
+    return render(request, "analysis/query.html", ctx)
+
+
+@login_required
+def harmonized(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_object_or_404(Project, pk=pk)
+    if not project.can_view(request.user):
+        raise PermissionDenied("User action not permitted.")
+    ctx = {"project": project}
+    return render(request, "analysis/harmonized.html", ctx)

@@ -60,29 +60,29 @@
     <span class="menu-header-text">Analysis</span>
 </li>
 
-<li class="menu-item {% project_active "project-responses" project.pk %}">
-  <a href="{% url 'project-responses' pk=project.pk %}" class="menu-link">
+<li class="menu-item {% project_active "data" project.pk %}">
+  <a href="{% url 'data' pk=project.pk %}" class="menu-link">
     <i class="menu-icon tf-icons ri-message-line"></i>
     <div>Data</div>
   </a>
 </li>
 
-<li class="menu-item {% project_active "project-responses" project.pk %}">
-  <a href="{% url 'project-responses' pk=project.pk %}" class="menu-link">
+<li class="menu-item {% project_active "themes" project.pk %}">
+  <a href="{% url 'themes' pk=project.pk %}" class="menu-link">
     <i class="menu-icon tf-icons ri-message-line"></i>
     <div>Themes</div>
   </a>
 </li>
 
-<li class="menu-item {% project_active "project-analysis" project.pk %}">
-  <a href="{% url 'project-analysis' pk=project.pk %}" class="menu-link">
+<li class="menu-item {% project_active "query" project.pk %}">
+  <a href="{% url 'query' pk=project.pk %}" class="menu-link">
     <i class="menu-icon tf-icons ri-search-line"></i>
     <div>Query</div>
   </a>
 </li>
 
-<li class="menu-item {% project_active "project-analysis" project.pk %}">
-  <a href="{% url 'project-analysis' pk=project.pk %}" class="menu-link">
+<li class="menu-item {% project_active "harmonized" project.pk %}">
+  <a href="{% url 'harmonized' pk=project.pk %}" class="menu-link">
     <i class="menu-icon tf-icons ri-bar-chart-box-line"></i>
     <div>Harmonized analysis</div>
   </a>

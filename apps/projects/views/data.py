@@ -17,7 +17,13 @@ def index(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def upload(request: HttpRequest, pk: str) -> HttpResponse:
+def cases(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_viewable_project(request, pk=pk)
+    return render(request, "data/_cases.html", {"project": project})
+
+
+@login_required
+def new_empty(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk=pk)
     if request.method == "POST":
         form = forms.ManualTranscriptForm(request.POST)
@@ -25,18 +31,18 @@ def upload(request: HttpRequest, pk: str) -> HttpResponse:
             ts = form.save(commit=False)
             ts.project = project
             ts.save()
-            messages.add_message(request, messages.SUCCESS, "Transcript added")
-            return redirect("project-transcripts", pk=project.pk)
+            messages.success(request, "Case created")
+            return render(request, "data/_cases.html", {"project": project})
     else:
         form = forms.ManualTranscriptForm()
     ctx = {"form": form, "project": project}
-    return render(request, "data/upload.html", ctx)
+    return render(request, "data/_new.html", ctx)
 
 
 @login_required
-def project_import_chats(request: HttpRequest, pk: str) -> HttpResponse:
+def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk)
-    already_imported = set([t.interview_id for t in project.transcripts.all()])
+    already_imported = set([t.interview_id for t in project.cases.all()])
     ivs = {
         iv.pk: iv
         for iv in project.started_completed_interviews()
@@ -74,8 +80,13 @@ def project_import_chats(request: HttpRequest, pk: str) -> HttpResponse:
         if "id" in form.initial and form.initial["id"] in ivs:
             iv = ivs[form.initial["id"]]
         form.extra_info = {"updated_at": iv.updated_at, "subject_name": iv.subject_name}
-    ctx = {"formset": formset, "formsethelper": forms.ImportChatFormSetHelper()}
-    return render(request, "data/import.html", ctx)
+    ctx = {
+        "formset": formset,
+        "formsethelper": forms.ImportChatFormSetHelper(),
+        "project": project,
+        "available": len(formset) > 0,
+    }
+    return render(request, "data/_import.html", ctx)
 
 
 @login_required

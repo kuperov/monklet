@@ -255,9 +255,7 @@ class ImportChatForm(forms.Form):
 class ImportChatFormSetHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(ImportChatFormSetHelper, self).__init__(*args, **kwargs)
-        self.template = "transcripts/table_inline_formset.html"
-        self.add_input(Submit("Import", "import"))
-        self.add_input(cancel())
+        self.template = "data/_table_inline_formset.html"
 
 
 ImportChatFormSet = forms.formset_factory(ImportChatForm, extra=0)

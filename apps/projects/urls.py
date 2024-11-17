@@ -113,19 +113,12 @@ urlpatterns = [
         interviews.list_json,
         name="project-interviews-test-json",
     ),
-    path("projects/<str:pk>/data", data.index, name="project-responses"),
+    path("projects/<str:pk>/data", data.index, name="data"),
     path("data/<str:pk>/delete", data.delete, name="case-delete"),
-    path(
-        "projects/<str:pk>/data/upload",
-        data.upload,
-        name="case-upload",
-    ),
-    path(
-        "projects/<str:pk>/data/import_chats",
-        data.project_import_chats,
-        name="project-import-chats",
-    ),
-    path(
-        "projects/<str:pk>/analysis", analysis.project_analysis, name="project-analysis"
-    ),
+    path("projects/<str:pk>/data/new", data.new_empty, name="case-new"),
+    path("projects/<str:pk>/data/cases", data.cases, name="cases"),
+    path("projects/<str:pk>/data/import", data.import_chats, name="import-chats"),
+    path("projects/<str:pk>/themes", analysis.themes, name="themes"),
+    path("projects/<str:pk>/query", analysis.themes, name="query"),
+    path("projects/<str:pk>/harmonized", analysis.harmonized, name="harmonized"),
 ]

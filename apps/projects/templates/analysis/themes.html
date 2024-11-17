@@ -1,0 +1,24 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n humanize crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<!-- <h5>Harmonized analysis</h5> -->
+<div class="alert alert-danger" role="alert">
+  <strong>Feature unavailable</strong>. Analysis tools are not enabled for your account.
+</div>
+{% comment %}
+{% for qn in questions %}
+<h6>{{ qn.order }}. {{ qn }}</h6>
+
+<p>[Summary pending]</p>
+{% endfor %}
+{% endcomment %}
+{% endblock content %}

@@ -1,5 +1,7 @@
 {% load humanize %}
 
+{% include 'layout/_messages.html' %}
+
 <table class="table">
   <thead class="table-light">
     <tr class="text-nowrap">
@@ -19,7 +21,7 @@
     <div class="dropdown">
       <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
       <div class="dropdown-menu">
-        <a class="dropdown-item" href="{% url 'case-delete' pk=c.pk %}">
+        <a class="dropdown-item" href="#" hx-get="{% url 'case-delete' pk=c.pk %}" hx-target="#cases-tab" hx-swap="innerHTML">
           <i class="ri-delete-line me-1 text-danger"></i> Delete</a>
         </div>
     </div>
@@ -29,6 +31,22 @@
   </tbody>
 </table>
 <div class="px-0 pt-0 d-flex justify-content-end">
-  <a class="m-4 btn btn-primary" href="{% url 'project-import-chats' pk=project.pk %}">Import chats</a>
-  <a class="m-4 btn btn-secondary" href="{% url 'case-upload' pk=project.pk %}">Manual upload</a>
+  <a
+    class="m-4 btn btn-secondary"
+    href="#"
+    hx-get="{% url 'import-chats' pk=project.pk %}"
+    hx-target="#cases-tab"
+    hx-swap="innerHTML"
+  >
+    Import AI chats
+  </a>
+  <a
+    class="m-4 btn btn-secondary"
+    href="#"
+    hx-get="{% url 'case-new' pk=project.pk %}"
+    hx-target="#cases-tab"
+    hx-swap="innerHTML"
+    >
+    Create
+  </a>
 </div>

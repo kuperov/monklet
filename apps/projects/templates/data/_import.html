@@ -1,19 +1,23 @@
-{% load crispy_forms_tags %}
+{% load static i18n crispy_forms_tags %}
 
-<h6>Manually create case record</h6>
 <form>
-  {{ form | crispy }}
-  {% csrf_token %}
+  {% if available %}
+  {% crispy formset formsethelper %}
+  {% else %}
+  <p>No unimported AI chats available.</p>
+  {% endif %}
   <div class="mb-3">
+  {% if available %}
     <input
       type="submit"
       name="Save"
       value="save"
       class="btn btn-primary"
       id="submit-id-save"
-      hx-post="{% url "case-new" pk=project.pk %}"
+      hx-post="{% url "import-chats" pk=project.pk %}"
       hx-swap="innerHTML"
       hx-target="#cases-tab">
+    {% endif %}
     <a
       class="btn"
       hx-get="{% url "cases" pk=project.pk %}"
