@@ -105,16 +105,12 @@ class InterviewForm(forms.ModelForm):
 
 
 class ManualTranscriptForm(forms.Form):
-    name = forms.CharField()
+    name = forms.CharField(label="Name or pseudonym")
     description = forms.CharField(widget=forms.Textarea)
-    text = forms.CharField(widget=forms.Textarea)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["description"].widget.attrs["rows"] = 3
-        self.helper = FormHelper()
-        self.helper.add_input(save())
-        self.helper.add_input(cancel())
 
 
 class InvitationResponseForm(forms.Form):
@@ -256,6 +252,7 @@ class ImportChatFormSetHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(ImportChatFormSetHelper, self).__init__(*args, **kwargs)
         self.template = "data/_table_inline_formset.html"
+        self.form_tag = False
 
 
 ImportChatFormSet = forms.formset_factory(ImportChatForm, extra=0)

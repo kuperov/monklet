@@ -110,6 +110,9 @@ class Project(models.Model):
     def get_active_bots(self):
         return self.bots.filter(deleted_at=None)
 
+    def current_cases(self) -> Iterable["Case"]:
+        return self.cases.filter(deleted_at=None)
+
 
 MEMBER_ROLES = [("viewer", "Viewer"), ("editor", "Editor")]
 
@@ -609,10 +612,18 @@ class InvitationEmail(models.Model):
 
 
 class Case(models.Model):
+    id = models.UUIDField(
+        "Identifier", primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="cases")
     name = models.CharField(max_length=100, blank=None)
+    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(default=None, null=True, blank=True)
+
+    def current_records(self) -> Iterable["Record"]:
+        return self.records.filter(deleted_at=None)
 
     @classmethod
     def from_chat(_class, interview: Interview, pseudonym: str = None) -> "Case":
@@ -630,14 +641,21 @@ class Case(models.Model):
             for msg in (interview.content or [])
             if msg["sender"] in ["user", "model"]
         ]
-        case = Record(
+        case = Case.objects.create(
             project=interview.project,
             name=pseudonym or interview.subject_name,
         )
-        _dat = Record(
-            case=case, interview=interview, content=content, record_type="ai_chat"
+        Record.objects.create(
+            project=interview.project,
+            case=case,
+            interview=interview,
+            content=content,
+            record_type="ai_chat",
         )
         return case
+
+    def __str__(self):
+        return self.name
 
 
 RECORD_TYPES = [
@@ -650,7 +668,10 @@ RECORD_TYPES = [
 class Record(models.Model):
     """Record attached to a case."""
 
-    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="transcripts")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="records"
+    )
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="records")
     interview = models.ForeignKey(
         Interview, on_delete=models.SET_NULL, null=True, default=None
     )
@@ -658,9 +679,10 @@ class Record(models.Model):
     content = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.record_type}: {self.name}"
+        return f"{self.case.name}: {self.record_type}"
 
 
 class MemberInvitation(models.Model):

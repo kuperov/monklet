@@ -8,6 +8,7 @@ from apps.projects.views import (
     questions,
     bots,
     settings,
+    cases,
 )
 
 
@@ -114,11 +115,12 @@ urlpatterns = [
         name="project-interviews-test-json",
     ),
     path("projects/<str:pk>/data", data.index, name="data"),
-    path("data/<str:pk>/delete", data.delete, name="case-delete"),
+    path("data/<str:pk>/delete", data.delete_case, name="case-delete"),
     path("projects/<str:pk>/data/new", data.new_empty, name="case-new"),
     path("projects/<str:pk>/data/cases", data.cases, name="cases"),
     path("projects/<str:pk>/data/import", data.import_chats, name="import-chats"),
     path("projects/<str:pk>/themes", analysis.themes, name="themes"),
     path("projects/<str:pk>/query", analysis.themes, name="query"),
     path("projects/<str:pk>/harmonized", analysis.harmonized, name="harmonized"),
+    path("case/<str:pk>", cases.index, name="case"),
 ]

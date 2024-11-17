@@ -143,7 +143,7 @@ def new_letter(request: HttpRequest, pk: str) -> HttpResponse:
         return render(request, "bots/_letters.html", {"project": project})
     if request.method == "POST":
         form = forms.ConsentLetterForm(request.POST)
-        if form.is_valid:
+        if form.is_valid():
             let = form.save(commit=False)
             let.project = project
             let.save()

@@ -8,6 +8,8 @@ admin.site.register(models.Interview)
 admin.site.register(models.Question)
 admin.site.register(models.Dimension)
 admin.site.register(models.ConsentLetter)
+admin.site.register(models.Case)
+admin.site.register(models.Record)
 
 
 class MemberInvitationAdmin(admin.ModelAdmin):

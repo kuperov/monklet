@@ -3,10 +3,14 @@
 <form>
   {% if available %}
   {% crispy formset formsethelper %}
+  {{ formset.management_form }}
+  {% csrf_token %}
   {% else %}
-  <p>No unimported AI chats available.</p>
+  <div class="alert alert-warning pl-3" role="alert">
+    There are no unimported AI chats.
+  </div>
   {% endif %}
-  <div class="mb-3">
+  <div class="my-5">
   {% if available %}
     <input
       type="submit"

@@ -1,0 +1,15 @@
+{% load markdown_filters %}
+
+{{ case.description | markdown }}
+
+<h6>Records</h6>
+<ol>
+{% for record in case.current_records %}
+<li>
+  {{ record.get_record_type_display }}
+</li>
+{% empty %}
+No records found
+{% endfor %}
+</ol>
+<a class="btn btn-primary" href="#">Create record</a>

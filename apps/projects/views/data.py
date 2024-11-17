@@ -4,7 +4,7 @@ from apps.projects import forms, models
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.utils.timezone import now
 
 from apps.projects.views.util import get_editable_project, get_viewable_project
@@ -27,22 +27,25 @@ def new_empty(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk=pk)
     if request.method == "POST":
         form = forms.ManualTranscriptForm(request.POST)
-        if form.is_valid:
-            ts = form.save(commit=False)
-            ts.project = project
-            ts.save()
+        if form.is_valid():
+            models.Case.objects.create(
+                project=project,
+                name=form.cleaned_data["name"],
+                description=form.cleaned_data["description"],
+            )
             messages.success(request, "Case created")
             return render(request, "data/_cases.html", {"project": project})
     else:
         form = forms.ManualTranscriptForm()
-    ctx = {"form": form, "project": project}
-    return render(request, "data/_new.html", ctx)
+    return render(request, "data/_new.html", {"form": form, "project": project})
 
 
 @login_required
 def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk)
-    already_imported = set([t.interview_id for t in project.cases.all()])
+    already_imported = set(
+        [t.interview_id for t in project.records.filter(deleted_at=None)]
+    )
     ivs = {
         iv.pk: iv
         for iv in project.started_completed_interviews()
@@ -60,12 +63,14 @@ def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
                         chat = models.Interview.objects.get(pk=iv.cleaned_data["id"])
                         if chat.project.id != project.id:
                             raise PermissionDenied("Invalid project")
-                        ts = models.Transcript.from_chat(
+                        _ts = models.Case.from_chat(
                             chat, pseudonym=iv.cleaned_data["pseudonym"]
                         )
-                        ts.save()
-                messages.success(request, f"Created {num_imported} transcripts")
-                return redirect("project-responses", pk=project.pk)
+                messages.success(
+                    request,
+                    f"Created {num_imported} case(s), each with one transcript record",
+                )
+                return render(request, "data/_cases.html", {"project": project})
     else:
         # list unimported interviews, come up with pseudonyms
         initial = [
@@ -90,10 +95,11 @@ def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def delete(request: HttpRequest, pk: str) -> HttpResponse:
-    ts = get_object_or_404(models.Transcript, pk=pk)
+def delete_case(request: HttpRequest, pk: str) -> HttpResponse:
+    ts = get_object_or_404(models.Case, pk=pk)
     if not ts.project.can_edit(request.user):
         raise PermissionDenied("User action not permitted")
     ts.deleted_at = now()
     ts.save()
-    return redirect("project-responses", pk=ts.project.pk)
+    messages.success("Case deleted")
+    return render(request, "data/_cases.html", {"project": ts.project})

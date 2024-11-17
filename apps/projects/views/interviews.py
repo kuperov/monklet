@@ -191,7 +191,7 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
         raise PermissionDenied("User action not permitted.")
     if request.method == "POST":
         form = InterviewForm(request.POST)
-        if form.is_valid:
+        if form.is_valid():
             inv = form.save(commit=False)
             inv.project = project
             inv.status = "invited"
