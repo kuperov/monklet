@@ -17,58 +17,9 @@
           {# top right menu #}
           <ul class="navbar-nav flex-row align-items-center ms-auto">
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
-              <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
-                <div class="avatar">
-                  <img src="{{ user.profile.avatar_url }}" alt class="w-px-40 h-auto rounded-circle">
-                </div>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end mt-3 py-2">
-                <li>
-                  <a class="dropdown-item pb-3" href="#">
-                    <div class="d-flex align-items-center">
-                      <div class="flex-shrink-0 me-3">
-                        <div class="avatar avatar-online">
-                          <img src='{{ user.profile.avatar_url }}' alt class="w-px-40 h-auto rounded-circle">
-                        </div>
-                      </div>
-                      <div class="flex-grow-1">
-                        <h6 class="mb-0">{{ user.name }}</h6>
-                          <small class="text-muted">{% if user.is_superuser %}Admin{% else %}User{% endif %}</small>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <div class="dropdown-divider my-1"></div>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="{% url 'users:profile' %}">
-                      <i class="ri-user-3-line ri-22px me-2"></i>
-                      <span class="align-middle">My Profile</span>
-                    </a>
-                  </li>
-                  {% if user.is_superuser %}
-                  <li>
-                    <a class="dropdown-item" href="{% url 'admin:index' %}">
-                      <i class="ri-tools-line ri-22px me-2"></i>
-                      <span class="align-middle">Site administration</span>
-                    </a>
-                  </li>
-                  {% endif %}
-                  <li>
-                    <div class="dropdown-divider my-1"></div>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href='{% url 'account_logout' %}'>
-                      <span class="d-flex align-items-center align-middle">
-                        <i class="flex-shrink-0 ri-logout-box-r-line ri-22px me-2"></i>
-                        <span class="flex-grow-1 align-middle ms-1">Log out</span>
-                      </span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
+              {% include 'layout/_user_dropdown.html' %}
+            </li>
+          </ul>
         </div>
       </nav>
       <div class="content-wrapper">

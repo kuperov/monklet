@@ -9,6 +9,7 @@ from apps.projects.views import (
     bots,
     settings,
     cases,
+    api,
 )
 
 
@@ -123,4 +124,8 @@ urlpatterns = [
     path("projects/<str:pk>/query", analysis.themes, name="query"),
     path("projects/<str:pk>/harmonized", analysis.harmonized, name="harmonized"),
     path("case/<str:pk>", cases.index, name="case"),
+    path("api/projects/<str:pk>/all-cases", api.all_cases, name="api-all-cases"),
+    path(
+        "api/projects/<str:pk>/example", api.api_access_example, name="api-example-py"
+    ),
 ]

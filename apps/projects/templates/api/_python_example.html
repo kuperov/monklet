@@ -1,0 +1,42 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block title %}Python API access example - {{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-10">
+        <div class="card">
+            <div class="card-header pb-4">
+            <h6>Python API access example: {{ project.name }}</h6>
+            </div>
+            <div class="card-body">
+<pre>import requests
+
+USER_EMAIL = "{{ user.email }}"
+# Don't share with anyone else
+SECRET_TOKEN = "{{ user.token }}"
+
+try:
+    headers = {"email": USER_EMAIL, "token": SECRET_TOKEN}
+    response = requests.get("{{ api_url }}", headers=headers)
+    response.raise_for_status()
+    data = response.json()
+    print("Response JSON:")
+    print(data)
+except requests.exceptions.RequestException as e:
+    print(f"Unable to access API: {e}")
+except ValueError:
+    print("Error parsing the response as JSON.")
+</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
