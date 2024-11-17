@@ -21,16 +21,16 @@ class TestImport(TestCase):
         self.client.login(email=OWNER_EMAIL, password=OWNER_PASSWORD)
 
     def test_create_transcript(self):
-        ts = models.Transcript.from_chat(self.interview, "Bob")
+        ts = models.Case.from_chat(self.interview, "Bob")
         self.assertEqual(len(ts.content), len(self.interview.content))
         self.assertEqual(ts.content[0]["text"], INTERVIEW_CONTENT[0]["message"])
         self.assertEqual(ts.content[0]["reference"], "00:00")
-        self.assertEqual(str(ts), "Transcript: Bob")
+        self.assertEqual(str(ts), "ai_chat: Bob")
 
 
 class TestImportViews(StaticLiveServerTestCase):
 
-    async def test_import_transcript(self):
+    async def test_import_chat(self):
         await acreate_interview_fixture(self)
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)

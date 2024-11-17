@@ -1,0 +1,43 @@
+{% extends 'layout/layout_vertical.html' %}
+
+{% load static i18n humanize crispy_forms_tags %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
+{% endblock page_css %}
+
+{% block content %}
+<h5>Data</h5>
+<p>The cases listed below contain transcripts, notes, etc from subjects. These records form the underlying data for analysis.</p>
+<div class="card">
+  <div class="card-header px-0 pt-0">
+    <div class="nav-align-top">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#cases-tab" aria-controls="cases-tab" aria-selected="true">
+          Cases
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#attributes-tab" aria-controls="attributes-tab" aria-selected="false">
+          Attributes
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="tab-content p-0">
+      <div class="tab-pane fade show active table-responsive text-nowrap" id="cases-tab" role="tabpanel">
+      {% include 'data/_cases.html' %}
+      </div>
+      <div class="tab-pane fade" id="attributes-tab" role="tabpanel">
+      {% include 'data/_attribute_table.html' %}
+      </div>
+    </div>
+</div>
+</div>
+{% endblock content %}

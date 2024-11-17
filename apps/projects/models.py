@@ -608,27 +608,14 @@ class InvitationEmail(models.Model):
         return "f{self.email} at {self.sent_at} for {self.project.name}"
 
 
-class Transcript(models.Model):
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="transcripts"
-    )
-    interview = models.ForeignKey(
-        Interview, on_delete=models.SET_NULL, null=True, default=None
-    )
+class Case(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="cases")
     name = models.CharField(max_length=100, blank=None)
-    content = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    @property
-    def transcript_type(self):
-        return "Bot" if self.interview else "Manual"
-
-    def __str__(self):
-        return f"Transcript: {self.name}"
-
     @classmethod
-    def from_chat(_class, interview: Interview, pseudonym: str = None) -> "Transcript":
+    def from_chat(_class, interview: Interview, pseudonym: str = None) -> "Case":
         if not interview.content:
             raise Exception("Can't import empty interview")
         start_at = parse_datetime(interview.content[0]["sent_at"])
@@ -643,12 +630,37 @@ class Transcript(models.Model):
             for msg in (interview.content or [])
             if msg["sender"] in ["user", "model"]
         ]
-        return Transcript(
+        case = Record(
             project=interview.project,
-            interview=interview,
             name=pseudonym or interview.subject_name,
-            content=content,
         )
+        _dat = Record(
+            case=case, interview=interview, content=content, record_type="ai_chat"
+        )
+        return case
+
+
+RECORD_TYPES = [
+    ("ai_chat", "AI chat transcript"),
+    ("manual_transcript", "Other transcript"),
+    ("notes", "Notes"),
+]
+
+
+class Record(models.Model):
+    """Record attached to a case."""
+
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name="transcripts")
+    interview = models.ForeignKey(
+        Interview, on_delete=models.SET_NULL, null=True, default=None
+    )
+    record_type = models.CharField("Record type", choices=RECORD_TYPES, max_length=20)
+    content = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.record_type}: {self.name}"
 
 
 class MemberInvitation(models.Model):

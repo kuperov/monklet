@@ -25,6 +25,7 @@ class ProjectViewTests(StaticLiveServerTestCase):
             await page.locator(".btn-primary").get_by_text("New Bot").click()
             # cancel hides form
             await page.click("text=Cancel")
+            await page.wait_for_load_state()
             self.assertFalse(await page.locator("#id_name").is_visible())
             # create bot
             await page.locator(".btn-primary").get_by_text("New Bot").click()

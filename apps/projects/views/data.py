@@ -7,19 +7,17 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
 
-from apps.projects.views.util import get_editable_project
+from apps.projects.views.util import get_editable_project, get_viewable_project
 
 
 @login_required
-def list(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_object_or_404(models.Project, pk=pk)
-    if not project.can_view(request.user):
-        raise PermissionDenied("User action not permitted.")
-    return render(request, "transcripts/list.html", {"project": project})
+def index(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_viewable_project(request, pk=pk)
+    return render(request, "data/index.html", {"project": project})
 
 
 @login_required
-def new(request: HttpRequest, pk: str) -> HttpResponse:
+def upload(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk=pk)
     if request.method == "POST":
         form = forms.ManualTranscriptForm(request.POST)
@@ -32,7 +30,7 @@ def new(request: HttpRequest, pk: str) -> HttpResponse:
     else:
         form = forms.ManualTranscriptForm()
     ctx = {"form": form, "project": project}
-    return render(request, "transcripts/upload.html", ctx)
+    return render(request, "data/upload.html", ctx)
 
 
 @login_required
@@ -77,7 +75,7 @@ def project_import_chats(request: HttpRequest, pk: str) -> HttpResponse:
             iv = ivs[form.initial["id"]]
         form.extra_info = {"updated_at": iv.updated_at, "subject_name": iv.subject_name}
     ctx = {"formset": formset, "formsethelper": forms.ImportChatFormSetHelper()}
-    return render(request, "transcripts/import.html", ctx)
+    return render(request, "data/import.html", ctx)
 
 
 @login_required

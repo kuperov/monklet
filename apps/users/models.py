@@ -82,7 +82,7 @@ class Profile(models.Model):
                 "owner_pk": proj.owner.pk,
             }
 
-        for p in self.user.owned_projects.all():
+        for p in self.user.owned_projects.filter(deleted_at=None):
             projects.append(details(p))
         for pm in self.user.project_memberships.select_related("project").all():
             projects.append(details(pm.project))

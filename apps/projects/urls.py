@@ -1,13 +1,13 @@
 from django.urls import path
 
 from apps.projects.views import (
+    data,
     interviews,
     analysis,
     projects,
     questions,
     bots,
     settings,
-    transcripts,
 )
 
 
@@ -113,16 +113,16 @@ urlpatterns = [
         interviews.list_json,
         name="project-interviews-test-json",
     ),
-    path("projects/<str:pk>/transcripts", transcripts.list, name="project-responses"),
-    path("transcripts/<str:pk>/delete", transcripts.delete, name="transcript-delete"),
+    path("projects/<str:pk>/data", data.index, name="project-responses"),
+    path("data/<str:pk>/delete", data.delete, name="case-delete"),
     path(
-        "projects/<str:pk>/transcripts/upload",
-        transcripts.new,
-        name="project-transcripts-upload",
+        "projects/<str:pk>/data/upload",
+        data.upload,
+        name="case-upload",
     ),
     path(
-        "projects/<str:pk>/transcripts/import_chats",
-        transcripts.project_import_chats,
+        "projects/<str:pk>/data/import_chats",
+        data.project_import_chats,
         name="project-import-chats",
     ),
     path(
