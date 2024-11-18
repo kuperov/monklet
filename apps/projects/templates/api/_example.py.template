@@ -1,3 +1,6 @@
+# {{ project.name }}
+# API data access example
+
 import requests
 
 USER_EMAIL = "{{ user.email }}"
@@ -9,15 +12,12 @@ try:
     response = requests.get("{{ api_url }}", headers=headers)
     response.raise_for_status()
     data = response.json()
-    print("Project data")
-    print("============")
-    for case in data:
-        print(case['name'])
-        for record in case:
-            print(record['record_type'])
+    print(data["name"])
+    for i, case in enumerate(data, 1):
+        print(f'{i:d}. {case["name"]} has {len(case["records"])} records.')
+        for j, record in enumerate(case["records"], 1):
+            print(f'  {j:d}. record["record_type"]')
             for line in record:
-                print(f"{line['reference']} {line['who']}: {line['text']}")
+                print(f"    {line['reference']} {line['who']}: {line['text']}")
 except requests.exceptions.RequestException as e:
     print(f"Unable to access API: {e}")
-except ValueError:
-    print("Error parsing the response as JSON.")

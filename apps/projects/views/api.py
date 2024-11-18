@@ -17,15 +17,15 @@ def all_cases(request: HttpRequest, pk: str) -> HttpResponse:
     if not user or not project or not project.can_view(user):
         raise PermissionDenied("Not authorized")
     # user is now authorized
-    data = {}
     data_cases = []
     for case in project.current_cases():
-        datum = []
+        data_records = []
         for record in case.current_records():
-            datum.append({"record_type": record.record_type, "content": record.content})
-        data_cases.append(datum)
-    data["cases"] = data_cases
-    data["name"] = project.name
+            data_records.append(
+                {"record_type": record.record_type, "content": record.content}
+            )
+        data_cases.append({"records": data_records, "attributes": case.attributes})
+    data = {"cases": data_cases, "name": project.name}
     return JsonResponse(data, safe=False)
 
 

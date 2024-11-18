@@ -618,6 +618,7 @@ class Case(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="cases")
     name = models.CharField(max_length=100, blank=None)
     description = models.TextField()
+    attributes = models.JSONField(blank=True, null=True, default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)
@@ -644,6 +645,7 @@ class Case(models.Model):
         case = Case.objects.create(
             project=interview.project,
             name=pseudonym or interview.subject_name,
+            attributes=interview.attributes,
         )
         Record.objects.create(
             project=interview.project,
