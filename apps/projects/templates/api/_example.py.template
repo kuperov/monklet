@@ -4,20 +4,27 @@
 import requests
 
 USER_EMAIL = "{{ user.email }}"
-# Don't share with anyone else
-SECRET_TOKEN = "{{ user.token }}"
+SECRET_TOKEN = "{{ user.token }}" # Don't share with anyone else
+MONKLET_PROJECT = "{{ project.pk }}"
 
 try:
     headers = {"email": USER_EMAIL, "token": SECRET_TOKEN}
-    response = requests.get("{{ api_url }}", headers=headers)
+    endpoint = f"{{api_url}}"
+    response = requests.get(endpoint, headers=headers)
     response.raise_for_status()
     data = response.json()
-    print(data["name"])
-    for i, case in enumerate(data["cases"], 1):
-        print(f'{i:d}. {case["name"]} has {len(case["records"])} records.')
-        for j, record in enumerate(case["records"], 1):
-            print(f'  {j:d}. record["record_type"]')
-            for line in record:
-                print(f"    {line['reference']} {line['who']}: {line['text']}")
+    print(f'# {data["name"]}')
+    for i, case_ in enumerate(data["cases"], 1):
+        print(f'## {i:d}. {case_["name"]} has {len(case_["records"])} records.')
+        for key, value in dict(case_['attributes']).items():
+            print(f'  {key}: {value}')
+        for j, record in enumerate(case_["records"], 1):
+            rtype = {'ai_chat': "Chat with AI"}[record["record_type"]]
+            print(f'  {j:d}. {rtype}')
+            for line in record["content"]:
+                print(f"    {line['reference']} {line['who']}: {line['text'].strip()}")
+            print()
+        print()
+    print(f"Received {len(data['cases'])} cases.")
 except requests.exceptions.RequestException as e:
     print(f"Unable to access API: {e}")
