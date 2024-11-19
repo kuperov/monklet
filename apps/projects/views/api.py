@@ -24,7 +24,9 @@ def all_cases(request: HttpRequest, pk: str) -> HttpResponse:
             data_records.append(
                 {"record_type": record.record_type, "content": record.content}
             )
-        data_cases.append({"records": data_records, "attributes": case.attributes})
+        data_cases.append(
+            {"name": case.name, "records": data_records, "attributes": case.attributes}
+        )
     data = {"cases": data_cases, "name": project.name}
     return JsonResponse(data, safe=False)
 
