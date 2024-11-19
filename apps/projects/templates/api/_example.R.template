@@ -1,0 +1,59 @@
+# API data access example in R
+
+library(httr)
+library(jsonlite)
+
+USER_EMAIL <- "{{ user.email }}"
+SECRET_TOKEN <- "{{ user.token }}" # Don't share with anyone else
+MONKLET_PROJECT <- "{{ project.pk }}"
+
+headers <- add_headers(
+  email = USER_EMAIL,
+  token = SECRET_TOKEN
+)
+
+endpoint <- sprintf(f"{{r_api_url}}", MONKLET_PROJECT)
+
+tryCatch({
+  response <- GET(endpoint, headers)
+
+  # Check for HTTP errors
+  if (http_error(response)) {
+    stop(sprintf("HTTP request failed: %s", http_status(response)$message))
+  }
+
+  # Parse JSON response
+  data <- content(response, as = "text", encoding = "UTF-8")
+  data <- fromJSON(data)
+
+  # Print project name
+  cat(sprintf("# %s\n", data$name))
+
+  # Iterate through cases
+  for (i in seq_along(data$cases)) {
+    case_ <- data$cases[[i]]
+    cat(sprintf("## %d. %s has %d records.\n", i, case_$name, length(case_$records)))
+
+    # Print attributes
+    for (key in names(case_$attributes)) {
+      cat(sprintf("  %s: %s\n", key, case_$attributes[[key]]))
+    }
+
+    # Print records
+    for (j in seq_along(case_$records)) {
+      record <- case_$records[[j]]
+      rtype <- if (record$record_type == "ai_chat") "Chat with AI" else "Unknown type"
+      cat(sprintf("  %d. %s\n", j, rtype))
+
+      for (line in record$content) {
+        cat(sprintf("    %s %s: %s\n", line$reference, line$who, trimws(line$text)))
+      }
+      cat("\n")
+    }
+    cat("\n")
+  }
+
+  cat(sprintf("Received %d cases.\n", length(data$cases)))
+}, error = function(e) {
+  cat(sprintf("Unable to access API: %s\n", e$message))
+})

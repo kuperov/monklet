@@ -19,6 +19,7 @@ def index(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def cases(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk=pk)
+
     return render(request, "data/_cases.html", {"project": project})
 
 

@@ -16,7 +16,11 @@
     <tr>
     <td><a href="{% url 'case' pk=c.pk %}">{{ c.name }}<a/></td>
     <td>{{ c.updated_at | naturaltime }}</td>
-    <td>{{ c.record_type }}</td>
+    <td>
+      {% for record in c.current_records %}
+        <span class="badge rounded-pill bg-label-secondary me-1">{{record.get_record_type_display}}</span>
+      {% endfor %}
+    </td>
     <td>
     <div class="dropdown">
       <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>

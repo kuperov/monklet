@@ -1,1 +1,26 @@
-{# TBD #}
+{% with table=project.attributes_table %}
+{% if table.is_defined %}
+<table>
+  <thead>
+    <tr>
+      {% for attr in table.attribute_names %}
+      <th>{{ attr }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+{% for row in table.attributes %}
+    <tr>
+      {% for cell in row %}
+      <td>{{ cell }}</td>
+      {% endfor %}
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div role="alert" class="alert alert-warning">
+  No case attributes defined
+</div>
+{% endif %}
+{% endwith %}

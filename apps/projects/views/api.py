@@ -37,7 +37,10 @@ def api_access_example(request: HttpRequest, pk: str) -> HttpResponse:
     api_url = request.build_absolute_uri(
         reverse("api-all-cases", kwargs={"pk": project.pk})
     )
+    r_api_url = api_url.replace(pk, "%s")
     api_url = api_url.replace(pk, "{MONKLET_PROJECT}")
     return render(
-        request, "api/_python_example.html", {"project": project, "api_url": api_url}
+        request,
+        "api/examples.html",
+        {"project": project, "api_url": api_url, "r_api_url": r_api_url},
     )

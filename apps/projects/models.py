@@ -113,6 +113,27 @@ class Project(models.Model):
     def current_cases(self) -> Iterable["Case"]:
         return self.cases.filter(deleted_at=None)
 
+    def attributes_table(self):
+        attrs = set()
+        for case_ in self.current_cases():
+            if case_.attributes and isinstance(case_.attributes, dict):
+                attrs.add(case_.attributes.keys())
+        attr_list = ["Name"] + list(attrs)
+        values = []
+        for case_ in self.current_cases():
+            case_values = [case_.name]
+            if case_.attributes and isinstance(case_.attributes, dict):
+                for attr in attr_list:
+                    case_values.append(case_.attributes.get(attr))
+            else:
+                case_values += [None] * len(attrs)
+            values.append(case_values)
+        return {
+            "attribute_names": attr_list,
+            "attributes": values,
+            "is_defined": len(attrs) > 0,
+        }
+
 
 MEMBER_ROLES = [("viewer", "Viewer"), ("editor", "Editor")]
 
