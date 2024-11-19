@@ -117,7 +117,7 @@ class Project(models.Model):
         attrs = set()
         for case_ in self.current_cases():
             if case_.attributes and isinstance(case_.attributes, dict):
-                attrs.add(case_.attributes.keys())
+                attrs.add(list(case_.attributes.keys()))
         attr_list = ["Name"] + list(attrs)
         values = []
         for case_ in self.current_cases():
