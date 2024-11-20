@@ -122,7 +122,7 @@ class Project(models.Model):
         attr_list = list(attrs)
         values = []
         for case_ in self.current_cases():
-            case_values = [case_.name]
+            case_values = [case_.pseudonym]
             if case_.attributes and isinstance(case_.attributes, dict):
                 for attr in attr_list:
                     case_values.append(case_.attributes.get(attr))
@@ -638,7 +638,8 @@ class Case(models.Model):
         "Identifier", primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="cases")
-    name = models.CharField(max_length=100, blank=None)
+    pseudonym = models.CharField(max_length=200, blank=None)
+    real_name = models.CharField("Real name", max_length=200, blank=None)
     description = models.TextField()
     attributes = models.JSONField(blank=True, null=True, default=list)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -666,7 +667,8 @@ class Case(models.Model):
         ]
         case = Case.objects.create(
             project=interview.project,
-            name=pseudonym or interview.subject_name,
+            pseudonym=pseudonym or interview.subject_name,
+            real_name=interview.subject_name,
             attributes=interview.attributes,
         )
         Record.objects.create(
@@ -679,7 +681,29 @@ class Case(models.Model):
         return case
 
     def __str__(self):
-        return self.name
+        return self.pseudonym
+
+
+CASE_ATTR_VALUE_TYPES = [
+    ("discrete", "Discrete-valued"),
+    ("continuous", "Continuous-valued"),
+]
+
+
+class CaseAttribute(models.Model):
+    """Attribute metadata on cases"""
+
+    name = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100)
+    value_type = models.CharField(max_length=10, choices=CASE_ATTR_VALUE_TYPES)
+    order = models.IntegerField()
+    display_in_table = models.BooleanField(default=True)
+    include_for_llm = models.BooleanField(default=True)
+    display_with_name = models.BooleanField(default=False)
+    display_properties = models.JSONField(blank=True, default=dict)
+
+    def __str__(self):
+        return self.display_name
 
 
 RECORD_TYPES = [
@@ -706,7 +730,7 @@ class Record(models.Model):
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.case.name}: {self.record_type}"
+        return f"{self.case.pseudonym}: {self.record_type}"
 
 
 class MemberInvitation(models.Model):

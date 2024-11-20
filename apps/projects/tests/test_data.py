@@ -22,10 +22,11 @@ class TestImport(TestCase):
 
     def test_create_transcript(self):
         ts = models.Case.from_chat(self.interview, "Bob")
-        self.assertEqual(len(ts.content), len(self.interview.content))
-        self.assertEqual(ts.content[0]["text"], INTERVIEW_CONTENT[0]["message"])
-        self.assertEqual(ts.content[0]["reference"], "00:00")
-        self.assertEqual(str(ts), "ai_chat: Bob")
+        rec = ts.current_records().first()
+        self.assertEqual(len(rec.content), len(self.interview.content))
+        self.assertEqual(rec.content[0]["text"], INTERVIEW_CONTENT[0]["message"])
+        self.assertEqual(rec.content[0]["reference"], "00:00")
+        self.assertEqual(str(ts), "Bob")
 
 
 class TestImportViews(StaticLiveServerTestCase):
