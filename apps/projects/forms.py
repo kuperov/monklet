@@ -4,6 +4,8 @@ from django.conf import settings
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
 
+from tinymce.widgets import TinyMCE
+
 from .models import (
     Project,
     Question,
@@ -104,9 +106,10 @@ class InterviewForm(forms.ModelForm):
         self.helper.add_input(cancel())
 
 
-class ManualTranscriptForm(forms.Form):
-    name = forms.CharField(label="Name or pseudonym")
-    description = forms.CharField(widget=forms.Textarea)
+class ManualCaseForm(forms.Form):
+    pseudonym = forms.CharField(label="Real name", required=True)
+    real_name = forms.CharField(label="Real name", required=False)
+    description = forms.CharField(widget=forms.Textarea, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -256,3 +259,9 @@ class ImportChatFormSetHelper(FormHelper):
 
 
 ImportChatFormSet = forms.formset_factory(ImportChatForm, extra=0)
+
+
+class CaseFollowupRecordForm(forms.Form):
+    """Manually enter followup records"""
+
+    markdown = forms.CharField(widget=TinyMCE())

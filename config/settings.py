@@ -42,6 +42,7 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ["true", "yes", "1"]
 if DEBUG:
     ALLOWED_HOSTS = [
         "localhost",
+        "monklet.local",
         "0.0.0.0",
         "127.0.0.1",
         "192.168.168.110",
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
     "apps.users",
     "crispy_forms",
     "crispy_bootstrap5",
+    "tinymce",
     "channels",
 ]
 
@@ -136,6 +138,20 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
+
+TINYMCE_DEFAULT_CONFIG = {
+    "height": 400,
+    "width": "100%",
+    "menubar": "file edit view insert format tools table help",
+    "plugins": (
+        "advlist autolink lists link image charmap print preview anchor "
+        "searchreplace visualblocks code fullscreen insertdatetime media table paste code help wordcount"
+    ),
+    "toolbar": (
+        "undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | "
+        "bullist numlist outdent indent | removeformat | help"
+    ),
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

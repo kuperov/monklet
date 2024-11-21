@@ -17,7 +17,7 @@
   </a>
 </p>
 
-<div class="card">
+<div class="card" id="case-card">
   <div class="card-header px-0 pt-0">
     <div class="nav-align-top">
       <ul class="nav nav-tabs" role="tablist">
@@ -29,7 +29,7 @@
         {% for record in case.current_records %}
         <li class="nav-item">
           <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#record{{record.pk}}" aria-controls="#record{{record.pk}}" aria-selected="true">
-          {{ record.get_record_type_display }}
+          {{ forloop.counter }}. {{ record.get_record_type_display }}
           </button>
         </li>
         {% endfor %}

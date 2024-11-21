@@ -1,15 +1,48 @@
-{% load markdown_filters %}
+{% load humanize markdown_filters %}
 
 {{ case.description | markdown }}
 
-<h6>Records</h6>
-<ol>
-{% for record in case.current_records %}
-<li>
-  {{ record.get_record_type_display }}
-</li>
-{% empty %}
-No records found
-{% endfor %}
-</ol>
-<a class="btn btn-primary" href="#">Create record</a>
+<h6>Records: {{ case.pseudonym }}</h6>
+<table class="table">
+  <thead class="table-light">
+    <tr class="text-nowrap">
+        <th>No.</th>
+        <th>Record type</th>
+        <th>Updated</th>
+        <th>Created</th>
+        <th />
+    </tr>
+  </thead>
+  <tbody>
+  {% for record in case.current_records %}
+  <tr>
+    <th>
+      {{ forloop.counter }}.
+    </th>
+    <td>
+      {{ record.get_record_type_display }}
+    </td>
+    <td>
+      {{ record.updated_at | naturaltime }}
+    </td>
+    <td>
+      {{ record.created_at }}
+    </td>
+    <td>
+      :
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <th colspan="5">
+      No records found
+    </th>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<div class='d-flex justify-content-end pt-5'>
+  <a class="btn btn-secondary" href="#" hx-get="{% url 'followup-new' pk=case.pk %}" hx-target="#case-card" hx-swap="innerHTML">
+    New followup record
+  </a>
+</div>

@@ -5,7 +5,10 @@
 <table class="table">
   <thead class="table-light">
     <tr class="text-nowrap">
-        <th>Name or Pseudonym</th>
+        <th>Pseudonym</th>
+        {% if show_real_name %}
+        <th>Real name</th>
+        {% endif %}
         <th>Updated</th>
         <th>Record types</th>
         <th />
@@ -14,7 +17,10 @@
   <tbody>
     {% for c in project.current_cases %}
     <tr>
-    <td><a href="{% url 'case' pk=c.pk %}">{{ c.name }}<a/></td>
+    <td><a href="{% url 'case' pk=c.pk %}">{{ c.pseudonym }}<a/></td>
+    {% if show_real_name %}
+    <td>{{ c.real_name }}</td>
+    {% endif %}
     <td>{{ c.updated_at | naturaltime }}</td>
     <td>
       {% for record in c.current_records %}

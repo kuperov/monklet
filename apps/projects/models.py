@@ -639,8 +639,10 @@ class Case(models.Model):
     )
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="cases")
     pseudonym = models.CharField(max_length=200, blank=None)
-    real_name = models.CharField("Real name", max_length=200, blank=None)
-    description = models.TextField()
+    real_name = models.CharField(
+        "Real name", max_length=200, default=None, null=True, blank=True
+    )
+    description = models.TextField(default="", null=True, blank=True)
     attributes = models.JSONField(blank=True, null=True, default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

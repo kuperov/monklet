@@ -24,24 +24,6 @@ def cases(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 @login_required
-def new_empty(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_editable_project(request, pk=pk)
-    if request.method == "POST":
-        form = forms.ManualTranscriptForm(request.POST)
-        if form.is_valid():
-            models.Case.objects.create(
-                project=project,
-                name=form.cleaned_data["name"],
-                description=form.cleaned_data["description"],
-            )
-            messages.success(request, "Case created")
-            return render(request, "data/_cases.html", {"project": project})
-    else:
-        form = forms.ManualTranscriptForm()
-    return render(request, "data/_new.html", {"form": form, "project": project})
-
-
-@login_required
 def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk)
     already_imported = set(
