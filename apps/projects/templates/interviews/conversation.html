@@ -1,6 +1,6 @@
 {% extends 'layout/layout_vertical.html' %}
 
-{% load static i18n crispy_forms_tags humanize %}
+{% load static i18n crispy_forms_tags humanize markdown_filters %}
 
 {% block title %}{{ project.name }}{% endblock %}
 
@@ -45,7 +45,7 @@
           <tr>
             <td>{{ forloop.counter }}.</td>
             <td>{{ msg.sender }}</td>
-            <td>{{ msg.message }}</td>
+            <td>{{ msg.message | markdown }}</td>
             <td>{{ msg.time }}</td>
           </tr>
           {% endfor %}

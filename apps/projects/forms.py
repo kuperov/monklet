@@ -280,3 +280,8 @@ class CaseAttributeForm(forms.ModelForm):
             "display_with_name",
             "display_properties",
         ]
+
+
+class ChatLineForm(forms.Form):
+
+    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}))

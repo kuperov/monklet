@@ -191,7 +191,7 @@ class Question(models.Model):
         Project, on_delete=models.CASCADE, related_name="questions"
     )
     question = models.TextField("Question")
-    order = models.IntegerField("Order")
+    order = models.IntegerField("Order", default=100)
     is_enabled = models.BooleanField("Enabled", default=True, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified_at = models.DateTimeField(auto_now=True)
@@ -650,10 +650,18 @@ class Case(models.Model):
         if not interview.content:
             raise Exception("Can't import empty interview")
         start_at = parse_datetime(interview.content[0]["sent_at"])
+
+        def pseudonymize(txt):
+            if pseudonym and txt:
+                return txt.replace(interview.subject_name, pseudonym)
+            else:
+                return txt
+
         content = [
             {
+                "id": msg["uuid"] if 'uuid' in msg else uuid.uuid4(),
                 "who": msg.get("sender"),
-                "text": msg.get("message"),
+                "text": pseudonymize(msg.get("message")),
                 "reference": format_timedelta(
                     parse_datetime(msg.get("sent_at")) - start_at
                 ),
@@ -725,6 +733,9 @@ RECORD_TYPES = [
 class Record(models.Model):
     """Record attached to a case."""
 
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="records"
     )
@@ -733,7 +744,7 @@ class Record(models.Model):
         Interview, on_delete=models.SET_NULL, null=True, default=None
     )
     record_type = models.CharField("Record type", choices=RECORD_TYPES, max_length=20)
-    content = models.JSONField()
+    content = models.JSONField(null=False, blank=True, default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)

@@ -1,0 +1,27 @@
+{% load markdown_filters crispy_forms_tags %}
+
+<tr id="{{msg.id}}">
+  <form>
+    <td>{{ forloop.counter }}.</td>
+    <td>{{ msg.who }}</td>
+    <td><textarea style="width: 100%" name="id_text">{{ form.text }}</textarea></td>
+    <td>{{ msg.reference }}</td>
+    <td>
+      <input
+        class="btn btn-primary"
+        type='submit'
+        name="Save"
+        hx-post="{% url 'record-edit-line' pk=pk line=msg.id %}"
+        hx-target="#{{msg.id}}"
+        hx-swap="outerHTML">
+      <a
+        class="btn"
+        href="#"
+        hx-get="{% url 'record-line' pk=pk line=msg.id %}"
+        hx-target="#{{msg.id}}"
+        hx-swap="outerHTML">
+        Cancel
+      </a>
+    </td>
+  </form>
+</tr>

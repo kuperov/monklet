@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied, BadRequest
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -105,3 +106,43 @@ def new_case(request: HttpRequest, pk: str) -> HttpResponse:
     else:
         form = forms.ManualCaseForm()
     return render(request, "data/_new.html", {"form": form, "project": project})
+
+
+@login_required
+def show_line(request: HttpRequest, pk: str, line: str) -> HttpResponse:
+    record = get_object_or_404(models.Record, pk=pk)
+    project = record.project
+    if not project.can_view(request.user):
+        raise PermissionDenied("Operation not permitted")
+    msgs = list(filter(lambda m: m['id'] == line, record.content))
+    if not msgs:
+        raise BadRequest("Invalid message id")
+    msg = msgs[0]
+    ctx = {'project': project, 'pk': pk, 'msg': msg}
+    return render(request, "case/_ai_chat_row.html", ctx)
+
+
+@login_required
+def edit_line(request: HttpRequest, pk: str, line: str) -> HttpResponse:
+    record = get_object_or_404(models.Record, pk=pk)
+    project = record.project
+    if not project.can_edit(request.user):
+        raise PermissionDenied("Operation not permitted")
+    msgs = list(filter(lambda m: m['id'] == line, record.content))
+    if not msgs:
+        raise BadRequest("Invalid message id")
+    msg = msgs[0]
+    form = forms.ChatLineForm(initial={'text': msg['text']})
+    ctx = {
+        'project': project, 'form': form, 'pk': pk, 'msg': msg
+    }
+    return render(request, "case/_edit_chat_row.html", ctx)
+
+
+@login_required
+def delete_line(request: HttpRequest, pk: str, line: int) -> HttpResponse:
+    record = get_object_or_404(models.Record, pk=pk)
+    project = record.project
+    if not project.can_edit(request.user):
+        raise PermissionDenied("Operation not permitted")
+    ...

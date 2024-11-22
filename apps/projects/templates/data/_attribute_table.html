@@ -7,13 +7,13 @@
   <thead class="table-light">
     <tr class="text-nowrap">
       <th>Pseudonym</th>
-      {% for attr in table.attribute_names %}
+      {% for attr in project.current_case_attributes %}
       <th>{{ attr }}</th>
       {% endfor %}
     </tr>
   </thead>
   <tbody>
-{% for row in project.attribute_table %}
+{% for row in project.attributes_table %}
     <tr>
       {% for cell in row %}
       {% if forloop.counter == 1 %}

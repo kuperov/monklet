@@ -31,7 +31,10 @@ def cases(request: HttpRequest, pk: str) -> HttpResponse:
 def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk)
     already_imported = set(
-        [t.interview_id for t in project.records.filter(deleted_at=None)]
+        [rec.interview_id for rec in project.records.filter(deleted_at=None)
+         if (rec.case.deleted_at is None)
+            and rec.interview_id
+            and rec.record_type == 'ai_chat']
     )
     ivs = {
         iv.pk: iv

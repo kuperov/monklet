@@ -5,17 +5,12 @@
         <th>Sender</th>
         <th>Text</th>
         <th>Time</th>
+        <th></th>
     </tr>
   </thead>
   <tbody>
     {% for msg in record.content %}
-    <tr>
-      <td>{{ forloop.counter }}.</td>
-      <td>{{ msg.who }}</td>
-      <td>{{ msg.text }}</td>
-      <td>{{ msg.reference }}</td>
-      <td></td>
-    </tr>
+    {% include 'case/_ai_chat_row.html' %}
     {% empty %}
     <tr colspan="4">
       Empty conversation
