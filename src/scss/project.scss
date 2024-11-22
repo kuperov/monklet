@@ -1,3 +1,9 @@
 @use '_bootstrap-extended/include' as light;
 @use '_bootstrap-extended/include-dark' as dark;
 @import '_custom-variables/pages';
+
+#case-card {
+  .chat-row-edit {
+    width: 100%;
+  }
+}

@@ -284,4 +284,4 @@ class CaseAttributeForm(forms.ModelForm):
 
 class ChatLineForm(forms.Form):
 
-    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}))
+    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'chat-row-edit'}))

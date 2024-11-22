@@ -1,6 +1,6 @@
 {% load markdown_filters crispy_forms_tags %}
 
-<tr id="{{msg.id}}">
+<tr id="row-{{msg.id}}">
   <td>{{ msg.who }}</td>
   <td>
     <form>
@@ -13,13 +13,13 @@
           name="save"
           value="Save"
           hx-post="{% url 'record-edit-line' pk=pk line=msg.id %}"
-          hx-target="#{{msg.id}}"
+          hx-target="#row-{{msg.id}}"
           hx-swap="outerHTML">
         <a
           class="btn"
           href="#"
           hx-get="{% url 'record-line' pk=pk line=msg.id %}"
-          hx-target="#{{msg.id}}"
+          hx-target="#row-{{msg.id}}"
           hx-swap="outerHTML">
           Cancel
         </a>

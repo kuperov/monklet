@@ -118,7 +118,7 @@ def show_line(request: HttpRequest, pk: str, line: str) -> HttpResponse:
     if not msgs:
         raise BadRequest("Invalid message id")
     msg = msgs[0]
-    ctx = {'project': project, 'pk': pk, 'msg': msg}
+    ctx = {'project': project, 'record': record, 'msg': msg}
     return render(request, "case/_ai_chat_row.html", ctx)
 
 
