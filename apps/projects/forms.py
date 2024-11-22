@@ -7,6 +7,7 @@ from crispy_forms.layout import Submit, Button
 from tinymce.widgets import TinyMCE
 
 from .models import (
+    CaseAttribute,
     Project,
     Question,
     Bot,
@@ -265,3 +266,19 @@ class CaseFollowupRecordForm(forms.Form):
     """Manually enter followup records"""
 
     markdown = forms.CharField(label="Follow-up notes", widget=TinyMCE())
+
+
+class CaseAttributeForm(forms.ModelForm):
+
+    class Meta:
+        model = CaseAttribute
+        fields = [
+            "name",
+            "display_name",
+            "value_type",
+            "order",
+            "display_in_table",
+            "include_for_llm",
+            "display_with_name",
+            "display_properties",
+        ]

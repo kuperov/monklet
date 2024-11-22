@@ -1,24 +1,25 @@
 from django.contrib import messages
-from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils.timezone import now
 
 from apps.projects import forms
-from apps.projects.models import MemberInvitation
+from apps.projects import models
 from apps.projects.views.util import get_editable_project, get_viewable_project
 
 
 # all settings tabs
 @login_required
-@require_GET
-def view(request: HttpRequest, pk: str) -> HttpResponse:
+def index(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk=pk)
     form = forms.ProjectForm(instance=project)
     ctx = {"project": project, "form": form}
-    return render(request, "settings/index.html", ctx)
+    card_only = request.GET.get("cardonly") == "true"
+    template = "_settings_card.html" if card_only else "index.html"
+    return render(request, f"settings/{template}", ctx)
 
 
 @login_required
@@ -53,7 +54,7 @@ def invite(request: HttpRequest, pk: str) -> HttpResponse:
     if request.method == "POST":
         form = forms.MemberInvitationForm(request.POST)
         if form.is_valid():
-            inv: MemberInvitation = form.save(commit=False)
+            inv: models.MemberInvitation = form.save(commit=False)
             inv.project = project
             inv.send_email(request)  # saves
             messages.success(request, f"Invitation sent to {inv.email}")
@@ -75,7 +76,7 @@ def invitations(request: HttpRequest, pk: str) -> HttpResponse:
 
 @login_required
 def resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
-    inv = get_object_or_404(MemberInvitation, pk=pk)
+    inv = get_object_or_404(models.MemberInvitation, pk=pk)
     project = inv.project
     if not project.can_edit(request.user) or inv.accepted_email:
         raise PermissionDenied("User action not permitted.")
@@ -86,7 +87,7 @@ def resend_invitation(request: HttpRequest, pk: str) -> HttpResponse:
 
 @login_required
 def cancel_invitation(request: HttpRequest, pk: str) -> HttpResponse:
-    inv = get_object_or_404(MemberInvitation, pk=pk)
+    inv = get_object_or_404(models.MemberInvitation, pk=pk)
     project = inv.project
     if not project.can_edit(request.user) or inv.accepted_email:
         raise PermissionDenied("User action not permitted.")
@@ -95,7 +96,7 @@ def cancel_invitation(request: HttpRequest, pk: str) -> HttpResponse:
 
 
 def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
-    inv = get_object_or_404(MemberInvitation, pk=code)
+    inv = get_object_or_404(models.MemberInvitation, pk=code)
     if not inv.is_valid:
         return render(request, "invitations/not_available.html")
     if request.user == inv.project.owner:  # owner clicked own link
@@ -112,7 +113,7 @@ def invitation_respond(request: HttpRequest, code: str) -> HttpResponse:
 
 # at this point users are possibly unauthenticated
 def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
-    inv = get_object_or_404(MemberInvitation, pk=code)
+    inv = get_object_or_404(models.MemberInvitation, pk=code)
     if request.user == inv.project.owner:  # owner clicked own link
         return redirect(inv.project.get_absolute_url())
     if not inv.is_valid:
@@ -127,3 +128,60 @@ def invitation_landing(request: HttpRequest, code: str) -> HttpResponse:
         )
         ctx = {"form": form}
     return render(request, "invitations/landing.html", ctx)
+
+
+@login_required
+def new_attribute(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_editable_project(request, pk)
+    if request.method == "POST":
+        form = forms.CaseAttributeForm(request.POST)
+        if form.is_valid():
+            attr = form.save(commit=False)
+            attr.project = project
+            attr.save()
+            messages.success(request, "Created attribute")
+            return render(request, "settings/_settings_card.html", {"project": project})
+    else:
+        form = forms.CaseAttributeForm()
+    return render(
+        request, "settings/_new_attribute.html", {"project": project, "form": form}
+    )
+
+
+@login_required
+def edit_attribute(request: HttpRequest, pk: str) -> HttpResponse:
+    attribute = get_object_or_404(models.CaseAttribute, pk=pk)
+    project = attribute.project
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted")
+    if request.method == "POST":
+        form = forms.CaseAttributeForm(request.POST, instance=attribute)
+        if form.is_valid():
+            attr = form.save(commit=False)
+            attr.project = project
+            attr.save()
+            messages.success(request, "Updated attribute")
+            return render(
+                request,
+                "settings/_settings_card.html",
+                {"project": project},
+            )
+    else:
+        form = forms.CaseAttributeForm(instance=attribute)
+    return render(
+        request,
+        "settings/_edit_attribute.html",
+        {"project": project, "attribute": attribute, "form": form},
+    )
+
+
+@login_required
+def delete_attribute(request: HttpRequest, pk: str) -> HttpResponse:
+    attribute = get_object_or_404(models.CaseAttribute, pk=pk)
+    project = attribute.project
+    if not project.can_edit(request.user):
+        raise PermissionDenied("User action not permitted")
+    attribute.deleted_at = now()
+    attribute.save()
+    messages.success(request, "Attribute deleted")
+    return render(request, "settings/_attributes.html", {"project": project})

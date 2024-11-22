@@ -1,0 +1,71 @@
+{% load access_tags %}
+
+{% include 'layout/_messages.html' %}
+
+<table class="table">
+  <thead class="table-light">
+    <tr class="text-nowrap">
+        <th>Attribute</th>
+        <th>Display Name</th>
+        <th>Data type</th>
+        <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for attr in project.current_case_attributes %}
+    <tr>
+    <td><a
+      href="#"
+      hx-get="{% url 'attribute-edit' pk=attr.pk %}"
+      hx-target="#settings-card"
+      hx-swap="innerHTML"
+      >
+      <pre>{{ attr.name }}</pre>
+    </a>
+    </td>
+    <td>{{ attr.display_name }}</td>
+    <td>{{ attr.value_type }}</td>
+    <td>
+    <div class="dropdown">
+      {% can_edit %}
+        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item"
+            href="#"
+            hx-get="{% url 'attribute-edit' pk=attr.pk %}"
+            hx-target="#settings-card"
+            hx-swap="innerHTML"
+            >
+            <i class="ri-edit-line me-1"></i> Edit</a>
+          <a class="dropdown-item"
+            href="#"
+            hx-get="{% url 'attribute-delete' pk=attr.pk %}"
+            hx-target="#attributes-tab"
+            hx-swap="innerHTML"
+            hx-confirm="Delete attribute?"
+            >
+            <i class="ri-delete-line me-1"></i> Delete</a>
+        </div>
+      {% endcan_edit %}
+    </div>
+    </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan='6'>
+        <p>No attributes defined</p>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="px-0 pt-0 d-flex justify-content-end">
+  <a class="m-4 btn btn-primary"
+    href="#"
+    hx-get="{% url 'attribute-new' pk=project.pk %}"
+    hx-target="#settings-card"
+    hx-swap="innerHTML"
+  >
+    Create new
+  </a>
+</div>

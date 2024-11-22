@@ -113,6 +113,9 @@ class Project(models.Model):
     def current_cases(self) -> Iterable["Case"]:
         return self.cases.filter(deleted_at=None)
 
+    def current_case_attributes(self):
+        return self.case_attributes.filter(deleted_at=None)
+
     def attributes_table(self):
         attrs = set()
         for case_ in self.current_cases():
@@ -695,6 +698,12 @@ CASE_ATTR_VALUE_TYPES = [
 class CaseAttribute(models.Model):
     """Attribute metadata on cases"""
 
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="case_attributes"
+    )
     name = models.CharField(max_length=100)
     display_name = models.CharField(max_length=100)
     value_type = models.CharField(max_length=10, choices=CASE_ATTR_VALUE_TYPES)
@@ -703,6 +712,13 @@ class CaseAttribute(models.Model):
     include_for_llm = models.BooleanField(default=True)
     display_with_name = models.BooleanField(default=False)
     display_properties = models.JSONField(blank=True, default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(default=None, null=True, blank=True)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = [("name", "project")]
 
     def __str__(self):
         return self.display_name

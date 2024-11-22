@@ -1,0 +1,29 @@
+{% load crispy_forms_tags %}
+
+<div class="card-header">
+  <h6>New case attribute</h6>
+</div>
+<div class="card-body">
+<form>
+  {{ form | crispy }}
+  {% csrf_token %}
+  <input
+    name="Save"
+    class="btn btn-primary"
+    type="submit"
+    hx-post="{% url 'attribute-edit' pk=attribute.pk %}"
+    hx-target="#settings-card"
+    hx-swap="innerHTML"
+    >
+  <a
+    class="btn"
+    hx-get="{% url 'project-settings' pk=project.pk %}?cardonly=true"
+    hx-target="#settings-card"
+    hx-swap="innerHTML"
+    >
+    Cancel
+  </a>
+</from>
+</div>
+<div class="card-footer">
+</div>

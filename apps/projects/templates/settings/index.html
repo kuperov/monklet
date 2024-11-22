@@ -10,39 +10,8 @@
 {% endblock page_css %}
 
 {% block content %}
-<div class="card">
-  <div class="card-header px-0 pt-0">
-    <div class="nav-align-top">
-      <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#settings-tab" aria-controls="settings-tab" aria-selected="true">
-            General
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#members-tab" aria-controls="members-tab">
-            Members
-          </button>
-        </li>
-        <li class="nav-item">
-          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#invitations-tab" aria-controls="invitations-tab">
-            Invitations sent
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="tab-content p-0">
-    <div class="tab-pane fade show active table-responsive card-datatable p-5" id="settings-tab" role="tabpanel">
-      {% include 'settings/_settings.html' %}
-    </div>
-    <div class="tab-pane fade show table-responsive card-datatable" id="members-tab" role="tabpanel">
-      {% include 'settings/_members.html' %}
-    </div>
-    <div class="tab-pane fade show table-responsive card-datatable" id="invitations-tab" role="tabpanel">
-      {% include 'settings/_invitations_sent.html' %}
-    </div>
-  </div>
+<div id='settings-card' class="card">
+  {% include 'settings/_settings_card.html' %}
 </div>
 
 {% endblock content %}

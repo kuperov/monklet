@@ -18,12 +18,20 @@ urlpatterns = [
     path("projects/new", projects.new, name="project-new"),
     path("projects/<str:pk>/delete", projects.delete, name="project-delete"),
     path("projects/<str:pk>/leave", projects.leave, name="project-leave"),
-    path("projects/<str:pk>/settings", settings.view, name="project-settings"),
+    path("projects/<str:pk>/settings", settings.index, name="project-settings"),
     path(
         "projects/<str:pk>/settings-tab",
         settings.settings_tab,
         name="project-settings-tab",
     ),
+    # path("p/<str:pk>/attributes", settings.attributes, name="attribute-list"),
+    path("p/<str:pk>/attributes/new", settings.new_attribute, name="attribute-new"),
+    path(
+        "p/<str:pk>/attributes/delete",
+        settings.delete_attribute,
+        name="attribute-delete",
+    ),
+    path("a/<str:pk>/edit", settings.edit_attribute, name="attribute-edit"),
     path("projects/<str:pk>/invite", settings.invite, name="project-invite"),
     path("projects/<str:pk>/members", settings.members, name="project-members"),
     path(
