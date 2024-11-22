@@ -117,26 +117,17 @@ class Project(models.Model):
         return self.case_attributes.filter(deleted_at=None)
 
     def attributes_table(self):
-        attrs = set()
-        for case_ in self.current_cases():
-            if case_.attributes and isinstance(case_.attributes, dict):
-                for a in case_.attributes:
-                    attrs.add(a)
-        attr_list = list(attrs)
         values = []
+        keys = [attr.name for attr in self.current_case_attributes()]
         for case_ in self.current_cases():
             case_values = [case_.pseudonym]
             if case_.attributes and isinstance(case_.attributes, dict):
-                for attr in attr_list:
+                for attr in keys:
                     case_values.append(case_.attributes.get(attr))
             else:
-                case_values += [None] * len(attrs)
+                case_values += [None] * len(keys)
             values.append(case_values)
-        return {
-            "attribute_names": attr_list,
-            "attributes": values,
-            "is_defined": len(attrs) > 0,
-        }
+        return values
 
 
 MEMBER_ROLES = [("viewer", "Viewer"), ("editor", "Editor")]
@@ -725,9 +716,9 @@ class CaseAttribute(models.Model):
 
 
 RECORD_TYPES = [
-    ("ai_chat", "AI chat transcript"),
-    ("manual_transcript", "Other transcript"),
-    ("notes", "Notes"),
+    ("ai_chat", "AI chat"),
+    ("manual_transcript", "Transcript"),
+    ("notes", "Note"),
 ]
 
 

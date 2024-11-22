@@ -1,27 +1,29 @@
-{% with table=project.attributes_table %}
-{% if table.is_defined %}
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
+{% if not project.current_case_attributes.exists %}
+<div role="alert" class="alert alert-warning">
+  No case attributes defined
+</div>
+{% else %}
+<table class="table">
+  <thead class="table-light">
+    <tr class="text-nowrap">
+      <th>Pseudonym</th>
       {% for attr in table.attribute_names %}
       <th>{{ attr }}</th>
       {% endfor %}
     </tr>
   </thead>
   <tbody>
-{% for row in table.attributes %}
+{% for row in project.attribute_table %}
     <tr>
       {% for cell in row %}
+      {% if forloop.counter == 1 %}
+      <th>{{ cell }}</th>{# todo: link to case #}
+      {% else %}
       <td>{{ cell }}</td>
+      {% endif %}
       {% endfor %}
     </tr>
 {% endfor %}
   </tbody>
 </table>
-{% else %}
-<div role="alert" class="alert alert-warning">
-  No case attributes defined
-</div>
 {% endif %}
-{% endwith %}

@@ -9,8 +9,7 @@
 <table class="table">
   <thead class="table-light">
     <tr class="text-nowrap">
-        <th>No.</th>
-        <th>Record type</th>
+        <th>Record</th>
         <th>Updated</th>
         <th>Created</th>
         <th />
@@ -20,11 +19,8 @@
   {% for record in case.current_records %}
   <tr>
     <th>
-      <a href="javascript: document.getElementById('record{{record.pk}}header').click();">[#{{ forloop.counter }}]</a>
+      <a href="javascript: document.getElementById('record{{record.pk}}header').click();">[#{{ forloop.counter }}] {{ record.get_record_type_display }}</a>
     </th>
-    <td>
-      {{ record.get_record_type_display }}
-    </td>
     <td>
       {{ record.updated_at | naturaltime }}
     </td>
