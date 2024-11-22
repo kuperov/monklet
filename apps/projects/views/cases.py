@@ -63,6 +63,8 @@ def new_note(request, pk):
 @login_required
 def edit_note(request, pk):
     note = get_object_or_404(models.Record, pk=pk)
+    if not isinstance(note.content, dict):
+        note.content = dict()
     project = note.project
     if not project.can_edit(request.user):
         raise PermissionError("Operation not permitted")
@@ -77,7 +79,7 @@ def edit_note(request, pk):
             )
     else:
         form = forms.CaseFollowupRecordForm(
-            initial={"markdown": note.content["markdown"]}
+            initial={"markdown": note.content.get('markdown')}
         )
     return render(
         request,

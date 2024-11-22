@@ -32,7 +32,7 @@
         <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
         <div class="dropdown-menu">
           {% if record.record_type == 'note' %}
-          <a class="dropdown-item text-danger "
+          <a class="dropdown-item"
             hx-get="{% url 'note-edit' pk=record.pk %}"
             hx-target="#case-card"
             hx-swap="innerHTML"
@@ -46,7 +46,7 @@
             hx-target="#case-card"
             hx-swap="innerHTML"
             >
-            <i class="ri-delete-line me-1 text-danger"></i> Delete
+            <i class="ri-delete-bin-6-line me-1 text-danger"></i> Delete
           </a>
         </div>
       </div>
