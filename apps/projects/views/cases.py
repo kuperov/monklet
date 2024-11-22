@@ -2,6 +2,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils.timezone import now
 
 from apps.projects import models, forms
 from apps.projects.views.util import get_editable_project
@@ -17,6 +18,21 @@ def index(request, pk):
 
 
 @login_required
+def delete_record(request, pk):
+    record = get_object_or_404(models.Record, pk=pk)
+    record.deleted_at = now()
+    record.save()
+    if not record.project.can_edit(request.user):
+        raise PermissionError("Operation not permitted")
+    messages.success(request, "Record deleted")
+    return render(
+        request,
+        "case/_case_card.html",
+        {"project": record.project, "case": record.case},
+    )
+
+
+@login_required
 def new_followup(request, pk):
     case = get_object_or_404(models.Case, pk=pk)
     project = case.project
@@ -29,14 +45,17 @@ def new_followup(request, pk):
                 case=case,
                 project=project,
                 content={"markdown": form.cleaned_data["markdown"]},
+                record_type="notes",
             )
-            messages.success("Record created")
-            return redirect("case", pk=case.pk)
+            messages.success(request, "Record created")
+            return render(
+                request, "case/_case_card.html", {"project": project, "case": case}
+            )
     else:
         form = forms.CaseFollowupRecordForm()
     return render(
         request,
-        "case/_new_record.html",
+        "case/_new_note.html",
         {"project": project, "case": case, "form": form},
     )
 

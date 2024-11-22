@@ -1,8 +1,11 @@
 {% load humanize markdown_filters %}
 
+{% if case.description %}
+<h6>Description</h6>
 {{ case.description | markdown }}
+{% endif %}
 
-<h6>Records: {{ case.pseudonym }}</h6>
+<h6>Records</h6>
 <table class="table">
   <thead class="table-light">
     <tr class="text-nowrap">
@@ -17,7 +20,7 @@
   {% for record in case.current_records %}
   <tr>
     <th>
-      {{ forloop.counter }}.
+      <a href="javascript: document.getElementById('record{{record.pk}}header').click();">[#{{ forloop.counter }}]</a>
     </th>
     <td>
       {{ record.get_record_type_display }}
@@ -29,7 +32,19 @@
       {{ record.created_at }}
     </td>
     <td>
-      :
+      <div class="dropdown">
+        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item text-danger "
+            hx-get="{% url 'record-delete' pk=record.pk %}" {# whole page refreshes incl. tabs #}
+            hx-confirm="Delete record?"
+            hx-target="#case-card"
+            hx-swap="innerHTML"
+            >
+            <i class="ri-delete-line me-1 text-danger"></i> Delete
+          </a>
+        </div>
+      </div>
     </td>
   </tr>
   {% empty %}
@@ -43,6 +58,6 @@
 </table>
 <div class='d-flex justify-content-end pt-5'>
   <a class="btn btn-secondary" href="#" hx-get="{% url 'followup-new' pk=case.pk %}" hx-target="#case-card" hx-swap="innerHTML">
-    New followup record
+    New note
   </a>
 </div>

@@ -56,7 +56,7 @@
           {% if bot.status == 'live' %}
           <span class="dropdown-item text-muted" href="#"><i class="ri-close-line me-1"></i> Delete (disabled)</span>
           {% else %}
-          <a class="dropdown-item text-danger" href="#" hx-get="{% url 'bot-delete' pk=bot.pk %}" hx-target="#bots-tab" hx-swap="innerHTML">
+          <a class="dropdown-item text-danger" href="#" hx-get="{% url 'bot-delete' pk=bot.pk %}" hx-target="#bots-tab" hx-swap="innerHTML" hx-confirm="Delete bot?">
             <i class="ri-close-line me-1"></i> Delete
           </a>
           {% endif %}

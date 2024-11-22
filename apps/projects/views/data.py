@@ -19,8 +19,12 @@ def index(request: HttpRequest, pk: str) -> HttpResponse:
 @login_required
 def cases(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk=pk)
-
-    return render(request, "data/_cases.html", {"project": project})
+    show_real_names = request.GET.get("realnames") == "true"
+    return render(
+        request,
+        "data/_cases.html",
+        {"project": project, "show_real_names": show_real_names},
+    )
 
 
 @login_required
@@ -84,5 +88,5 @@ def delete_case(request: HttpRequest, pk: str) -> HttpResponse:
         raise PermissionDenied("User action not permitted")
     ts.deleted_at = now()
     ts.save()
-    messages.success("Case deleted")
+    messages.success(request, "Case deleted")
     return render(request, "data/_cases.html", {"project": ts.project})

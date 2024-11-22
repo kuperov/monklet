@@ -107,7 +107,7 @@ class InterviewForm(forms.ModelForm):
 
 
 class ManualCaseForm(forms.Form):
-    pseudonym = forms.CharField(label="Real name", required=True)
+    pseudonym = forms.CharField(label="Pseudonym", required=True)
     real_name = forms.CharField(label="Real name", required=False)
     description = forms.CharField(widget=forms.Textarea, required=False)
 
@@ -264,4 +264,4 @@ ImportChatFormSet = forms.formset_factory(ImportChatForm, extra=0)
 class CaseFollowupRecordForm(forms.Form):
     """Manually enter followup records"""
 
-    markdown = forms.CharField(widget=TinyMCE())
+    markdown = forms.CharField(label="Follow-up notes", widget=TinyMCE())

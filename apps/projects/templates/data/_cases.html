@@ -6,11 +6,12 @@
   <thead class="table-light">
     <tr class="text-nowrap">
         <th>Pseudonym</th>
-        {% if show_real_name %}
+        <th>Description</th>
+        {% if show_real_names %}
         <th>Real name</th>
-        {% endif %}
-        <th>Updated</th>
+        {% else %}
         <th>Record types</th>
+        {% endif %}
         <th />
     </tr>
   </thead>
@@ -18,15 +19,16 @@
     {% for c in project.current_cases %}
     <tr>
     <td><a href="{% url 'case' pk=c.pk %}">{{ c.pseudonym }}<a/></td>
-    {% if show_real_name %}
+    <td class="no-wrap">{{ c.description }}</td>
+      {% if show_real_names %}
     <td>{{ c.real_name }}</td>
-    {% endif %}
-    <td>{{ c.updated_at | naturaltime }}</td>
+    {% else %}
     <td>
       {% for record in c.current_records %}
         <span class="badge rounded-pill bg-label-secondary me-1">{{record.get_record_type_display}}</span>
       {% endfor %}
     </td>
+    {% endif %}
     <td>
     <div class="dropdown">
       <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ri-more-2-line"></i></button>
@@ -34,7 +36,12 @@
         <a class="dropdown-item" href="{% url 'case' pk=c.pk %}">
           <i class="ri-delete-line me-1 text-danger"></i> Show details
         </a>
-        <a class="dropdown-item text-danger" href="#" hx-get="{% url 'case-delete' pk=c.pk %}" hx-target="#cases-tab" hx-swap="innerHTML">
+        <a class="dropdown-item text-danger "
+          hx-get="{% url 'case-delete' pk=c.pk %}"
+          hx-target="#cases-tab"
+          hx-swap="innerHTML"
+          hx-confirm="Delete case?"
+          >
           <i class="ri-delete-line me-1 text-danger"></i> Delete
         </a>
       </div>
@@ -61,7 +68,7 @@
     hx-target="#cases-tab"
     hx-swap="innerHTML"
     >
-    Create new
+    New Case
   </a>
   <a
     class="m-4 btn btn-secondary"
@@ -72,4 +79,38 @@
     >
     Refresh
   </a>
+  {% if show_real_names %}
+  <a
+    class="m-4 btn btn-secondary"
+    href="#"
+    hx-get="{% url 'cases' pk=project.pk %}"
+    hx-target="#cases-tab"
+    hx-swap="innerHTML"
+    >
+    Hide real names
+  </a>
+  {% else %}
+  <a
+    class="m-4 btn btn-secondary"
+    href="#"
+    hx-get="{% url 'cases' pk=project.pk %}?realnames=true"
+    hx-target="#cases-tab"
+    hx-swap="innerHTML"
+    >
+    Show real names
+  </a>
+  {% endif %}
 </div>
+<script>
+  function confirmDelete(event) {
+    // Only apply filter to links with the 'confirm-link' class
+    //if (event.target.classList.contains('confirm-link')) {
+      const confirmMessage = 'Are you sure you want to delete this item?';
+
+      // Show confirmation dialog
+      if (!confirm(confirmMessage)) {
+        event.preventDefault(); // Cancel the HTMX request if the user declines
+      }
+    //}
+  }
+</script>

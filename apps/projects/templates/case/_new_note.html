@@ -1,0 +1,22 @@
+{# rendered within card div #}
+{% load crispy_forms_tags %}
+
+<div class="card-header">
+  <h6>New note</h6>
+</div>
+<div class="card-body">
+  <form class="new-record" action="{% url 'followup-new' pk=project.pk %}" method="POST">
+    {{ form | crispy }}
+    {% csrf_token %}
+    <input
+      class="btn btn-primary"
+      type="submit"
+      hx-post="{% url 'followup-new' pk=case.pk %}"
+      hx-target="#case-card"
+      hx-swap="innerHTML"
+      >
+    <a class="btn" href="{% url 'case' pk=case.pk %}">
+      Cancel
+    </a>
+  </form>
+</div>
