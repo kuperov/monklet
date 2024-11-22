@@ -38,9 +38,11 @@
       {% elif record.record_type == "notes" %}
         {% include 'case/_note.html' %}
       {% endif %}
-      <h6>Metadata</h6>
-      <p>Created: {{ record.created_at }}</p>
-      <p>Updated: {{ record.updated_at }}</p>
+
+      <p class="mt-5">
+        Created: {{ record.created_at }}
+        Updated: {{ record.updated_at }}
+      </p>
     </div>
     {% endfor %}
     <div class="tab-pane fade" id="attributes-tab" role="tabpanel">

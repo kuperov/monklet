@@ -132,9 +132,9 @@ urlpatterns = [
     path("p/<str:pk>/harmonized", analysis.harmonized, name="harmonized"),
     path("c/<str:pk>/delete", data.delete_case, name="case-delete"),
     path("c/<str:pk>", cases.index, name="case"),
-    path("c/<str:pk>/new-followup", cases.new_followup, name="followup-new"),
+    path("c/<str:pk>/new-note", cases.new_note, name="note-new"),
     path("r/<str:pk>/delete", cases.delete_record, name="record-delete"),
-    path("f/<str:pk>/edit", cases.edit_followup, name="followup-edit"),
+    path("f/<str:pk>/edit", cases.edit_note, name="note-edit"),
     path("api/p/<str:pk>/cases", api.all_cases, name="api-all-cases"),
     path("p/<str:pk>/api/example", api.api_access_example, name="api-example-py"),
 ]

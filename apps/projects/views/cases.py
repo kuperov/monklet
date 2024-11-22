@@ -33,7 +33,7 @@ def delete_record(request, pk):
 
 
 @login_required
-def new_followup(request, pk):
+def new_note(request, pk):
     case = get_object_or_404(models.Case, pk=pk)
     project = case.project
     if not project.can_edit(request.user):
@@ -61,24 +61,24 @@ def new_followup(request, pk):
 
 
 @login_required
-def edit_followup(request, pk):
-    record = get_object_or_404(models.Record, pk=pk)
-    project = record.project
+def edit_note(request, pk):
+    note = get_object_or_404(models.Record, pk=pk)
+    project = note.project
     if not project.can_edit(request.user):
         raise PermissionError("Operation not permitted")
     if request.method == "POST":
         form = forms.CaseFollowupRecordForm(request.POST)
         if form.is_valid():
-            record.content["markdown"] = form.cleaned_data["markdown"]
-            record.save()
+            note.content["markdown"] = form.cleaned_data["markdown"]
+            note.save()
             messages.success(request, "Record updated")
-            return redirect("case", pk=record.case.pk)
+            return redirect("case", pk=note.case.pk)
     else:
         form = forms.CaseFollowupRecordForm()
     return render(
         request,
-        "case/_edit_record.html",
-        {"project": project, "record": record, "form": form},
+        "case/_edit_note.html",
+        {"project": project, "note": note, "form": form},
     )
 
 
