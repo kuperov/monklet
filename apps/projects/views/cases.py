@@ -1,5 +1,5 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.timezone import now
@@ -45,7 +45,7 @@ def new_note(request, pk):
                 case=case,
                 project=project,
                 content={"markdown": form.cleaned_data["markdown"]},
-                record_type="notes",
+                record_type="note",
             )
             messages.success(request, "Record created")
             return render(
@@ -72,9 +72,13 @@ def edit_note(request, pk):
             note.content["markdown"] = form.cleaned_data["markdown"]
             note.save()
             messages.success(request, "Record updated")
-            return redirect("case", pk=note.case.pk)
+            return render(
+                request, "case/_case_card.html", {"project": project, "case": note.case}
+            )
     else:
-        form = forms.CaseFollowupRecordForm()
+        form = forms.CaseFollowupRecordForm(
+            initial={"markdown": note.content["markdown"]}
+        )
     return render(
         request,
         "case/_edit_note.html",

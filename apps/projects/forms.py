@@ -4,8 +4,6 @@ from django.conf import settings
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
 
-from tinymce.widgets import TinyMCE
-
 from .models import (
     CaseAttribute,
     Project,
@@ -265,7 +263,7 @@ ImportChatFormSet = forms.formset_factory(ImportChatForm, extra=0)
 class CaseFollowupRecordForm(forms.Form):
     """Manually enter followup records"""
 
-    markdown = forms.CharField(label="Follow-up notes", widget=TinyMCE())
+    markdown = forms.CharField(label="Notes", widget=forms.Textarea(attrs={"rows": 8}))
 
 
 class CaseAttributeForm(forms.ModelForm):

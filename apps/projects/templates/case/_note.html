@@ -1,9 +1,12 @@
 {% load markdown_filters %}
 
+<div>
 {{ record.content.markdown | markdown }}
+</div>
 
-<div class="justify-content-end flex">
+<div class="px-0 pt-0 d-flex">
   <a
+    href="#"
     class="btn btn-secondary"
     hx-get="{% url 'note-edit' pk=record.pk %}"
     hx-target="#case-card"

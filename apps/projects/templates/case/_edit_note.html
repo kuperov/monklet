@@ -11,6 +11,8 @@
     <input
       class="btn btn-primary"
       type="submit"
+      name="Save"
+      value="save"
       hx-post="{% url 'note-edit' pk=note.pk %}"
       hx-target="#case-card"
       hx-swap="innerHTML"

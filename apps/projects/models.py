@@ -718,7 +718,7 @@ class CaseAttribute(models.Model):
 RECORD_TYPES = [
     ("ai_chat", "AI chat"),
     ("manual_transcript", "Transcript"),
-    ("notes", "Note"),
+    ("note", "Note"),
 ]
 
 
