@@ -178,3 +178,4 @@ staticfiles.tar.gz
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+testdata.json

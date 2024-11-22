@@ -136,7 +136,6 @@ urlpatterns = [
     path("record/<str:pk>/delete", cases.delete_record, name="record-delete"),
     path("record/<str:pk>/<str:line>/edit", cases.edit_line, name="record-edit-line"),
     path("record/<str:pk>/<str:line>", cases.show_line, name="record-line"),
-    path("record/<str:pk>/<str:line>/delete", cases.delete_line, name="record-delete-line"),
     path("note/<str:pk>/edit", cases.edit_note, name="note-edit"),
     path("api/p/<str:pk>/cases", api.all_cases, name="api-all-cases"),
     path("projects/<str:pk>/api/example", api.api_access_example, name="api-example-py"),

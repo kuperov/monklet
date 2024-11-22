@@ -132,17 +132,16 @@ def edit_line(request: HttpRequest, pk: str, line: str) -> HttpResponse:
     if not msgs:
         raise BadRequest("Invalid message id")
     msg = msgs[0]
-    form = forms.ChatLineForm(initial={'text': msg['text']})
+    if request.method == "POST":
+        form = forms.ChatLineForm(request.POST)
+        if form.is_valid():
+            msg['text'] = form.cleaned_data['text']
+            record.save()
+            ctx = {'project': project, 'record': record, 'msg': msg}
+            return render(request, "case/_ai_chat_row.html", ctx)
+    else:
+        form = forms.ChatLineForm(initial={'text': msg['text']})
     ctx = {
         'project': project, 'form': form, 'pk': pk, 'msg': msg
     }
     return render(request, "case/_edit_chat_row.html", ctx)
-
-
-@login_required
-def delete_line(request: HttpRequest, pk: str, line: int) -> HttpResponse:
-    record = get_object_or_404(models.Record, pk=pk)
-    project = record.project
-    if not project.can_edit(request.user):
-        raise PermissionDenied("Operation not permitted")
-    ...
