@@ -1,0 +1,24 @@
+[Unit]
+Description=monklet gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+# gunicorn can let systemd know when it is ready
+Type=notify
+NotifyAccess=main
+User=www-data
+Group=www-data
+RuntimeDirectory=gunicorn
+WorkingDirectory=/app
+ExecStart=/app/.venv/bin/gunicorn config.asgi:application -w 4 -k uvicorn.workers.UvicornWorker
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+# administrative capabilities not needed
+# ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target
+
