@@ -1,5 +1,5 @@
 from django.contrib import messages
-from apps.projects import forms, models
+from apps.projects import forms, models, tasks
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -14,6 +14,20 @@ from apps.projects.views.util import get_editable_project, get_viewable_project
 def index(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_viewable_project(request, pk=pk)
     return render(request, "data/index.html", {"project": project})
+
+
+@login_required
+def update_descriptions(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_viewable_project(request, pk=pk)
+    tasks.update_data_descriptions(project.pk).delay_on_commit()
+    messages.success(
+        request, "Description update task queued. Check back in a few minutes."
+    )
+    return render(
+        request,
+        "data/_cases.html",
+        {"project": project, "show_real_names": False},
+    )
 
 
 @login_required

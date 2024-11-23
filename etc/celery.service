@@ -1,0 +1,16 @@
+[Unit]
+Description=Celery Worker for Django App
+After=network.target
+
+[Service]
+Type=forking
+User=your-username
+Group=your-groupname
+WorkingDirectory=/path/to/your/project
+ExecStart=/app/.venv/bin/celery -A apps.projects worker --logfile=/var/log/monklet/worker.log --pidfile=/var/run/monklet/worker.pid --detach
+ExecStop=/bin/kill -s TERM $MAINPID
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

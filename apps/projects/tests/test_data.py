@@ -103,19 +103,25 @@ class TestImportViews(StaticLiveServerTestCase):
             await page.click("text=XYZ")
             await page.wait_for_load_state()
             await page.locator(".menu-link").get_by_text("Data", exact=False).click()
-            await page.click('text=Tony')
+            await page.click("text=Tony")
             await page.wait_for_load_state()
-            await page.get_by_text('New note', exact=False).click()
+            await page.get_by_text("New note", exact=False).click()
             await page.wait_for_load_state()
-            await page.click('text=Cancel')
-            self.assertEqual("Case summary", (await page.locator('button.active').text_content()).strip())
+            await page.click("text=Cancel")
+            self.assertEqual(
+                "Case summary",
+                (await page.locator("button.active").text_content()).strip(),
+            )
             await page.wait_for_load_state()
-            await page.get_by_text('New note', exact=False).click()
+            await page.get_by_text("New note", exact=False).click()
             await page.fill("#id_markdown", "Lorem ipsum\n\ndolor *sit* amet")
-            await page.click('text=Save')
+            await page.click("text=Save")
             await page.wait_for_load_state()
-            self.assertEqual((await page.get_by_role('alert').text_content()).strip(), "Record created")
-            await page.locator('a').get_by_text('[#2] Note', exact=False).click()
+            self.assertEqual(
+                (await page.get_by_role("alert").text_content()).strip(),
+                "Record created",
+            )
+            await page.locator("a").get_by_text("[#2] Note", exact=False).click()
             # await page.wait_for_load_state()
             # panel_text = await page.locator('div.tab-pane.show').text_content()
             # self.assertTrue('dolor <i>sit</i> amet' in panel_text)

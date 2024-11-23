@@ -106,5 +106,14 @@
     Show real names
   </a>
   {% endif %}
+  <a
+    class="m-4 btn btn-secondary"
+    href="#"
+    hx-get="{% url 'update-case-descriptions' pk=project.pk %}"
+    hx-target="#cases-tab"
+    hx-swap="innerHTML"
+    >
+    Update descriptions
+  </a>
 </div>
 </script>

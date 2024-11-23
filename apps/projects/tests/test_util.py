@@ -296,9 +296,9 @@ async def acreate_interview(owner, project, proj_url, bot):
 
 
 async def acreate_ai_chat(**kwargs):
-    interview = kwargs['interview']
+    interview = kwargs["interview"]
     afrom_chat = sync_to_async(models.Case.from_chat)
-    kwargs['case'] = await afrom_chat(interview, "Tony")
+    kwargs["case"] = await afrom_chat(interview, "Tony")
     return kwargs
 
 

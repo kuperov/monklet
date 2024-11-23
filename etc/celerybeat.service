@@ -1,0 +1,16 @@
+[Unit]
+Description=Celery Beat Scheduler for Django App
+After=network.target
+
+[Service]
+Type=forking
+User=www-data
+Group=www-data
+WorkingDirectory=/app
+ExecStart=/app/.venv/bin/celery -A apps.projects beat --logfile=/var/log/monklet/beat.log --pidfile=/var/run/monklet/beat.pid --detach
+ExecStop=/bin/kill -s TERM $MAINPID
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

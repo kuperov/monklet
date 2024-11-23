@@ -75,6 +75,8 @@ INSTALLED_APPS = [
     "apps.users",
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_celery_results",
+    "django_celery_beat",
     "channels",
 ]
 
@@ -137,6 +139,11 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TIMEZONE = "UTC"
+CELERY_ENABLE_UTC = True
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

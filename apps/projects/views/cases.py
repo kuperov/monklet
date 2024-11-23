@@ -80,7 +80,7 @@ def edit_note(request, pk):
             )
     else:
         form = forms.CaseFollowupRecordForm(
-            initial={"markdown": note.content.get('markdown')}
+            initial={"markdown": note.content.get("markdown")}
         )
     return render(
         request,
@@ -114,11 +114,11 @@ def show_line(request: HttpRequest, pk: str, line: str) -> HttpResponse:
     project = record.project
     if not project.can_view(request.user):
         raise PermissionDenied("Operation not permitted")
-    msgs = list(filter(lambda m: m['id'] == line, record.content))
+    msgs = list(filter(lambda m: m["id"] == line, record.content))
     if not msgs:
         raise BadRequest("Invalid message id")
     msg = msgs[0]
-    ctx = {'project': project, 'record': record, 'msg': msg}
+    ctx = {"project": project, "record": record, "msg": msg}
     return render(request, "case/_ai_chat_row.html", ctx)
 
 
@@ -128,20 +128,18 @@ def edit_line(request: HttpRequest, pk: str, line: str) -> HttpResponse:
     project = record.project
     if not project.can_edit(request.user):
         raise PermissionDenied("Operation not permitted")
-    msgs = list(filter(lambda m: m['id'] == line, record.content))
+    msgs = list(filter(lambda m: m["id"] == line, record.content))
     if not msgs:
         raise BadRequest("Invalid message id")
     msg = msgs[0]
     if request.method == "POST":
         form = forms.ChatLineForm(request.POST)
         if form.is_valid():
-            msg['text'] = form.cleaned_data['text']
+            msg["text"] = form.cleaned_data["text"]
             record.save()
-            ctx = {'project': project, 'record': record, 'msg': msg}
+            ctx = {"project": project, "record": record, "msg": msg}
             return render(request, "case/_ai_chat_row.html", ctx)
     else:
-        form = forms.ChatLineForm(initial={'text': msg['text']})
-    ctx = {
-        'project': project, 'form': form, 'pk': pk, 'msg': msg
-    }
+        form = forms.ChatLineForm(initial={"text": msg["text"]})
+    ctx = {"project": project, "form": form, "pk": pk, "msg": msg}
     return render(request, "case/_edit_chat_row.html", ctx)

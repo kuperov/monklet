@@ -25,7 +25,9 @@ urlpatterns = [
         name="project-settings-tab",
     ),
     # path("projects/<str:pk>/attributes", settings.attributes, name="attribute-list"),
-    path("projects/<str:pk>/attributes/new", settings.new_attribute, name="attribute-new"),
+    path(
+        "projects/<str:pk>/attributes/new", settings.new_attribute, name="attribute-new"
+    ),
     path(
         "projects/<str:pk>/attributes/delete",
         settings.delete_attribute,
@@ -124,6 +126,11 @@ urlpatterns = [
         name="project-interviews-test-json",
     ),
     path("projects/<str:pk>/data", data.index, name="data"),
+    path(
+        "projects/<str:pk>/data/update-descriptions",
+        data.update_descriptions,
+        name="data-update-descriptions",
+    ),
     path("projects/<str:pk>/data/new", cases.new_case, name="case-new"),
     path("projects/<str:pk>/data/cases", data.cases, name="cases"),
     path("projects/<str:pk>/data/import", data.import_chats, name="import-chats"),
@@ -138,5 +145,7 @@ urlpatterns = [
     path("record/<str:pk>/<str:line>", cases.show_line, name="record-line"),
     path("note/<str:pk>/edit", cases.edit_note, name="note-edit"),
     path("api/p/<str:pk>/cases", api.all_cases, name="api-all-cases"),
-    path("projects/<str:pk>/api/example", api.api_access_example, name="api-example-py"),
+    path(
+        "projects/<str:pk>/api/example", api.api_access_example, name="api-example-py"
+    ),
 ]
