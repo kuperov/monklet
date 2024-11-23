@@ -21,5 +21,5 @@ for rec in models.Record.objects.filter(record_type='ai_chat'):
             row['id'] = str(uuid4())
             dirty = True
     if dirty:
-        print("Updating record {rec}")
+        print(f"Updating record {rec}")
         rec.save()
