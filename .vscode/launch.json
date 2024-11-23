@@ -43,7 +43,7 @@
       "console": "integratedTerminal",
       "args": [
         "test",
-        "apps.projects.tests.test_transcripts"
+        "apps.projects.tests.test_data"
       ],
       "django": false
     }

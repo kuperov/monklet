@@ -4,6 +4,7 @@ from apps.projects.tests.test_util import (
     INTERVIEW_CONTENT,
     OWNER_EMAIL,
     OWNER_PASSWORD,
+    acreate_ai_chat_fixture,
     create_interview_fixture,
     acreate_interview_fixture,
     aplaywright_login,
@@ -36,8 +37,7 @@ class TestImportViews(StaticLiveServerTestCase):
     async def test_import_chat(self):
         await acreate_interview_fixture(self)
         async with async_playwright() as p:
-            # browser = await p.chromium.launch(headless=True)
-            browser = await p.firefox.launch(headless=False)
+            browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             await aplaywright_login(self.live_server_url, page)
             await page.click("text=XYZ")
@@ -91,5 +91,33 @@ class TestImportViews(StaticLiveServerTestCase):
                 "Hello Harry, my name is Elsa." in await page.text_content(f"#{row_id}")
             )
             self.assertTrue("foo" in await page.text_content(f"#{row_id}"))
+            await page.close()
+            await browser.close()
+
+    async def test_note(self):
+        await acreate_ai_chat_fixture(self)
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await aplaywright_login(self.live_server_url, page)
+            await page.click("text=XYZ")
+            await page.wait_for_load_state()
+            await page.locator(".menu-link").get_by_text("Data", exact=False).click()
+            await page.click('text=Tony')
+            await page.wait_for_load_state()
+            await page.get_by_text('New note', exact=False).click()
+            await page.wait_for_load_state()
+            await page.click('text=Cancel')
+            self.assertEqual("Case summary", (await page.locator('button.active').text_content()).strip())
+            await page.wait_for_load_state()
+            await page.get_by_text('New note', exact=False).click()
+            await page.fill("#id_markdown", "Lorem ipsum\n\ndolor *sit* amet")
+            await page.click('text=Save')
+            await page.wait_for_load_state()
+            self.assertEqual((await page.get_by_role('alert').text_content()).strip(), "Record created")
+            await page.locator('a').get_by_text('[#2] Note', exact=False).click()
+            # await page.wait_for_load_state()
+            # panel_text = await page.locator('div.tab-pane.show').text_content()
+            # self.assertTrue('dolor <i>sit</i> amet' in panel_text)
             await page.close()
             await browser.close()

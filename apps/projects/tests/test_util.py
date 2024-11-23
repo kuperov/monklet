@@ -295,6 +295,13 @@ async def acreate_interview(owner, project, proj_url, bot):
     }
 
 
+async def acreate_ai_chat(**kwargs):
+    interview = kwargs['interview']
+    afrom_chat = sync_to_async(models.Case.from_chat)
+    kwargs['case'] = await afrom_chat(interview, "Tony")
+    return kwargs
+
+
 def create_interview(owner, project, proj_url, bot):
     interview = models.Interview.objects.create(
         project=project,
@@ -327,6 +334,14 @@ def create_interview_fixture(test):
 async def acreate_interview_fixture(test):
     fields = await acreate_project()
     fields = await acreate_interview(**fields)
+    for name, val in fields.items():
+        setattr(test, name, val)
+
+
+async def acreate_ai_chat_fixture(test):
+    fields = await acreate_project()
+    fields = await acreate_interview(**fields)
+    fields = await acreate_ai_chat(**fields)
     for name, val in fields.items():
         setattr(test, name, val)
 
