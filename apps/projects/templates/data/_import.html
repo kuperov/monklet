@@ -3,7 +3,11 @@
 <form>
   {% if available %}
   {% crispy formset formsethelper %}
-  {{ formset.management_form }}
+  {% if formset.non_form_errors %}
+    <div class="error">
+        {{ formset.non_form_errors }}
+    </div>
+  {% endif %}
   {% csrf_token %}
   {% else %}
   <div class="alert alert-warning pl-3" role="alert">

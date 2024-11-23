@@ -31,10 +31,13 @@ def cases(request: HttpRequest, pk: str) -> HttpResponse:
 def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
     project = get_editable_project(request, pk)
     already_imported = set(
-        [rec.interview_id for rec in project.records.filter(deleted_at=None)
-         if (rec.case.deleted_at is None)
+        [
+            rec.interview_id
+            for rec in project.records.filter(deleted_at=None)
+            if (rec.case.deleted_at is None)
             and rec.interview_id
-            and rec.record_type == 'ai_chat']
+            and rec.record_type == "ai_chat"
+        ]
     )
     ivs = {
         iv.pk: iv
@@ -46,7 +49,7 @@ def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
         if formset.is_valid():
             num_imported = sum([iv.cleaned_data["selected"] for iv in formset])
             if num_imported == 0:
-                formset.errors.append("Please select at least one interview")
+                formset.non_form_errors().append("Please select at least one interview")
             else:
                 for iv in formset:
                     if iv.cleaned_data["selected"]:
