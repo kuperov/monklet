@@ -30,3 +30,7 @@ build:
 	.venv/bin/python -m pip install -r requirements.txt
 	sudo apt install libatk-bridge2.0-0 libxkbcommon0 libgbm1 libatspi2.0-0
 	python -m playwright install
+
+.PHONY: dump
+dump:
+	pg_dump -d monklet -F c -f snapshot.dump
