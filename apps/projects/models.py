@@ -659,7 +659,7 @@ class Case(models.Model):
 
         content = [
             {
-                "id": msg["uuid"] if 'uuid' in msg else uuid.uuid4(),
+                "id": msg["uuid"] if 'uuid' in msg else str(uuid.uuid4()),
                 "who": msg.get("sender"),
                 "text": pseudonymize(msg.get("message")),
                 "reference": format_timedelta(
