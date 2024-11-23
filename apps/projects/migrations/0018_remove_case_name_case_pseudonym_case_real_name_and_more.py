@@ -48,7 +48,11 @@ class Migration(migrations.Migration):
             name="content",
             field=models.JSONField(blank=True, default=dict),
         ),
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name="record",
+            name="id"
+        ),
+        migrations.AddField(
             model_name="record",
             name="id",
             field=models.UUIDField(
