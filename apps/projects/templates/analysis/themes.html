@@ -24,11 +24,12 @@
 {% endif %}
 <div>
   <a
-    class="btn btn-primary"
+    class="btn btn-secondary"
     href="#"
     hx-get="{% url 'regenerate-themes' pk=project.pk %}"
     hx-target="#theme_list"
     hx-swap="innerHTML"
+    hx-confirm="Regenerate and replace themes?"
     >
     Regenerate themes
   </a>
