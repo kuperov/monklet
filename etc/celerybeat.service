@@ -8,7 +8,7 @@ User=www-data
 Group=www-data
 RuntimeDirectory=monklet
 WorkingDirectory=/app
-ExecStart=/app/.venv/bin/celery -A config.celery beat --logfile=/var/log/monklet/beat.log --pidfile=/var/run/monklet/beat.pid
+ExecStart=/app/.venv/bin/celery -A config.celery beat --logfile=/var/log/monklet/beat.log --pidfile=/var/run/monklet/beat.pid --detach
 ExecStop=/bin/kill -s TERM $MAINPID
 ExecReload=/bin/kill -s HUP $MAINPID
 Restart=always
