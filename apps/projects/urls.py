@@ -135,7 +135,12 @@ urlpatterns = [
     path("projects/<str:pk>/data/cases", data.cases, name="cases"),
     path("projects/<str:pk>/data/import", data.import_chats, name="import-chats"),
     path("projects/<str:pk>/themes", analysis.themes, name="themes"),
-    path("projects/<str:pk>/query", analysis.themes, name="query"),
+    path(
+        "projects/<str:pk>/themes/regenerate",
+        analysis.regenerate_themes,
+        name="regenerate-themes",
+    ),
+    path("projects/<str:pk>/query", analysis.query, name="query"),
     path("projects/<str:pk>/harmonized", analysis.harmonized, name="harmonized"),
     path("case/<str:pk>/delete", data.delete_case, name="case-delete"),
     path("case/<str:pk>", cases.index, name="case"),

@@ -18,8 +18,8 @@ def index(request: HttpRequest, pk: str) -> HttpResponse:
 
 @login_required
 def update_descriptions(request: HttpRequest, pk: str) -> HttpResponse:
-    project = get_viewable_project(request, pk=pk)
-    tasks.update_data_descriptions(project.pk).delay_on_commit()
+    project = get_editable_project(request, pk=pk)
+    tasks.update_data_descriptions.delay(str(project.pk), force=True)
     messages.success(
         request, "Description update task queued. Check back in a few minutes."
     )
@@ -92,6 +92,7 @@ def import_chats(request: HttpRequest, pk: str) -> HttpResponse:
         if "id" in form.initial and form.initial["id"] in ivs:
             iv = ivs[form.initial["id"]]
         form.extra_info = {"updated_at": iv.updated_at, "subject_name": iv.subject_name}
+    tasks.update_data_descriptions.delay(str(project.pk))
     ctx = {
         "formset": formset,
         "formsethelper": forms.ImportChatFormSetHelper(),

@@ -1,0 +1,20 @@
+{% load markdown_filters %}
+
+{% include 'layout/_messages.html' %}
+
+{% for theme in project.themes %}
+  <h6>{{ theme.ThemeName }}</h6>
+  {{ theme.Description | markdown }}
+  {% comment %} <p>
+    <a class="btn" data-toggle="collapse" href="#details{{forloop.counter}}x" role="button" aria-expanded="false" aria-controls="#details{{forloop.counter}}x">
+      Show details
+    </a>
+  </p> {% endcomment %}
+  {% comment %} <p>{{ theme.Participants }} participant{{ theme.Participants|pluralize }}</p> {% endcomment %}
+  <h7>Quotes:</h7>
+  <ul>
+  {% for quote in theme.Quotes %}
+    <li>{{quote | markdown}}</li>
+  {% endfor %}
+  </ul>
+{% endfor %}

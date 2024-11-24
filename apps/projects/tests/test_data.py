@@ -4,6 +4,7 @@ from apps.projects.tests.test_util import (
     INTERVIEW_CONTENT,
     OWNER_EMAIL,
     OWNER_PASSWORD,
+    create_ai_chat_fixture,
     acreate_ai_chat_fixture,
     create_interview_fixture,
     acreate_interview_fixture,
@@ -30,6 +31,26 @@ class TestImport(TestCase):
         pseudonymized_msg = INTERVIEW_CONTENT[0]["message"].replace("Alex", "Bob")
         self.assertEqual(rec.content[0]["text"], pseudonymized_msg)
         self.assertEqual(rec.content[0]["reference"], "00:00")
+
+
+class TestMarkdown(TestCase):
+
+    def setUp(self):
+        create_ai_chat_fixture(self)
+        self.note = models.Record.objects.create(
+            project=self.project,
+            case=self.case,
+            record_type="note",
+            content={"markdown": "lorem ipsum\n\ndolor sit amet"},
+        )
+
+    def test_generate_markdown(self):
+        chat_md = self.chat.get_markdown()
+        note_md = self.note.get_markdown()
+        case_md = self.case.get_markdown()
+        self.assertTrue(chat_md in case_md)
+        self.assertTrue(note_md in case_md)
+        self.assertTrue(case_md.startswith("# Case: Tony"))
 
 
 class TestImportViews(StaticLiveServerTestCase):

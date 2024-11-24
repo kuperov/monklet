@@ -34,3 +34,13 @@ build:
 .PHONY: dump
 dump:
 	pg_dump -d monklet -F c -f snapshot.dump
+
+.PHONY: worker
+worker:
+	celery -A config.celery worker --loglevel=debug --concurrency=2
+	#--detach
+
+.PHONY: beat
+beat:
+	celery -A config.celery beat --loglevel=debug
+	#--detach

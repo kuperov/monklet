@@ -35,6 +35,7 @@ class Project(models.Model):
     description = models.TextField(null=True, blank=True)
     research_aims = models.TextField(null=True, blank=True)
     funding = models.TextField(null=True, blank=True)
+    themes = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, editable=False)
     last_modified_at = models.DateTimeField(auto_now=True, null=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
@@ -687,6 +688,12 @@ class Case(models.Model):
     def __str__(self):
         return self.pseudonym
 
+    def get_markdown(self):
+        mds = [f"# Case: {self.pseudonym}"] + [
+            r.get_markdown() for r in self.current_records()
+        ]
+        return "\n\n".join(mds)
+
 
 CASE_ATTR_VALUE_TYPES = [
     ("discrete", "Discrete-valued"),
@@ -744,6 +751,7 @@ class Record(models.Model):
         Interview, on_delete=models.SET_NULL, null=True, default=None
     )
     record_type = models.CharField("Record type", choices=RECORD_TYPES, max_length=20)
+    description = models.CharField(max_length=100, null=True, blank=True, default=None)
     content = models.JSONField(null=False, blank=True, default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -751,6 +759,20 @@ class Record(models.Model):
 
     def __str__(self):
         return f"{self.case.pseudonym}: {self.record_type}"
+
+    def get_markdown(self):
+        if self.record_type == "ai_chat":
+            lines = [f"## Chatbot interview transcript: {self.case.pseudonym}", ""] + [
+                f"    {line['reference']} {line['who']}: {line['text'].strip()}"
+                for line in self.content
+            ]
+            md = "\n".join(lines)
+        else:
+            md = (
+                f"## {self.get_record_type_display()}: {self.case.pseudonym}\n\n"
+                + self.content["markdown"]
+            )
+        return md
 
 
 class MemberInvitation(models.Model):

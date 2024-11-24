@@ -1,6 +1,6 @@
 {% extends 'layout/layout_vertical.html' %}
 
-{% load static i18n humanize crispy_forms_tags %}
+{% load static markdown_filters %}
 
 {% block title %}{{ project.name }}{% endblock %}
 
@@ -9,16 +9,34 @@
 <link rel="stylesheet" href="{% static 'vendor/css/project.css' %}" />
 {% endblock page_css %}
 
-{% block content %}
-<!-- <h5>Harmonized analysis</h5> -->
-<div class="alert alert-danger" role="alert">
-  <strong>Feature unavailable</strong>. Analysis tools are not enabled for your account.
-</div>
-{% comment %}
-{% for qn in questions %}
-<h6>{{ qn.order }}. {{ qn }}</h6>
+{% block vendor_js %}
+<script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+{% endblock vendor_js %}
 
-<p>[Summary pending]</p>
-{% endfor %}
-{% endcomment %}
+{% block content %}
+
+<h4>Themes</h4>
+
+<div id="theme_list">
+{% if project.themes %}
+{% include 'analysis/_themes.html' %}
+{% else %}
+{% endif %}
+<div>
+  <a
+    class="btn btn-primary"
+    href="#"
+    hx-get="{% url 'regenerate-themes' pk=project.pk %}"
+    hx-target="#theme_list"
+    hx-swap="innerHTML"
+    >
+    Regenerate themes
+  </a>
+  <p>
+    Note: due to the stochastic nature of the language model,
+    themes and quotes will be different each time they are regenerated.
+  </p>
+</div>
+</div>
+
 {% endblock content %}

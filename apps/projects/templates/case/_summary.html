@@ -10,6 +10,7 @@
   <thead class="table-light">
     <tr class="text-nowrap">
         <th>Record</th>
+        <th>Description</th>
         <th>Updated</th>
         <th>Created</th>
         <th />
@@ -21,6 +22,9 @@
     <th>
       <a href="javascript: document.getElementById('record{{record.pk}}header').click();">[#{{ forloop.counter }}] {{ record.get_record_type_display }}</a>
     </th>
+    <td>
+      {{record.description}}
+    </td>
     <td>
       {{ record.updated_at | naturaltime }}
     </td>

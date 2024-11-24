@@ -77,7 +77,7 @@
               <ul class="dropdown-menu dropdown-menu-end">
               {% if proj.owner_pk == request.user.pk %}
               <li><a class="dropdown-item" href="{% url 'project-settings' pk=proj.pk %}">Project settings</a></li>
-              <li><a class="dropdown-item text-danger" href="{% url 'project-delete' pk=proj.pk %}">Delete project</a></li>
+              {% comment %} <li><a class="dropdown-item text-danger" href="{% url 'project-delete' pk=proj.pk %}">Delete project</a></li> {% endcomment %}
               {% else %}
               <li><a class="dropdown-item text-warning" href="{% url 'project-leave' pk=proj.pk %}">Leave project</a></li>
               {% endif %}
