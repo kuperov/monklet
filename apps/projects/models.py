@@ -889,3 +889,18 @@ class MemberInvitation(models.Model):
         )
         inv.send_email(request)  # regenerates email content from template
         self.expire()
+
+
+class Query(models.Model):
+
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, null=False, related_name="queries"
+    )
+    description = models.CharField(max_length=200)
+    content = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True, null=False, editable=False)
+    updated_at = models.DateTimeField("Last modified", auto_now=True)
+    deleted_at = models.DateTimeField("Deleted", blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.description} ({self.project.name})"

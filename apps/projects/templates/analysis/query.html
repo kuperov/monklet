@@ -10,15 +10,15 @@
 {% endblock page_css %}
 
 {% block content %}
-<!-- <h5>Harmonized analysis</h5> -->
-<div class="alert alert-danger" role="alert">
-  <strong>Feature unavailable</strong>. Analysis tools are not enabled for your account.
+<h5>AI query</h5>
+<div id="ai_chat">
+  <form>
+    <div>
+    <textarea></textarea>
+    </div>
+    <div>
+    <input type="submit" class="btn btn-primary" value="Send" />
+    </div>
+  </form>
 </div>
-{% comment %}
-{% for qn in questions %}
-<h6>{{ qn.order }}. {{ qn }}</h6>
-
-<p>[Summary pending]</p>
-{% endfor %}
-{% endcomment %}
 {% endblock content %}
