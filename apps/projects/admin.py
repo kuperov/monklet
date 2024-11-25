@@ -11,6 +11,8 @@ admin.site.register(models.ConsentLetter)
 admin.site.register(models.Case)
 admin.site.register(models.CaseAttribute)
 admin.site.register(models.Record)
+admin.site.register(models.AIModel)
+admin.site.register(models.Query)
 
 
 class MemberInvitationAdmin(admin.ModelAdmin):

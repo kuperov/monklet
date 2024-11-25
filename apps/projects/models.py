@@ -130,6 +130,20 @@ class Project(models.Model):
             values.append(case_values)
         return values
 
+    def current_queries(self):
+        return self.queries.filter(deleted_at=None)
+
+    def has_queries(self):
+        return self.queries.exists()
+
+    def get_markdown(self) -> str:
+        """Construct markdown representation for the whole project
+
+        This method is cpu-intensive so we'll just do it synchronously
+        """
+        cases_md = [c.get_markdown() for c in self.current_cases()]
+        return "\n\n".join(cases_md)
+
 
 MEMBER_ROLES = [("viewer", "Viewer"), ("editor", "Editor")]
 
@@ -646,6 +660,9 @@ class Case(models.Model):
     def current_records(self) -> Iterable["Record"]:
         return self.records.filter(deleted_at=None)
 
+    def current_llm_attributes(self) -> Iterable["CaseAttribute"]:
+        return self.project.current_case_attributes().filter(include_for_llm=True)
+
     @classmethod
     def from_chat(_class, interview: Interview, pseudonym: str = None) -> "Case":
         if not interview.content:
@@ -689,9 +706,14 @@ class Case(models.Model):
         return self.pseudonym
 
     def get_markdown(self):
-        mds = [f"# Case: {self.pseudonym}"] + [
-            r.get_markdown() for r in self.current_records()
-        ]
+        records = [r.get_markdown() for r in self.current_records()]
+        attributes = "Attributes:\n" + "\n".join(
+            [
+                f"{attr.display_name}: {attr.format_value(self.attributes.get(attr.name))}"
+                for attr in self.current_llm_attributes()
+            ]
+        )
+        mds = [f"# Case: {self.pseudonym}", attributes] + records
         return "\n\n".join(mds)
 
 
@@ -728,6 +750,21 @@ class CaseAttribute(models.Model):
 
     def __str__(self):
         return self.display_name
+
+    def format_value(self, value):
+        if self.value_type == "continuous":
+            return str(value)
+        else:  # discrete
+            has_mapping = (
+                isinstance(self.display_properties, dict)
+                and "mapping" in self.display_properties
+                and isinstance(self.display_properties["mapping"], dict)
+            )
+            if has_mapping:
+                mapping = self.display_properties["mapping"]
+                return mapping.get(value)
+            else:
+                return value
 
 
 RECORD_TYPES = [
@@ -891,16 +928,64 @@ class MemberInvitation(models.Model):
         self.expire()
 
 
-class Query(models.Model):
+AI_FAMILIES = [('gemini', 'Google Gemini'), ('gpt', 'OpenAI'), ('anthropic', 'Anthropic')]
 
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, null=False, related_name="queries"
-    )
-    description = models.CharField(max_length=200)
-    content = models.JSONField()
-    created_at = models.DateTimeField(auto_now_add=True, null=False, editable=False)
-    updated_at = models.DateTimeField("Last modified", auto_now=True)
-    deleted_at = models.DateTimeField("Deleted", blank=True, null=True)
+
+class AIModel(models.Model):
+    name = models.CharField(max_length=100, null=False, blank=False)
+    api_name = models.CharField(max_length=100, null=False, blank=False)
+    family = models.CharField(max_length=100, default='gemini', choices=AI_FAMILIES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.description} ({self.project.name})"
+        return f"{self.name} ({self.get_family_display()})"
+
+
+class Query(models.Model):
+    """AI query"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="queries")
+    ai_model = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True, blank=True)
+    parameters = models.JSONField(null=False, blank=True, default=dict)
+    content = models.JSONField(null=False, blank=True, default=list)
+    summary = models.TextField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(default=None, null=True, blank=True)
+
+    def __str__(self):
+        return self.summary or "Untitled query"
+
+    def get_absolute_url(self):
+        return reverse_lazy('query', kwargs=dict(pk=self.pk))
+
+    def get_history(self):
+        """Express history in form Gemini wants. First message includes content as markdown."""
+        if self.content is None:
+            return None
+        history = []
+        for i, msg in enumerate(self.content):
+            parts = [msg["message"]]
+            if i == 0:
+                parts.append(self.project.get_markdown())
+            role = "model" if msg["sender"] == "Model" else "user"
+            history.append({"role": role, "parts": parts})
+        return history
+
+    async def astore_interaction(self, user: User, prompt: str, response: str):
+        user_msg = {
+                "sender": user.name or user.email,
+                "message": prompt,
+                "sent_at": str(now())
+            }
+        model_msg = {
+                "sender": "Model",
+                "message": response.text,
+                "sent_at": str(now())
+            }
+        self.content.append(user_msg)
+        self.content.append(model_msg)
+        await self.asave()

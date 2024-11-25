@@ -10,8 +10,15 @@
 {% endblock page_css %}
 
 {% block content %}
-<h5>AI query: {{ query }}</h5>
-<div id="ai-chat">
-  {% include 'analysis/_query_contents.html' %}
+<div class="card">
+  <div class="card-header">
+    <h5>New AI query</h5>
+  </div>
+  <div class="card-body">
+    <p>Please select AI model parameters. You can safely accept the default values.</p>
+    <div id="ai_chat">
+      {% crispy form %}
+    </div>
+  </div>
 </div>
 {% endblock content %}

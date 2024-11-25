@@ -74,16 +74,39 @@
   </a>
 </li>
 
-<li class="menu-item {% project_active "query" project.pk %}">
-  <a href="{% url 'query' pk=project.pk %}" class="menu-link">
+{% if project.has_queries %}
+<li class="menu-item {% project_active "new-query" project.pk "active" %} {% query_open %}">
+  <a href="{% url 'new-query' pk=project.pk %}" class="menu-link menu-toggle">
     <i class="menu-icon tf-icons ri-search-line"></i>
-    <div>Query</div>
+    <div>Queries</div>
+  </a>
+  <ul class="menu-sub">
+    <li class="menu-item {% project_active "new-query" project.pk "active" %}">
+      <a href="{% url 'new-query' pk=project.pk %}" class="menu-link">
+        <div>New query</div>
+      </a>
+    </li>
+    {% for q in project.current_queries %}
+    <li class="menu-item {% active q.get_absolute_url %}">
+      <a href="{{ q.get_absolute_url }}" class="menu-link">
+        <div>{{ q }}</div>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</li>
+{% else %}
+<li class="menu-item {% project_active "new-query" project.pk %}">
+  <a href="{% url 'new-query' pk=project.pk %}" class="menu-link">
+    <i class="menu-icon tf-icons ri-search-line"></i>
+    <div>New query</div>
   </a>
 </li>
+{% endif %}
 
-<li class="menu-item {% project_active "harmonized" project.pk %}">
+{% comment %} <li class="menu-item {% project_active "harmonized" project.pk %}">
   <a href="{% url 'harmonized' pk=project.pk %}" class="menu-link">
     <i class="menu-icon tf-icons ri-bar-chart-box-line"></i>
     <div>Harmonized analysis</div>
   </a>
-</li>
+</li> {% endcomment %}

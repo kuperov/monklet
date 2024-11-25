@@ -22,6 +22,13 @@ def update_data_descriptions(project_id: str, force=False):
 
 
 @shared_task
+def describe_query(query_id: str):
+    query = models.Query.objects.get(pk=query_id)
+    query.summary = llm.description_for_query(query)
+    query.save()
+
+
+@shared_task
 def get_themes(project_id: str):
     project = models.Project.objects.get(pk=project_id)
     NUM_THEMES = 30

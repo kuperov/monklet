@@ -287,3 +287,24 @@ class ChatLineForm(forms.Form):
     text = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 5, "class": "chat-row-edit"})
     )
+
+
+class NewQueryForm(forms.Form):
+    ai_model = forms.ChoiceField(label="AI model")
+    temperature = forms.DecimalField(label="Randomness (temperature)", min_value=0., max_value=2.)
+    top_p = forms.DecimalField(label="Top P", min_value=0., max_value=1.)
+    top_k = forms.IntegerField(label="Top K")
+    max_output_tokens = forms.IntegerField(label="Max output tokens", min_value=1024, max_value=16_384)
+
+    def __init__(self, model_choices, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["ai_model"].choices = model_choices
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("Start chat", "start"))
+
+
+class QueryMessageForm(forms.Form):
+    message = forms.CharField(
+        label="Prompt",
+        widget=forms.Textarea(attrs={"rows": 5, "class": "w-100"})
+    )

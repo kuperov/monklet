@@ -5,6 +5,13 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
+def query_open(context):
+    path = context.get("request").path
+    is_active = path.startswith("/query") or path.endswith("/new-query")
+    return "open" if is_active else ""
+
+
+@register.simple_tag(takes_context=True)
 def active(context, url, output="active"):
     """
     Returns "active" if the request path starts with the given prefix, otherwise returns an empty string.

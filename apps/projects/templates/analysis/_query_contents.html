@@ -1,0 +1,31 @@
+{% load crispy_forms_tags markdown_filters %}
+
+{% for msg in query.content %}
+  <div class="card mb-3">
+    <div class="card-header">
+    <h6>{{ msg.sender }}</h6>
+    </div>
+    <div class="card-body">
+    {{ msg.message | markdown }}
+    </div>
+  </div>
+{% endfor %}
+<div class="card mb-5">
+  <div class="card-body">
+    <form>
+      {{ form | crispy }}
+      {% csrf_token %}
+      <div class="justify-content-end d-flex">
+        <input
+          type="submit"
+          value="Send"
+          class="btn btn-primary"
+          hx-post="{% url "query-update" pk=query.pk %}"
+          hx-swap="innerHTML"
+          hx-target="#ai-chat"
+          hx-disabled-elt="this #id_message"
+          >
+      </div>
+    </form>
+  </div>
+</div>

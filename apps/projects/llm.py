@@ -1,19 +1,10 @@
 from apps.projects import models
 import json
 
-import os
 import google.generativeai as genai
+from django.conf import settings
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
-# Create the model
-_generation_config = {
-    "temperature": 1,
-    "top_p": 0.95,
-    "top_k": 40,
-    "max_output_tokens": 8192,
-    "response_mime_type": "text/plain",
-}
+genai.configure(api_key=settings.GEMINI_API_KEY)
 
 
 def description_for_rec(rec: models.Record) -> str:
@@ -31,7 +22,13 @@ def description_for_rec(rec: models.Record) -> str:
     ) + rec.get_markdown()
     model = genai.GenerativeModel(
         model_name="gemini-1.5-flash",
-        generation_config=_generation_config,
+        generation_config={
+            "temperature": 1,
+            "top_p": 0.95,
+            "top_k": 40,
+            "max_output_tokens": 8192,
+            "response_mime_type": "text/plain",
+        }
     )
     chat_session = model.start_chat()
     response = chat_session.send_message(prompt)
@@ -48,11 +45,40 @@ def description_for_case(case: models.Case) -> str:
     ) + case.get_markdown()
     model = genai.GenerativeModel(
         model_name="gemini-1.5-flash",
-        generation_config=_generation_config,
+        generation_config={
+            "temperature": 1,
+            "top_p": 0.95,
+            "top_k": 40,
+            "max_output_tokens": 8192,
+            "response_mime_type": "text/plain",
+        }
     )
     chat_session = model.start_chat()
     response = chat_session.send_message(prompt)
     return response.text
+
+
+def description_for_query(query: models.Query) -> str:
+    """Use Gemini to make a 1-sentence description for case"""
+    prompt = (
+        "Please summarize the most salient aspect of the following LLM prompt "
+        "in a single phrase or short sentence of 3-10 words, to index this prompt in a UI. "
+        "Examples: 'key interview themes', 'best way forward', 'main arguments for automation', etc.\n\n"
+    ) + query.content[0]["message"]
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+        generation_config={
+            "temperature": 1,
+            "top_p": 0.95,
+            "top_k": 40,
+            "max_output_tokens": 8192,
+            "response_mime_type": "text/plain",
+        }
+    )
+    chat_session = model.start_chat()
+    response = chat_session.send_message(prompt)
+    return response.text
+
 
 
 def get_themes(project, num_themes=30):
@@ -100,3 +126,12 @@ Return: list[Theme]
     if isinstance(results, list) and len(results) > 0 and "Participants" in results[0]:
         results = sorted(results, key=lambda x: -x["Participants"])
     return results
+
+
+DEFAULT_GEMINI_PARAMS = {
+  "temperature": 1,
+  "top_p": 0.95,
+  "top_k": 40,
+  "max_output_tokens": 8192,
+  "response_mime_type": "text/plain",
+}
