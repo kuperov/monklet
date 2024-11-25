@@ -142,6 +142,7 @@ urlpatterns = [
     ),
     path("query/<str:pk>", analysis.query, name="query"),
     path("query/<str:pk>/update", analysis.query_update, name="query-update"),
+    path("query/<str:pk>/delete", analysis.query_delete, name="query-delete"),
     path("projects/<str:pk>/new-query", analysis.new_query, name="new-query"),
     # path("projects/<str:pk>/harmonized", analysis.harmonized, name="harmonized"),
     path("case/<str:pk>/delete", data.delete_case, name="case-delete"),

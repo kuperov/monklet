@@ -22,13 +22,23 @@
           type="submit"
           value="Send"
           id="id_send_message"
-          class="btn btn-primary"
+          class="btn btn-primary me-3"
           hx-post="{% url "query-update" pk=query.pk %}"
           hx-swap="innerHTML"
           hx-target="#ai-chat"
           hx-disabled-elt="this #message_form #id_send_message #id_message"
           hx-indicator="#ai-chat"
-        >
+        ></input>
+        <a
+          class="btn btn-secondary"
+          href="#"
+          hx-get="{% url 'query-delete' pk=query.pk %}"
+          hx-target="body"
+          hx-confirm="Really delete this query?"
+          hx-swap='innerHTML'
+          >
+          Delete this query
+        </a>
       </div>
     </form>
   </div>

@@ -124,7 +124,7 @@ class Project(models.Model):
             case_values = [case_.pseudonym]
             if case_.attributes and isinstance(case_.attributes, dict):
                 for attr in keys:
-                    case_values.append(case_.attributes.get(attr))
+                    case_values.append(case_.attributes.get(attr, '') or '')
             else:
                 case_values += [None] * len(keys)
             values.append(case_values)
@@ -134,7 +134,7 @@ class Project(models.Model):
         return self.queries.filter(deleted_at=None)
 
     def has_queries(self):
-        return self.queries.exists()
+        return self.queries.filter(deleted_at=None).exists()
 
     def get_markdown(self) -> str:
         """Construct markdown representation for the whole project
