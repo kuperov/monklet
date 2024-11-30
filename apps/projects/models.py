@@ -24,6 +24,18 @@ from apps.projects.util import datetime_str, format_timedelta, parse_datetime
 from apps.users.models import User
 
 
+
+RECORD_TYPES = [
+    ("ai_chat", "AI chat"),
+    ("manual_transcript", "Other transcript"),
+    ("note", "Note"),
+]
+
+record_type_names = dict(RECORD_TYPES)
+
+ALL_RECORD_TYPES = [k for (k, v) in RECORD_TYPES]
+
+
 class Project(models.Model):
     class Meta:
         permissions = (("can_delete_own", "Can delete own project"),)
@@ -136,12 +148,12 @@ class Project(models.Model):
     def has_queries(self):
         return self.queries.filter(deleted_at=None).exists()
 
-    def get_markdown(self) -> str:
+    def get_markdown(self, record_types=ALL_RECORD_TYPES) -> str:
         """Construct markdown representation for the whole project
 
         This method is cpu-intensive so we'll just do it synchronously
         """
-        cases_md = [c.get_markdown() for c in self.current_cases()]
+        cases_md = [c.get_markdown(record_types) for c in self.current_cases()]
         return "\n\n".join(cases_md)
 
 
@@ -705,8 +717,10 @@ class Case(models.Model):
     def __str__(self):
         return self.pseudonym
 
-    def get_markdown(self):
-        records = [r.get_markdown() for r in self.current_records()]
+    def get_markdown(self, record_types=ALL_RECORD_TYPES):
+        rt_set = set(record_types)
+        records = [r.get_markdown() for r in self.current_records()
+                   if r.record_type in rt_set]
         attributes = "Attributes:\n" + "\n".join(
             [
                 f"{attr.display_name}: {attr.format_value(self.attributes.get(attr.name))}"
@@ -765,13 +779,6 @@ class CaseAttribute(models.Model):
                 return mapping.get(value)
             else:
                 return value
-
-
-RECORD_TYPES = [
-    ("ai_chat", "AI chat"),
-    ("manual_transcript", "Transcript"),
-    ("note", "Note"),
-]
 
 
 class Record(models.Model):
@@ -949,6 +956,7 @@ class Query(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="queries")
     ai_model = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True, blank=True)
     parameters = models.JSONField(null=False, blank=True, default=dict)
+    scope = models.JSONField(null=False, blank=False, default={'record_types': ALL_RECORD_TYPES})
     content = models.JSONField(null=False, blank=True, default=list)
     summary = models.TextField(null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -989,3 +997,6 @@ class Query(models.Model):
         self.content.append(user_msg)
         self.content.append(model_msg)
         await self.asave()
+
+    def get_record_types_display(self):
+        return [record_type_names[rt] for rt in self.scope.get('record_types', ALL_RECORD_TYPES)]

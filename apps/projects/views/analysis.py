@@ -52,11 +52,13 @@ def new_query(request: HttpRequest, pk: str) -> HttpResponse:
                 project=project,
                 ai_model=am,
                 parameters=params,
-                created_by=request.user
+                scope={'record_types': form.cleaned_data['record_types']},
+                created_by=request.user,
             )
             return redirect(q.get_absolute_url())
     else:
         initial = {
+            'record_types': [k for (k, _v) in models.RECORD_TYPES],
             'ai_model': models.AIModel.objects.first().pk,
             'temperature': DEFAULT_GEMINI_PARAMS['temperature'],
             'top_p': DEFAULT_GEMINI_PARAMS['top_p'],

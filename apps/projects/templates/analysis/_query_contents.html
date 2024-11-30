@@ -2,6 +2,12 @@
 
 <h5>AI query: {{ query }}</h5>
 
+<p>Data scope:
+  <ul>{% for rt in query.get_record_types_display %}
+    <li>{{rt}}</li>{% endfor %}
+  </ul>
+</p>
+
 {% for msg in query.content %}
   <div class="card mb-3">
     <div class="card-header">

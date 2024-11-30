@@ -134,6 +134,7 @@ urlpatterns = [
     path("projects/<str:pk>/data/new", cases.new_case, name="case-new"),
     path("projects/<str:pk>/data/cases", data.cases, name="cases"),
     path("projects/<str:pk>/data/import", data.import_chats, name="import-chats"),
+    path("projects/<str:pk>/data.md", data.markdown, name='markdown'),
     path("projects/<str:pk>/themes", analysis.themes, name="themes"),
     path(
         "projects/<str:pk>/themes/regenerate",
