@@ -24,7 +24,6 @@ from apps.projects.util import datetime_str, format_timedelta, parse_datetime
 from apps.users.models import User
 
 
-
 RECORD_TYPES = [
     ("ai_chat", "AI chat"),
     ("manual_transcript", "Other transcript"),
@@ -136,7 +135,7 @@ class Project(models.Model):
             case_values = [case_.pseudonym]
             if case_.attributes and isinstance(case_.attributes, dict):
                 for attr in keys:
-                    case_values.append(case_.attributes.get(attr, '') or '')
+                    case_values.append(case_.attributes.get(attr, "") or "")
             else:
                 case_values += [None] * len(keys)
             values.append(case_values)
@@ -719,8 +718,9 @@ class Case(models.Model):
 
     def get_markdown(self, record_types=ALL_RECORD_TYPES):
         rt_set = set(record_types)
-        records = [r.get_markdown() for r in self.current_records()
-                   if r.record_type in rt_set]
+        records = [
+            r.get_markdown() for r in self.current_records() if r.record_type in rt_set
+        ]
         attributes = "Attributes:\n" + "\n".join(
             [
                 f"{attr.display_name}: {attr.format_value(self.attributes.get(attr.name))}"
@@ -935,13 +935,17 @@ class MemberInvitation(models.Model):
         self.expire()
 
 
-AI_FAMILIES = [('gemini', 'Google Gemini'), ('gpt', 'OpenAI'), ('anthropic', 'Anthropic')]
+AI_FAMILIES = [
+    ("gemini", "Google Gemini"),
+    ("gpt", "OpenAI"),
+    ("anthropic", "Anthropic"),
+]
 
 
 class AIModel(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
     api_name = models.CharField(max_length=100, null=False, blank=False)
-    family = models.CharField(max_length=100, default='gemini', choices=AI_FAMILIES)
+    family = models.CharField(max_length=100, default="gemini", choices=AI_FAMILIES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)
@@ -952,14 +956,27 @@ class AIModel(models.Model):
 
 class Query(models.Model):
     """AI query"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="queries")
-    ai_model = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True, blank=True)
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="queries"
+    )
+    ai_model = models.ForeignKey(
+        AIModel, on_delete=models.SET_NULL, null=True, blank=True
+    )
     parameters = models.JSONField(null=False, blank=True, default=dict)
-    scope = models.JSONField(null=False, blank=False, default={'record_types': ALL_RECORD_TYPES})
+    scope = models.JSONField(
+        null=False,
+        blank=False,
+        default=lambda: dict([("record_types", ALL_RECORD_TYPES)]),
+    )
     content = models.JSONField(null=False, blank=True, default=list)
     summary = models.TextField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)
@@ -968,7 +985,7 @@ class Query(models.Model):
         return self.summary or "Untitled query"
 
     def get_absolute_url(self):
-        return reverse_lazy('query', kwargs=dict(pk=self.pk))
+        return reverse_lazy("query", kwargs=dict(pk=self.pk))
 
     def get_history(self):
         """Express history in form Gemini wants. First message includes content as markdown."""
@@ -985,18 +1002,17 @@ class Query(models.Model):
 
     async def astore_interaction(self, user: User, prompt: str, response: str):
         user_msg = {
-                "sender": user.name or user.email,
-                "message": prompt,
-                "sent_at": str(now())
-            }
-        model_msg = {
-                "sender": "Model",
-                "message": response.text,
-                "sent_at": str(now())
-            }
+            "sender": user.name or user.email,
+            "message": prompt,
+            "sent_at": str(now()),
+        }
+        model_msg = {"sender": "Model", "message": response.text, "sent_at": str(now())}
         self.content.append(user_msg)
         self.content.append(model_msg)
         await self.asave()
 
     def get_record_types_display(self):
-        return [record_type_names[rt] for rt in self.scope.get('record_types', ALL_RECORD_TYPES)]
+        return [
+            record_type_names[rt]
+            for rt in self.scope.get("record_types", ALL_RECORD_TYPES)
+        ]
