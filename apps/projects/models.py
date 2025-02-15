@@ -954,6 +954,10 @@ class AIModel(models.Model):
         return f"{self.name} ({self.get_family_display()})"
 
 
+def default_all_record_types():
+    return dict([("record_types", ALL_RECORD_TYPES)])
+
+
 class Query(models.Model):
     """AI query"""
 
@@ -970,7 +974,7 @@ class Query(models.Model):
     scope = models.JSONField(
         null=False,
         blank=False,
-        default=lambda: dict([("record_types", ALL_RECORD_TYPES)]),
+        default=default_all_record_types,
     )
     content = models.JSONField(null=False, blank=True, default=list)
     summary = models.TextField(null=True, blank=True)
