@@ -262,7 +262,7 @@ class ConsentLetter(models.Model):
         return md.convert(self.letter_md)
 
 
-AI_MODELS = [("gemini-1.5-flash", "Gemini Flash 1.5")]
+AI_MODELS = [("gemini-2.5-flash", "Gemini 2.5 Flash"), ("gemini-2.5-flash-lite", "Gemini 2.5 Flash Lite"), ("gemini-2.5-pro", "Gemini 2.5 Pro"), ("gemini-3-flash-preview", "Gemini 3 Flash (preview)"), ("gemini-3-pro-preview", "Gemini 3 Pro (preview)")]
 
 BOT_STATUSES = [("test", "Testing"), ("live", "Live"), ("disabled", "Disabled")]
 
@@ -293,7 +293,7 @@ class Bot(models.Model):
     caution = models.CharField(
         max_length=200, default="Please do not disclose sensitive information"
     )
-    aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
+    aimodel = models.CharField("AI model", max_length=50, choices=AI_MODELS)
     config = models.JSONField("LLM options", default=default_bot_config)
     opening_user_statement = models.CharField(
         "Opening user statement", default="Hello", max_length=100, blank=True, null=True
@@ -353,7 +353,7 @@ class Interview(models.Model):
     content = models.JSONField(
         "Interview content", default=list, blank=True, null=False
     )
-    aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
+    aimodel = models.CharField("AI model", max_length=50, choices=AI_MODELS)
     prompt = models.TextField("Model prompt", default=None, blank=True, null=True)
     config = models.JSONField("Model config", default=dict, blank=False, null=False)
     end_string = models.CharField(
