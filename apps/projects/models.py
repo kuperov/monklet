@@ -365,7 +365,7 @@ class Interview(models.Model):
     attributes = models.JSONField(
         "Additional attributes", null=False, blank=True, default=dict
     )
-    ip_address = models.CharField(max_length=20, blank=True, null=True)
+    ip_address = models.CharField(max_length=45, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField("Started at", blank=True, null=True)
     updated_at = models.DateTimeField("Last modified", auto_now=True)
