@@ -1,5 +1,13 @@
 {% load crispy_forms_tags markdown_filters %}
 
+<h5>AI query: {{ query }}</h5>
+
+<p>Data scope:
+  <ul>{% for rt in query.get_record_types_display %}
+    <li>{{rt}}</li>{% endfor %}
+  </ul>
+</p>
+
 {% for msg in query.content %}
   <div class="card mb-3">
     <div class="card-header">
@@ -12,19 +20,31 @@
 {% endfor %}
 <div class="card mb-5">
   <div class="card-body">
-    <form>
+    <form id="message_form">
       {{ form | crispy }}
       {% csrf_token %}
       <div class="justify-content-end d-flex">
         <input
           type="submit"
           value="Send"
-          class="btn btn-primary"
+          id="id_send_message"
+          class="btn btn-primary me-3"
           hx-post="{% url "query-update" pk=query.pk %}"
           hx-swap="innerHTML"
           hx-target="#ai-chat"
-          hx-disabled-elt="this #id_message"
+          hx-disabled-elt="this #message_form #id_send_message #id_message"
+          hx-indicator="#ai-chat"
+        ></input>
+        <a
+          class="btn btn-secondary"
+          href="#"
+          hx-get="{% url 'query-delete' pk=query.pk %}"
+          hx-target="body"
+          hx-confirm="Really delete this query?"
+          hx-swap='innerHTML'
           >
+          Delete this query
+        </a>
       </div>
     </form>
   </div>

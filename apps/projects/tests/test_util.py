@@ -261,7 +261,7 @@ async def acreate_project():
         name="BBB",
         description="Big beautiful bot",
         prompt="You are a silly bot. Make silly conversation. At the end of the conversation output ENDOFINTERVIEW",
-        aimodel="gemini-1.5-flash",
+        aimodel="gemini-2.5-flash",
         status="live",
         allow_public=True,
     )

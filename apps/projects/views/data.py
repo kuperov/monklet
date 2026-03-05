@@ -111,3 +111,17 @@ def delete_case(request: HttpRequest, pk: str) -> HttpResponse:
     ts.save()
     messages.success(request, "Case deleted")
     return render(request, "data/_cases.html", {"project": ts.project})
+
+
+@login_required
+def markdown(request: HttpRequest, pk: str) -> HttpResponse:
+    project = get_editable_project(request, pk)
+    if 'record_types' in request.GET:
+        record_types = [rt.strip() for rt in request.GET['record_types'].split(',')]
+        record_types = list(set(record_types) & set(models.ALL_RECORD_TYPES))
+    else:
+        record_types = models.ALL_RECORD_TYPES
+    if not record_types:
+        return HttpResponse("No valid record types request", status=400)
+    md = project.get_markdown(record_types)
+    return HttpResponse(content=md, content_type="text/markdown", status=200)

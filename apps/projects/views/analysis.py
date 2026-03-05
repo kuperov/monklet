@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import aget_object_or_404, get_object_or_404, render, redirect
 from django.contrib.auth import aget_user
+from django.utils.timezone import now
 
 from apps.projects.llm import DEFAULT_GEMINI_PARAMS, genai
 from apps.projects.views.util import get_editable_project, get_viewable_project
@@ -51,11 +52,13 @@ def new_query(request: HttpRequest, pk: str) -> HttpResponse:
                 project=project,
                 ai_model=am,
                 parameters=params,
-                created_by=request.user
+                scope={'record_types': form.cleaned_data['record_types']},
+                created_by=request.user,
             )
             return redirect(q.get_absolute_url())
     else:
         initial = {
+            'record_types': [k for (k, _v) in models.RECORD_TYPES],
             'ai_model': models.AIModel.objects.first().pk,
             'temperature': DEFAULT_GEMINI_PARAMS['temperature'],
             'top_p': DEFAULT_GEMINI_PARAMS['top_p'],
@@ -71,6 +74,9 @@ def new_query(request: HttpRequest, pk: str) -> HttpResponse:
 def query(request: HttpRequest, pk: str) -> HttpResponse:
     query = get_object_or_404(models.Query, pk=pk)
     project = query.project
+    if query.deleted_at is not None:
+        messages.warning(request, "The requested query has been deleted.")
+        return redirect('new-query', pk=project.pk)
     form = forms.QueryMessageForm()
     ctx = {"project": project, "query": query, "form": form}
     return render(request, "analysis/query.html", ctx)
@@ -109,3 +115,13 @@ async def query_update(request: HttpRequest, pk: str) -> HttpResponse:
         form = forms.QueryMessageForm()
     ctx = {"query": query, "form": form}
     return render(request, 'analysis/_query_contents.html', ctx)
+
+
+@login_required
+def query_delete(request: HttpRequest, pk: str) -> HttpResponse:
+    query = get_object_or_404(models.Query, pk=pk)
+    project = query.project
+    query.deleted_at = now()
+    query.save()
+    messages.success(request, "Query deleted")
+    return redirect('new-query', pk=project.pk)

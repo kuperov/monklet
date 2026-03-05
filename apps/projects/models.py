@@ -24,6 +24,17 @@ from apps.projects.util import datetime_str, format_timedelta, parse_datetime
 from apps.users.models import User
 
 
+RECORD_TYPES = [
+    ("ai_chat", "AI chat"),
+    ("manual_transcript", "Other transcript"),
+    ("note", "Note"),
+]
+
+record_type_names = dict(RECORD_TYPES)
+
+ALL_RECORD_TYPES = [k for (k, v) in RECORD_TYPES]
+
+
 class Project(models.Model):
     class Meta:
         permissions = (("can_delete_own", "Can delete own project"),)
@@ -124,7 +135,7 @@ class Project(models.Model):
             case_values = [case_.pseudonym]
             if case_.attributes and isinstance(case_.attributes, dict):
                 for attr in keys:
-                    case_values.append(case_.attributes.get(attr))
+                    case_values.append(case_.attributes.get(attr, "") or "")
             else:
                 case_values += [None] * len(keys)
             values.append(case_values)
@@ -134,14 +145,14 @@ class Project(models.Model):
         return self.queries.filter(deleted_at=None)
 
     def has_queries(self):
-        return self.queries.exists()
+        return self.queries.filter(deleted_at=None).exists()
 
-    def get_markdown(self) -> str:
+    def get_markdown(self, record_types=ALL_RECORD_TYPES) -> str:
         """Construct markdown representation for the whole project
 
         This method is cpu-intensive so we'll just do it synchronously
         """
-        cases_md = [c.get_markdown() for c in self.current_cases()]
+        cases_md = [c.get_markdown(record_types) for c in self.current_cases()]
         return "\n\n".join(cases_md)
 
 
@@ -251,7 +262,7 @@ class ConsentLetter(models.Model):
         return md.convert(self.letter_md)
 
 
-AI_MODELS = [("gemini-1.5-flash", "Gemini Flash 1.5")]
+AI_MODELS = [("gemini-2.5-flash", "Gemini 2.5 Flash"), ("gemini-2.5-flash-lite", "Gemini 2.5 Flash Lite"), ("gemini-2.5-pro", "Gemini 2.5 Pro"), ("gemini-3-flash-preview", "Gemini 3 Flash (preview)"), ("gemini-3-pro-preview", "Gemini 3 Pro (preview)")]
 
 BOT_STATUSES = [("test", "Testing"), ("live", "Live"), ("disabled", "Disabled")]
 
@@ -282,7 +293,7 @@ class Bot(models.Model):
     caution = models.CharField(
         max_length=200, default="Please do not disclose sensitive information"
     )
-    aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
+    aimodel = models.CharField("AI model", max_length=50, choices=AI_MODELS)
     config = models.JSONField("LLM options", default=default_bot_config)
     opening_user_statement = models.CharField(
         "Opening user statement", default="Hello", max_length=100, blank=True, null=True
@@ -342,7 +353,7 @@ class Interview(models.Model):
     content = models.JSONField(
         "Interview content", default=list, blank=True, null=False
     )
-    aimodel = models.CharField("AI model", max_length=20, choices=AI_MODELS)
+    aimodel = models.CharField("AI model", max_length=50, choices=AI_MODELS)
     prompt = models.TextField("Model prompt", default=None, blank=True, null=True)
     config = models.JSONField("Model config", default=dict, blank=False, null=False)
     end_string = models.CharField(
@@ -354,7 +365,7 @@ class Interview(models.Model):
     attributes = models.JSONField(
         "Additional attributes", null=False, blank=True, default=dict
     )
-    ip_address = models.CharField(max_length=20, blank=True, null=True)
+    ip_address = models.CharField(max_length=45, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField("Started at", blank=True, null=True)
     updated_at = models.DateTimeField("Last modified", auto_now=True)
@@ -705,8 +716,11 @@ class Case(models.Model):
     def __str__(self):
         return self.pseudonym
 
-    def get_markdown(self):
-        records = [r.get_markdown() for r in self.current_records()]
+    def get_markdown(self, record_types=ALL_RECORD_TYPES):
+        rt_set = set(record_types)
+        records = [
+            r.get_markdown() for r in self.current_records() if r.record_type in rt_set
+        ]
         attributes = "Attributes:\n" + "\n".join(
             [
                 f"{attr.display_name}: {attr.format_value(self.attributes.get(attr.name))}"
@@ -765,13 +779,6 @@ class CaseAttribute(models.Model):
                 return mapping.get(value)
             else:
                 return value
-
-
-RECORD_TYPES = [
-    ("ai_chat", "AI chat"),
-    ("manual_transcript", "Transcript"),
-    ("note", "Note"),
-]
 
 
 class Record(models.Model):
@@ -928,13 +935,17 @@ class MemberInvitation(models.Model):
         self.expire()
 
 
-AI_FAMILIES = [('gemini', 'Google Gemini'), ('gpt', 'OpenAI'), ('anthropic', 'Anthropic')]
+AI_FAMILIES = [
+    ("gemini", "Google Gemini"),
+    ("gpt", "OpenAI"),
+    ("anthropic", "Anthropic"),
+]
 
 
 class AIModel(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
     api_name = models.CharField(max_length=100, null=False, blank=False)
-    family = models.CharField(max_length=100, default='gemini', choices=AI_FAMILIES)
+    family = models.CharField(max_length=100, default="gemini", choices=AI_FAMILIES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)
@@ -943,15 +954,33 @@ class AIModel(models.Model):
         return f"{self.name} ({self.get_family_display()})"
 
 
+def default_all_record_types():
+    return dict([("record_types", ALL_RECORD_TYPES)])
+
+
 class Query(models.Model):
     """AI query"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="queries")
-    ai_model = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True, blank=True)
+
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="queries"
+    )
+    ai_model = models.ForeignKey(
+        AIModel, on_delete=models.SET_NULL, null=True, blank=True
+    )
     parameters = models.JSONField(null=False, blank=True, default=dict)
+    scope = models.JSONField(
+        null=False,
+        blank=False,
+        default=default_all_record_types,
+    )
     content = models.JSONField(null=False, blank=True, default=list)
     summary = models.TextField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(default=None, null=True, blank=True)
@@ -960,7 +989,7 @@ class Query(models.Model):
         return self.summary or "Untitled query"
 
     def get_absolute_url(self):
-        return reverse_lazy('query', kwargs=dict(pk=self.pk))
+        return reverse_lazy("query", kwargs=dict(pk=self.pk))
 
     def get_history(self):
         """Express history in form Gemini wants. First message includes content as markdown."""
@@ -977,15 +1006,17 @@ class Query(models.Model):
 
     async def astore_interaction(self, user: User, prompt: str, response: str):
         user_msg = {
-                "sender": user.name or user.email,
-                "message": prompt,
-                "sent_at": str(now())
-            }
-        model_msg = {
-                "sender": "Model",
-                "message": response.text,
-                "sent_at": str(now())
-            }
+            "sender": user.name or user.email,
+            "message": prompt,
+            "sent_at": str(now()),
+        }
+        model_msg = {"sender": "Model", "message": response.text, "sent_at": str(now())}
         self.content.append(user_msg)
         self.content.append(model_msg)
         await self.asave()
+
+    def get_record_types_display(self):
+        return [
+            record_type_names[rt]
+            for rt in self.scope.get("record_types", ALL_RECORD_TYPES)
+        ]

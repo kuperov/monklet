@@ -5,6 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Button
 
 from .models import (
+    RECORD_TYPES,
     CaseAttribute,
     Project,
     Question,
@@ -290,6 +291,11 @@ class ChatLineForm(forms.Form):
 
 
 class NewQueryForm(forms.Form):
+    record_types = forms.MultipleChoiceField(
+        label="Query records",
+        choices=RECORD_TYPES,
+        widget=forms.CheckboxSelectMultiple(),
+        required=True)
     ai_model = forms.ChoiceField(label="AI model")
     temperature = forms.DecimalField(label="Randomness (temperature)", min_value=0., max_value=2.)
     top_p = forms.DecimalField(label="Top P", min_value=0., max_value=1.)
@@ -301,6 +307,13 @@ class NewQueryForm(forms.Form):
         self.fields["ai_model"].choices = model_choices
         self.helper = FormHelper()
         self.helper.add_input(Submit("Start chat", "start"))
+
+    def clean_record_types(self):
+        data = self.cleaned_data.get('record_types')
+        if not data:
+            # empty list
+            raise forms.ValidationError("Please select at least one record type.")
+        return data
 
 
 class QueryMessageForm(forms.Form):

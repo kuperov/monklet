@@ -21,7 +21,7 @@ def description_for_rec(rec: models.Record) -> str:
         "'excited to get started', 'knowledgeable about peanut farms' etc.\n\n"
     ) + rec.get_markdown()
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.5-flash",
         generation_config={
             "temperature": 1,
             "top_p": 0.95,
@@ -44,7 +44,7 @@ def description_for_case(case: models.Case) -> str:
         "'excited to get started', etc.\n\n"
     ) + case.get_markdown()
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.5-flash",
         generation_config={
             "temperature": 1,
             "top_p": 0.95,
@@ -66,7 +66,7 @@ def description_for_query(query: models.Query) -> str:
         "Examples: 'key interview themes', 'best way forward', 'main arguments for automation', etc.\n\n"
     ) + query.content[0]["message"]
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.5-flash",
         generation_config={
             "temperature": 1,
             "top_p": 0.95,
@@ -111,7 +111,7 @@ Return: list[Theme]
     }
 
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-pro",
+        model_name="gemini-2.5-flash",
         generation_config=generation_config,
     )
     chat_session = model.start_chat()
