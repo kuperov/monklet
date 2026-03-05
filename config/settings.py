@@ -8,6 +8,10 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
+
+This file is part of the Monklet project and is distributed
+under the terms of the MIT License. See the LICENSE file in
+this directory for details.
 """
 
 import os
@@ -26,16 +30,10 @@ TESTING = hasattr(sys, "argv") and "test" in sys.argv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
 MANAGE = any(["manage.py" in s for s in sys.argv])
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", default="")
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "True").lower() in ["true", "yes", "1"]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
@@ -140,8 +138,10 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get(
+    "CELERY_RESULT_BACKEND", CELERY_BROKER_URL
+)
 CELERY_TIMEZONE = "UTC"
 CELERY_ENABLE_UTC = True
 
@@ -160,11 +160,11 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DB_NAME"),
-            # "USER": os.environ.get("DB_USER"),
-            # "PASSWORD": os.environ.get("DB_PASSWORD"),
-            # "HOST": os.environ.get("DB_HOST"),
-            # "PORT": os.environ.get("DB_PORT"),
+            "NAME": os.environ.get("DB_NAME", "monklet"),
+            "USER": os.environ.get("DB_USER", "monklet"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", "monklet"),
+            "HOST": os.environ.get("DB_HOST", "db"),
+            "PORT": os.environ.get("DB_PORT", "5432"),
             "OPTIONS": {
                 "server_side_binding": True,
             },
@@ -311,11 +311,13 @@ INVITATION_EXPIRY_DAYS = 7
 if DEBUG:
     CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 else:
+    _redis_host = os.environ.get("REDIS_HOST", "redis")
+    _redis_port = int(os.environ.get("REDIS_PORT", "6379"))
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
-                "hosts": [("127.0.0.1", 6379)],
+                "hosts": [(_redis_host, _redis_port)],
             },
         },
     }

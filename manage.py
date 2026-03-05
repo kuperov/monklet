@@ -1,5 +1,10 @@
 #!./.venv/bin/python3
-"""Django's command-line utility for administrative tasks."""
+"""Django's command-line utility for administrative tasks.
+
+This file is part of the Monklet project and is distributed under the
+terms of the MIT License. See the LICENSE file in this directory for
+details.
+"""
 import os
 import sys
 
