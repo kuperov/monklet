@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse_lazy
-from apps.pages.models import Enquiry
 
 import logging
 
@@ -32,13 +32,19 @@ class ErrorPageTestCase(TestCase):
 
 class FrontPagesTestCase(TestCase):
 
-    def test_feedback_page(self):
+    def test_homepage_for_anonymous_user(self):
         resp = self.client.get("/")
-        self.assertContains(resp, "Get in touch", status_code=200)
-        payload = {"email": "abc@dummy.com", "name": "John", "message": "Hi"}
-        resp = self.client.post(reverse_lazy("enquiry_partial"), payload, follow=True)
-        enq = Enquiry.objects.filter(email="abc@dummy.com").first()
-        self.assertIsNotNone(enq)
-        self.assertIsNotNone(enq.created_at)
-        self.assertEqual(enq.message, payload["message"])
-        self.assertEqual(enq.name, payload["name"])
+        self.assertContains(resp, "Monklet: open-source AI interviewing", status_code=200)
+        self.assertContains(resp, "run chat-based interviews and analyze qualitative data")
+        self.assertContains(resp, reverse_lazy("account_login"))
+        self.assertContains(resp, reverse_lazy("account_signup"))
+
+    def test_homepage_redirects_authenticated_user(self):
+        User = get_user_model()
+        user = User.objects.create_user(
+            email="user@example.com",
+            password="test-password",
+        )
+        self.client.force_login(user)
+        resp = self.client.get("/")
+        self.assertRedirects(resp, reverse_lazy("users:profile"))

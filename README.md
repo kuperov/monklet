@@ -1,7 +1,7 @@
-monklet.com: Qualitative Analysis platform
-==========================================
+Monklet: Open-Source AI Interviewing
+====================================
 
-Monklet is a chat‑based interview and qualitative analysis platform built with Django 5 and Channels.
+Monklet is a chat‑based interview platform built with Django 5 and Channels.
 
 This tool is now open-source and is freely available to any researcher who wishes to use it. Anyone with a bit of patience should be able to get it working. If you get stuck, just give this file to your favourite LLM and ask for guidance.
 
