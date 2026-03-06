@@ -5,6 +5,8 @@ Monklet is a chat‑based interview platform built with Django 5 and Channels.
 
 This tool is now open-source and is freely available to any researcher who wishes to use it. Anyone with a bit of patience should be able to get it working. If you get stuck, just give this file to your favourite LLM and ask for guidance.
 
+![Bot simulator](src/assets/img/bot_sim_screenshot.png)
+
 Getting the tool running requires (at minimum) a copy of [Docker](https://www.docker.com/), a Google Gemini [API key](https://ai.google.dev/gemini-api/docs/api-key), and a copy of this source code. Limited Gemini API keys are available for free, but [make sure you understand](https://ai.google.dev/gemini-api/terms-archive/terms_02_05_25#data-use-unpaid) the privacy implications of using an unpaid key!
 
 This directory is the root of the Monklet Django project and is intended to be used as a stand‑alone app. All command examples below assume your shell is already in this directory (next to `manage.py`, `docker-compose.yml`, etc.).
