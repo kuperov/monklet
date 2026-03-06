@@ -21,12 +21,14 @@
         <h4 class="mb-1">Welcome</h4>
         <p class="mb-5">Please sign in to your account</p>
         {% crispy form %}
+        {% if ACCOUNT_ALLOW_REGISTRATION %}
         <p class="text-center">
           <span>New on our platform?</span>
           <a href="{% url 'account_signup' %}">
             <span>Create an account</span>
           </a>
         </p>
+        {% endif %}
       </div>
     </div>
   </div>

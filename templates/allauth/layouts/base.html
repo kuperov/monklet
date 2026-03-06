@@ -68,11 +68,13 @@
                                 <a href="{{ login_url }}">{% trans "Sign In" %}</a>
                             </li>
                         {% endif %}
+                        {% if ACCOUNT_ALLOW_REGISTRATION %}
                         {% url 'account_signup' as signup_url %}
                         {% if signup_url %}
                             <li>
                                 <a href="{{ signup_url }}">{% trans "Sign Up" %}</a>
                             </li>
+                        {% endif %}
                         {% endif %}
                     {% endif %}
                 </ul>

@@ -120,6 +120,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "config.context_processors.cache_buster",
+                "config.context_processors.account_settings",
             ],
             # "libraries": {
             #     "theme": "web_project.template_tags.theme",
@@ -271,6 +272,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_PASSWORD_MIN_LENGTH = 8
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_ALLOW_REGISTRATION = False
 
 # https://docs.allauth.org/en/latest/installation/quickstart.html
 AUTHENTICATION_BACKENDS = [
@@ -279,6 +281,9 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by email
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+
+ACCOUNT_ADAPTER = "apps.users.adapters.AccountAdapter"
+SOCIALACCOUNT_ADAPTER = "apps.users.adapters.SocialAccountAdapter"
 
 if not DEBUG:
     CSRF_TRUSTED_ORIGINS = ["https://monklet.com", "https://www.monklet.com"]

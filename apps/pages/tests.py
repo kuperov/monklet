@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse_lazy
 
 import logging
@@ -32,12 +32,21 @@ class ErrorPageTestCase(TestCase):
 
 class FrontPagesTestCase(TestCase):
 
+    @override_settings(ACCOUNT_ALLOW_REGISTRATION=True)
     def test_homepage_for_anonymous_user(self):
         resp = self.client.get("/")
         self.assertContains(resp, "Monklet: open-source AI interviewing", status_code=200)
         self.assertContains(resp, "run chat-based interviews and analyze qualitative data")
         self.assertContains(resp, reverse_lazy("account_login"))
         self.assertContains(resp, reverse_lazy("account_signup"))
+
+    @override_settings(ACCOUNT_ALLOW_REGISTRATION=False)
+    def test_homepage_hides_signup_when_registration_disabled(self):
+        resp = self.client.get("/")
+        self.assertContains(resp, "Monklet: open-source AI interviewing", status_code=200)
+        self.assertContains(resp, "run chat-based interviews and analyze qualitative data")
+        self.assertContains(resp, reverse_lazy("account_login"))
+        self.assertNotContains(resp, reverse_lazy("account_signup"))
 
     def test_homepage_redirects_authenticated_user(self):
         User = get_user_model()

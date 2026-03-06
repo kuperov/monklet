@@ -15,9 +15,13 @@
   {% crispy form %}
   {% else %}
   <h4 class="mb-2 mx-2">Invitation: {{project.name}}</h4>
+  {% if ACCOUNT_ALLOW_REGISTRATION %}
   <p class="mb-10 mx-2">Please create an account to respond to this invitation. Signing up is quick and free.</p>
   <p class="mb-10 mx-2"><a class='btn btn-primary' href="{% url 'account_signup' %}?next={{ return_url }}">Sign up</a></p>
   <p class="mb-10 mx-2">Already have an account? Log in below:</p>
+  {% else %}
+  <p class="mb-10 mx-2">Sign up is currently disabled. If you already have an account, please log in below. Otherwise, contact the project owner for access.</p>
+  {% endif %}
   <p class="mb-10 mx-2"><a class='btn btn-secondary' href="{% url 'account_login' %}?next={{ return_url }}">Log in</a></p>
   {% endif %}
 </div>
