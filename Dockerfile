@@ -1,3 +1,12 @@
+# Frontend: build vendor JS/CSS (gulp outputs to assets/vendor)
+FROM node:20-slim AS frontend
+WORKDIR /build
+COPY src/package.json src/package-lock.json ./
+RUN npm ci
+COPY src/ ./
+RUN npm run build:prod
+
+# App image
 FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -14,6 +23,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+# Overlay built static assets so /app/src/assets/vendor exists for collectstatic
+COPY --from=frontend /build/assets/vendor /app/src/assets/vendor
 
 ENV DJANGO_SETTINGS_MODULE=config.settings \
     DJANGO_ENVIRONMENT=container \

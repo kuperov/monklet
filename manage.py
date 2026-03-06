@@ -1,4 +1,4 @@
-#!./.venv/bin/python3
+#!/usr/bin/env python3
 """Django's command-line utility for administrative tasks.
 
 This file is part of the Monklet project and is distributed under the

@@ -3,7 +3,7 @@ monklet.com: Qualitative Analysis platform
 
 Monklet is a chat‑based interview and qualitative analysis platform built with Django 5 and Channels.
 
-This tool is now open-source and freely available to any researcher who wishes to use it. Anyone with a bit of patience should be able to get it working. If you get stuck, just give this file to your favourite LLM and ask for guidance.
+This tool is now open-source and is freely available to any researcher who wishes to use it. Anyone with a bit of patience should be able to get it working. If you get stuck, just give this file to your favourite LLM and ask for guidance.
 
 Getting the tool running requires (at minimum) a copy of [Docker](https://www.docker.com/), a Google Gemini [API key](https://ai.google.dev/gemini-api/docs/api-key), and a copy of this source code. Limited Gemini API keys are available for free, but [make sure you understand](https://ai.google.dev/gemini-api/terms-archive/terms_02_05_25#data-use-unpaid) the privacy implications of using an unpaid key!
 
@@ -24,16 +24,16 @@ Prerequisites:
 
 1. **Create an `.env` file** with Django secrets and optional integrations:
 
-   Contents of `.env` file:
+   The contents of `.env` file should be as follows. You might like to use [this secret key generator](https://theorangeone.net/projects/django-secret-key-generator/). Get a Gemini API key [from Google](https://ai.google.dev/gemini-api/docs/api-key).
    ```
-   SECRET_KEY=<secret key>
-   GEMINI_API_KEY=<Gemini API key>
+   SECRET_KEY="<secret key>"
+   GEMINI_API_KEY="<Gemini API key>"
    RECAPTCHA_PUBLIC_KEY=
    RECAPTCHA_PRIVATE_KEY=
    MAILGUN_API_KEY=
    MAILGUN_DOMAIN=
    MAILGUN_API_URL=https://api.eu.mailgun.net/v3
-   EMAIL_SENDER=support@monklet.com
+   EMAIL_SENDER=support@mydomain.com
    ```
 
    Database and Redis settings are supplied by `docker-compose.yml` via environment
@@ -42,16 +42,18 @@ Prerequisites:
 2. **Build and start the stack** from the project root:
 
    ```bash
-   docker compose up --build
+   docker compose up --build -d
    ```
 
-   This starts:
+   This starts the following containers:
 
    - `web` (Django + Channels via `gunicorn` + `uvicorn.workers.UvicornWorker`)
    - `db` (PostgreSQL 16, database `monklet`)
    - `redis` (Redis 7)
    - `celery_worker` (Celery worker for background jobs)
    - `celery_beat` (Celery beat scheduler)
+
+   The flag `-d` tells docker to run these services in the background.
 
 3. **Run database migrations**:
 
@@ -146,17 +148,22 @@ docker compose -f docker-compose.tunnel.yml down
 Local development (no Docker)
 -----------------------------
 
-To set up a local development environment on Ubuntu / Debian:
+To set up a local development environment you will need a python installation, as well as the prerequisite services (postgres database, redis, celery, postfix, etc). Note that while the codebase can run without a database server, using sqlite, it's better to develop against postgres.
+
+To set up the web server locally on Ubuntu / Debian, first create the virtual environment:
 
 ```bash
 make .venv
 ```
 
-Run migrations and create an admin account:
+Run migrations, build the static assets, and create an admin account:
 
 ```bash
-.venv/bin/python manage.py migrate
-.venv/bin/python manage.py createsuperuser
+source .venv/bin/activate
+python manage.py migrate
+cd src && npm ci && npm run build:prod && cd ..
+python manage.py collectstatic
+python manage.py createsuperuser
 ```
 
 Start the development server (ASGI via uvicorn, see `Makefile`):
@@ -167,6 +174,15 @@ make dev
 
 This will run the app on port 8765 by default. In this mode, the project uses SQLite (when
 `DEBUG=True`) and expects a local Redis and mail stack if you exercise those features.
+
+**Local development with Docker backend (optional)**  
+To run only the backing services in Docker (PostgreSQL, Redis, Celery) and the web app on your host:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+Then in your `.env` (or environment) set `DB_HOST=127.0.0.1`, `DB_PORT=5434`, `REDIS_HOST=127.0.0.1`, `REDIS_PORT=6379`, use a PostgreSQL database (e.g. switch off SQLite for that run), and start the app with `make dev`. Celery worker and beat run in containers; the app talks to db and Redis on localhost. Optional **Postfix** runs in the dev compose stack; with dev compose, use `EMAIL_HOST=127.0.0.1` and `EMAIL_PORT=1025` so the app sends mail via the container (Django’s SMTP backend).
 
 Run tests:
 
@@ -192,6 +208,9 @@ The Docker setups use these key environment variables (see the compose files):
   - `REDIS_HOST=redis`
   - `REDIS_PORT=6379`
 
+- **Mail (optional)**  
+  A **Postfix** container is included in both `docker-compose.yml` and `docker-compose.dev.yml`. It listens on port **587** inside the network and is published as **1025** on the host (so you can use `EMAIL_HOST=127.0.0.1`, `EMAIL_PORT=1025` when running the app on the host). From other containers use `EMAIL_HOST=postfix`, `EMAIL_PORT=587`. With `DEBUG=True`, set `EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend` (or configure your `.env`) so Django uses SMTP instead of Mailgun.
+
 These map into `config/settings.py` via environment variables and are suitable for
 running in containers or other environments that provide the same values.
 
@@ -201,4 +220,3 @@ License
 
 This project is licensed under the **MIT License**. See the `LICENSE` file in this
 directory for the full text.
-

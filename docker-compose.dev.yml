@@ -1,35 +1,6 @@
+# Local development: db, redis, celery, postfix only. Run the web app locally (e.g. make dev).
+# Usage: docker compose -f docker-compose.dev.yml up -d
 services:
-  web:
-    build:
-      context: .
-    command:
-      [
-        "sh",
-        "-c",
-        "python manage.py collectstatic --noinput && gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 -w 4",
-      ]
-    env_file:
-      - ./.env
-    environment:
-      DJANGO_ENVIRONMENT: container
-      DEBUG: "False"
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      DB_NAME: monklet
-      DB_USER: monklet
-      DB_PASSWORD: monklet
-      DB_HOST: db
-      DB_PORT: 5432
-    depends_on:
-      - db
-      - redis
-    ports:
-      - "8765:8000"
-    volumes:
-      - ./logs/monklet:/var/log/monklet
-
   db:
     image: postgres:16
     environment:
@@ -46,6 +17,16 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - monklet_redis_data:/data
+    ports:
+      - "6379:6379"
+
+  postfix:
+    image: boky/postfix:latest
+    environment:
+      ALLOW_EMPTY_SENDER_DOMAINS: "true"
+      HOSTNAME: postfix
+    ports:
+      - "1025:587"
 
   celery_worker:
     build:
@@ -53,6 +34,8 @@ services:
     command: celery -A config.celery worker --loglevel=info --concurrency=2
     env_file:
       - ./.env
+    volumes:
+      - ./logs/monklet:/var/log/monklet
     environment:
       DJANGO_ENVIRONMENT: container
       DEBUG: "False"
@@ -75,6 +58,8 @@ services:
     command: celery -A config.celery beat --loglevel=info
     env_file:
       - ./.env
+    volumes:
+      - ./logs/monklet:/var/log/monklet
     environment:
       DJANGO_ENVIRONMENT: container
       DEBUG: "False"
@@ -90,18 +75,6 @@ services:
     depends_on:
       - db
       - redis
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    depends_on:
-      - web
-    env_file:
-      - ./.env
-    environment:
-      # The token value should be defined in .env as CLOUDFLARE_TUNNEL_TOKEN.
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
-    command: tunnel --no-autoupdate run
 
 volumes:
   monklet_postgres_data:

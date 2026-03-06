@@ -2,7 +2,12 @@ services:
   web:
     build:
       context: .
-    command: gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 -w 4
+    command:
+      [
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 -w 4",
+      ]
     env_file:
       - ./.env
     environment:
@@ -22,6 +27,8 @@ services:
       - redis
     ports:
       - "8765:8000"
+    volumes:
+      - ./logs/monklet:/var/log/monklet
 
   db:
     image: postgres:16
@@ -46,6 +53,8 @@ services:
     command: celery -A config.celery worker --loglevel=info --concurrency=2
     env_file:
       - ./.env
+    volumes:
+      - ./logs/monklet:/var/log/monklet
     environment:
       DJANGO_ENVIRONMENT: container
       DEBUG: "False"
@@ -68,6 +77,8 @@ services:
     command: celery -A config.celery beat --loglevel=info
     env_file:
       - ./.env
+    volumes:
+      - ./logs/monklet:/var/log/monklet
     environment:
       DJANGO_ENVIRONMENT: container
       DEBUG: "False"
@@ -87,4 +98,3 @@ services:
 volumes:
   monklet_postgres_data:
   monklet_redis_data:
-

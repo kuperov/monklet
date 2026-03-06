@@ -37,7 +37,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY", default="")
 DEBUG = os.environ.get("DEBUG", "True").lower() in ["true", "yes", "1"]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-if DEBUG:
+_django_environment = os.environ.get("DJANGO_ENVIRONMENT", default="local")
+if _django_environment == "container":
+    # In containerized deployments we accept all hostnames; external
+    # routing/proxy layers (e.g. Cloudflare, Nginx) enforce host policy.
+    ALLOWED_HOSTS = ["*"]
+elif DEBUG:
     ALLOWED_HOSTS = [
         "localhost",
         "monklet.local",
@@ -56,7 +61,7 @@ else:
     ]
 
 # Current DJANGO_ENVIRONMENT
-ENVIRONMENT = os.environ.get("DJANGO_ENVIRONMENT", default="local")
+ENVIRONMENT = _django_environment
 
 INSTALLED_APPS = [
     "django.contrib.admin",
